@@ -29,7 +29,7 @@ jobs:
       - run: python -m build
       - name: Audit resolved third-party dependencies
         run: |
-          python -m pip freeze | grep -v -E '^(finger-trader-sdk==|-e .*finger-trader-python-sdk)' > /tmp/requirements-audit.txt
+          python -m pip freeze | grep -v -E '^(finger-trader-sdk(@|==)|-e .*finger-trader-python-sdk)' > /tmp/requirements-audit.txt
           pip-audit --strict -r /tmp/requirements-audit.txt
 
   secrets:
