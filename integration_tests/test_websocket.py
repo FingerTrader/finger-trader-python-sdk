@@ -43,7 +43,7 @@ def _recv_until(stream, predicate, timeout):
 
 def test_quote_ticket_heartbeat_and_reconnect(live_client, integration_config, monkeypatch):
     if not integration_config.ticker:
-        pytest.skip("Set FINGER_TRADER_IT_TICKER to a valid Sandbox/Dev quote ticker")
+        pytest.skip("Set FINGER_TRADER_IT_TICKER to a valid quote ticker")
 
     import websocket
 

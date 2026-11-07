@@ -47,7 +47,7 @@ Use a valid server login type, and pass CAPTCHA fields when required by the serv
 
 See [API mapping](docs/api-mapping.md), [Authentication](docs/authentication.md), [Market Data](docs/market-data.md), [Accounts](docs/accounts.md), [Orders](docs/orders.md), [Positions](docs/positions.md), [WebSocket](docs/websocket.md), [Security](docs/security.md), [Errors](docs/errors.md), and [Quick Start](docs/quickstart.md). A read-only runnable example is in `examples/api_read_only.py`.
 
-The separate [Sandbox/Dev integration suite](docs/integration-testing.md) is opt-in and requires explicit non-production URLs and service-owner-provided credentials. It never submits orders.
+The separate [live API integration suite](docs/integration-testing.md) is opt-in and supports Sandbox, Dev, and explicitly confirmed Production Read-only mode. It blocks state-changing trading API calls and never submits orders.
 
 The SDK returns `ApiResponse` envelopes and retains raw payload fields for forward compatibility. `MarketBar.from_dict` parses numeric OHLCV values as `Decimal`. Existing strategy `Bar` remains unchanged.
 

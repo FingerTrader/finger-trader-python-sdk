@@ -4,16 +4,23 @@ from dataclasses import fields
 
 import pytest
 
-from integration_tests.conftest import IntegrationConfig, _https_url
+from integration_tests.conftest import (
+    IntegrationConfig,
+    ProductionWriteBlocked,
+    _target,
+    _https_url,
+    block_state_changing_calls,
+)
 
 
-def test_integration_url_rejects_known_production_host(monkeypatch):
+def test_integration_url_allows_production_host_over_https(monkeypatch):
     monkeypatch.setenv(
         "FINGER_TRADER_IT_API_BASE_URL",
         "https://prod-api.fingertrader.com/finger-bff-app",
     )
-    with pytest.raises(ValueError, match="known production host"):
-        _https_url("FINGER_TRADER_IT_API_BASE_URL")
+    assert _https_url("FINGER_TRADER_IT_API_BASE_URL") == (
+        "https://prod-api.fingertrader.com/finger-bff-app"
+    )
 
 
 def test_integration_url_requires_https_and_no_inline_credentials(monkeypatch):
@@ -25,6 +32,16 @@ def test_integration_url_requires_https_and_no_inline_credentials(monkeypatch):
         monkeypatch.setenv("FINGER_TRADER_IT_API_BASE_URL", value)
         with pytest.raises(ValueError, match="HTTPS base URL"):
             _https_url("FINGER_TRADER_IT_API_BASE_URL")
+
+
+def test_production_read_only_target_requires_its_own_confirmation(monkeypatch):
+    monkeypatch.setenv("FINGER_TRADER_IT_TARGET", "production-read-only")
+    monkeypatch.delenv("FINGER_TRADER_IT_CONFIRM_PRODUCTION_READ_ONLY", raising=False)
+    with pytest.raises(ValueError, match="CONFIRM_PRODUCTION_READ_ONLY"):
+        _target()
+
+    monkeypatch.setenv("FINGER_TRADER_IT_CONFIRM_PRODUCTION_READ_ONLY", "YES")
+    assert _target() == "production-read-only"
 
 
 def test_integration_config_repr_hides_secrets():
@@ -70,3 +87,14 @@ def test_integration_config_repr_hides_secrets():
             "captcha_code",
         )
     )
+
+
+def test_read_only_guard_blocks_mutations_before_transport():
+    class FakeClient:
+        def _post(self, *_args, **_kwargs):
+            raise AssertionError("the original transport must not run")
+
+    client = FakeClient()
+    block_state_changing_calls(client)
+    with pytest.raises(ProductionWriteBlocked, match="/api/mob/trade/order-entity/order"):
+        client._post("/api/mob/trade/order-entity/order", {"quantity": 1})

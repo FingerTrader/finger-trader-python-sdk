@@ -1,4 +1,4 @@
-"""Opt-in configuration for read-only live Sandbox/Dev verification."""
+"""Opt-in configuration for read-only live API verification."""
 
 from __future__ import annotations
 
@@ -9,8 +9,6 @@ from urllib.parse import urlsplit
 import pytest
 
 from finger_trader import APIError, FingerTraderClient
-
-_PRODUCTION_HOSTS = {"prod-api.fingertrader.com"}
 
 
 @dataclass(frozen=True)
@@ -55,8 +53,6 @@ def _https_url(name: str) -> str:
         or parsed.fragment
     ):
         raise ValueError(f"{name} must be an HTTPS base URL without user info, query, or fragment")
-    if parsed.hostname.lower() in _PRODUCTION_HOSTS:
-        raise ValueError(f"{name} points to the known production host; integration tests refuse it")
     return value.rstrip("/")
 
 
@@ -75,18 +71,27 @@ def _flag(name: str, default: bool) -> bool:
     return normalized in {"true", "1"}
 
 
+def _target() -> str:
+    target = _required("FINGER_TRADER_IT_TARGET").lower()
+    if target not in {"sandbox", "dev", "production-read-only"}:
+        raise ValueError("FINGER_TRADER_IT_TARGET must be sandbox, dev, or production-read-only")
+    if target == "production-read-only":
+        if os.environ.get("FINGER_TRADER_IT_CONFIRM_PRODUCTION_READ_ONLY") != "YES":
+            raise ValueError(
+                "Set FINGER_TRADER_IT_CONFIRM_PRODUCTION_READ_ONLY=YES to confirm "
+                "production read-only testing"
+            )
+    elif os.environ.get("FINGER_TRADER_IT_CONFIRM_NON_PROD") != "YES":
+        raise ValueError("Set FINGER_TRADER_IT_CONFIRM_NON_PROD=YES to confirm non-production URLs")
+    return target
+
+
 @pytest.fixture(scope="session")
 def integration_config() -> IntegrationConfig:
     if os.environ.get("FINGER_TRADER_IT_ENABLED") != "1":
-        pytest.skip("Set FINGER_TRADER_IT_ENABLED=1 to opt in to live Sandbox/Dev requests")
+        pytest.skip("Set FINGER_TRADER_IT_ENABLED=1 to opt in to live read-only API checks")
 
-    target = _required("FINGER_TRADER_IT_TARGET").lower()
-    if target not in {"sandbox", "dev"}:
-        pytest.fail("FINGER_TRADER_IT_TARGET must be sandbox or dev; production is never accepted")
-    if os.environ.get("FINGER_TRADER_IT_CONFIRM_NON_PROD") != "YES":
-        pytest.fail(
-            "Set FINGER_TRADER_IT_CONFIRM_NON_PROD=YES to attest these are non-production URLs"
-        )
+    target = _target()
 
     auth_mode = os.environ.get("FINGER_TRADER_IT_AUTH_MODE", "token").strip().lower()
     if auth_mode not in {"token", "password"}:
@@ -124,8 +129,8 @@ def live_client(integration_config: IntegrationConfig):
         "auth_url": config.auth_url,
         "socket_auth_url": config.socket_auth_url,
         "timeout": config.timeout,
-        # All endpoints are explicit, attested non-production HTTPS URLs.
-        "environment": "dev",
+        # Endpoints are explicit HTTPS URLs; production mode is read-only guarded.
+        "environment": "prod" if config.target == "production-read-only" else "dev",
     }
     if config.auth_mode == "token":
         if not config.access_token:
@@ -159,6 +164,21 @@ def live_client(integration_config: IntegrationConfig):
             ) from None
 
     try:
+        # Auth and the documented WebSocket ticket flow use separate transports.
+        block_state_changing_calls(client)
         yield client
     finally:
         client.close()
+
+
+class ProductionWriteBlocked(AssertionError):
+    """A state-changing SDK endpoint was attempted by a live integration test."""
+
+
+def block_state_changing_calls(client) -> None:
+    """Guard every SDK state-changing API route before it reaches HTTP transport."""
+
+    def reject_write(path, *args, **kwargs):
+        raise ProductionWriteBlocked(path)
+
+    client._post = reject_write
