@@ -7,8 +7,8 @@ import pytest
 from integration_tests.conftest import (
     IntegrationConfig,
     ProductionWriteBlocked,
-    _target,
     _https_url,
+    _target,
     block_state_changing_calls,
 )
 
