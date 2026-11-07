@@ -241,7 +241,9 @@ class ClientTests(unittest.TestCase):
                 return_value=SimpleNamespace(data="ticket secret"),
             ),
         ):
-            stream = MarketWebSocket("https://mock.invalid/socket", token="access-secret")
+            stream = MarketWebSocket(
+                "https://mock.invalid/finger-bff-socket", token="access-secret"
+            )
             stream.subscribe(["AAPL"])
             stream.unsubscribe("AAPL")
             sent = [json.loads(call.args[0]) for call in socket_impl.send.call_args_list]
@@ -249,6 +251,10 @@ class ClientTests(unittest.TestCase):
             self.assertEqual(sent[0]["msgType"], 1)
             self.assertEqual(sent[0]["content"], {"tickerList": ["AAPL"]})
             self.assertEqual(sent[1]["content"], {"tickerList": []})
+            socket_url = websocket_module.create_connection.call_args.args[0]
+            self.assertTrue(
+                socket_url.startswith("wss://mock.invalid/finger-bff-socket/ws?ticket=")
+            )
             self.assertNotIn("ticket secret", repr(stream))
             stream.close()
             socket_impl.close.assert_called_once()

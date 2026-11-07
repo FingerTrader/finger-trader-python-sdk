@@ -10,3 +10,16 @@
 ## Public source history note
 
 The previous SDK revision copied a static Basic OAuth client value from Finger_desk configuration into the public Python package. This was removed from the current source and replaced with explicit operator configuration. Because the value existed in publicly reachable Git history and the same value appears in desktop app configuration, the service owner should confirm that it is a public client identifier and rotate/disable it if it grants confidential client privileges. Removing it from the current tree does not erase historical commits; this change does not rewrite history or force-push.
+
+## OAuth Basic classification still needs server confirmation
+
+Finger_desk declares environment-specific `basicAuthToken` constants for
+Local, Dev, and Prod, and attaches the value as `Authorization: Basic ...` to
+`POST /oauth2/token`. This proves that the value is a static OAuth client
+credential embedded in a distributed desktop app. Client source alone cannot
+prove whether the authorization server treats it as a public client identifier
+or a confidential client secret. The service owner must inspect the OAuth
+client registration, secret-required setting, allowed grants/scopes, and
+issuance logs. If it is confidential, revoke or rotate it and assess exposure
+history. Do not paste the historical value into an integration environment
+until the owner confirms that it is approved for the non-production client.

@@ -41,7 +41,14 @@ class MarketWebSocket:
         on_error=None,
     ):
         parsed = urlsplit(auth_base)
-        if parsed.scheme not in {"https", "http"} or not parsed.hostname:
+        if (
+            parsed.scheme not in {"https", "http"}
+            or not parsed.hostname
+            or parsed.username
+            or parsed.password
+            or parsed.query
+            or parsed.fragment
+        ):
             raise ValueError("auth_base must be an absolute HTTPS URL")
         if parsed.scheme != "https" and parsed.hostname not in {"localhost", "127.0.0.1", "::1"}:
             raise ValueError("HTTP socket auth is only allowed for loopback development URLs")
@@ -105,9 +112,10 @@ class MarketWebSocket:
             raise APIError(
                 "WebSocket ticket response did not contain a ticket", code="INVALID_TICKET"
             )
-        scheme = "wss" if self.auth_base.startswith("https://") else "ws"
-        netloc = urlsplit(self.auth_base).netloc
-        socket_url = f"{scheme}://{netloc}/ws?ticket={quote(ticket, safe='')}"
+        parsed_base = urlsplit(self.auth_base)
+        scheme = "wss" if parsed_base.scheme == "https" else "ws"
+        socket_path = f"{parsed_base.path.rstrip('/')}/ws"
+        socket_url = f"{scheme}://{parsed_base.netloc}{socket_path}?ticket={quote(ticket, safe='')}"
         # The ticket must be sent in the query by the existing protocol. Never
         # follow redirects: that URL itself is a short-lived credential.
         try:
