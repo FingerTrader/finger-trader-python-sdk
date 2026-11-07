@@ -1,5 +1,5 @@
 # finger-trader-python-sdk
-Official Python SDK for Finger Trader, providing algorithmic trading, market data access, strategy development, backtesting, parameter optimization, and integration with trading APIs.
+Official Python SDK foundation for local strategy development, OHLCV bars, basic indicators, lifecycle management, and strategy intent signals.
 
 # Finger Trader Python SDK
 
@@ -14,11 +14,9 @@ The official open-source Python SDK project for **Finger Trader**, a multi-marke
 Finger Trader is building an integrated quantitative trading ecosystem that enables developers, quantitative traders, and financial technology teams to develop, test, optimize, and automate trading strategies.
 
 > [!IMPORTANT]
-> **Development Status: Under Active Development**
+> **Development Status: V1 foundation**
 >
-> The Finger Trader Python SDK is currently being developed. Public APIs, installation instructions, and executable examples will be published progressively.
->
-> The SDK is not yet available as a production-ready release.
+> This repository currently provides a local strategy lifecycle, OHLCV bar model, SMA and crossover helpers, three intent signal types, and a chronological bar runner. It is an early development foundation, not a production trading SDK.
 
 ---
 
@@ -180,52 +178,59 @@ Maintain account permissions, authorization, and authoritative trading risk cont
 
 ## Getting Started
 
-The SDK is currently under development.
+### Requirements
 
-Installation instructions and the first runnable examples will be published when the initial release becomes available.
+- Python 3.10 or newer.
+- No runtime dependencies. The build backend is setuptools.
 
-Future installation methods may include:
+### Install for local development
 
-- Installation from PyPI
-- Installation from GitHub
-- Local development installation
+~~~sh
+python3 -m venv .venv
+source .venv/bin/activate
+python -m pip install -e .
+~~~
 
-Please watch this repository for release announcements and development updates.
+### Run the local dual-moving-average example
 
----
+~~~sh
+python examples/dual_ma_strategy.py
+~~~
+
+The example feeds deterministic local OHLCV bars in timestamp order and prints strategy signals. It does not connect to market data, submit orders, or simulate fills.
+
+### Run the automated tests
+
+~~~sh
+python -m unittest discover -s tests -v
+~~~
+
+The V1 package is an initial development foundation, not a production trading or execution SDK release.
 
 ## Example Strategy
 
-The following code illustrates the intended SDK development experience.
+The runnable example is examples/dual_ma_strategy.py. It uses the public SDK API:
 
-**This is a conceptual API example, not executable code from a released SDK.**
+~~~python
+from finger_trader import StrategyRunner
+from examples.dual_ma_strategy import DualMovingAverageStrategy, create_demo_bars
 
-```python
-from finger_trader import Strategy
+strategy = DualMovingAverageStrategy(short_period=2, long_period=3)
+signals = StrategyRunner(strategy).run(create_demo_bars())
 
+for signal in signals:
+    print(type(signal).__name__, signal.symbol, signal.timestamp, signal.reason)
+~~~
 
-class DualMovingAverage(Strategy):
-
-    def on_bar(self, bar):
-        fast_ma = self.sma(20)
-        slow_ma = self.sma(60)
-
-        if self.crosses_above(fast_ma, slow_ma):
-            self.buy(quantity=100)
-
-        elif self.crosses_below(fast_ma, slow_ma):
-            self.close()
-```
-
-The final API may differ as the SDK implementation evolves.
-
----
+Signals express strategy intent only. This example sends no order and reports no execution or fill.
 
 ## Quantitative Trading Workflow
 
-The intended strategy development workflow is:
+The long-term strategy workflow is intended to be:
 
 **Create → Develop → Backtest → Optimize → Validate → Deploy**
+
+Only local strategy development and chronological signal generation are available in this V1 foundation. Backtesting, optimization, validation tooling, and deployment are roadmap items.
 
 ### Step 1 — Create
 
@@ -235,27 +240,27 @@ Create a Python strategy or generate one using the Visual Strategy Builder.
 
 Implement trading rules, technical indicators, entry conditions, exit conditions, and risk parameters.
 
-### Step 3 — Backtest
+### Step 3 — Backtest (planned)
 
-Evaluate the strategy against historical market data using the local backtesting engine.
+A local backtesting engine is planned; this repository does not yet simulate orders or performance.
 
-### Step 4 — Optimize
+### Step 4 — Optimize (planned)
 
-Test different parameter combinations and compare results using performance metrics and interactive optimization charts.
+Parameter sweeps and performance comparison are planned and are not available in this V1 foundation.
 
-### Step 5 — Validate
+### Step 5 — Validate (planned)
 
-Review trading costs, drawdowns, out-of-sample performance, and strategy robustness.
+Validation and robustness analysis tools are planned.
 
-### Step 6 — Deploy
+### Step 6 — Deploy (planned)
 
-Run validated strategies in supported paper trading environments or connect to authorized live trading services.
+Paper and live execution integrations are planned and are not part of this SDK foundation.
 
 ---
 
 ## Documentation
 
-Official SDK documentation is planned to include:
+The current installation and runnable example instructions are in this README. Additional documentation is planned to include:
 
 | Documentation | Description |
 |---|---|
@@ -297,9 +302,9 @@ Developers will be able to build independent tools using the SDK and integrate t
 
 | Phase | Development Focus | Status |
 |---|---|---|
-| Phase 1 | Python SDK core architecture | Planned |
-| Phase 2 | Strategy API and technical indicators | Planned |
-| Phase 3 | Local strategy runtime | Planned |
+| Phase 1 | Python SDK package, public data and signal foundations | V1 foundation |
+| Phase 2 | Strategy lifecycle, SMA, and crossover helpers | V1 foundation |
+| Phase 3 | Chronological local bar dispatcher | V1 foundation |
 | Phase 4 | Historical backtesting engine | Planned |
 | Phase 5 | Parameter optimization | Planned |
 | Phase 6 | Visual Strategy Builder integration | Planned |
