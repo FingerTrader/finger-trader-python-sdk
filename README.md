@@ -1,12 +1,16 @@
 # Finger Trader Python SDK
 
-Official Python package for connecting to the Finger Trader APIs used by Finger_desk. Python 3.10+. HTTP support uses only Python's standard library. The existing local strategy, indicator, and chronological runner APIs remain available.
+Official Python SDK for connecting to the Finger Trader APIs used by Finger_desk. Python 3.10+. HTTP support uses only Python's standard library. The existing local strategy, indicator, and chronological runner APIs remain available.
 
 ## Install
 
 ```sh
-python -m pip install finger-trader-sdk
+git clone https://github.com/FingerTrader/finger-trader-python-sdk.git
+cd finger-trader-python-sdk
+python -m pip install .
 ```
+
+The package is not currently published on PyPI. Install from GitHub as shown until an official package release is announced.
 
 ## Quick start
 
@@ -51,10 +55,10 @@ Order requests change live account state. They are never retried automatically. 
 
 ## WebSocket optional package
 
-Install the optional WebSocket extra:
+From the cloned repository, install the optional WebSocket extra:
 
 ```sh
-python -m pip install 'finger-trader-sdk[websocket]'
+python -m pip install '.[websocket]'
 ```
 
 The SDK's default HTTP usage has no third-party runtime dependency. WebSocket supports ticket acquisition, JSON quote subscription, the confirmed app heartbeat, bounded reconnect/resubscribe, dedupe, and replacement-list unsubscribe. Binary protobuf deployments and order/account event subscriptions are not implemented.
@@ -62,7 +66,8 @@ The SDK's default HTTP usage has no third-party runtime dependency. WebSocket su
 ## Development
 
 ```sh
-PYTHONPATH=src python3 -m unittest discover -s tests -v
+python -m pip install -e '.[dev,websocket]'
+python -m pytest
 ```
 
 ## Scope

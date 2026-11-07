@@ -19,7 +19,7 @@ HTTP requests use JSON for ordinary calls, 10 second connect and 5 second receiv
 | Account trading profile | `GET /api/mob/trade/order-entity/getTradeProfileResponse` | `market` | `accounts.detail`; `list` uses market 0 because no all-account operation was found |
 | Account wallet/balance | `GET /api/mob/trade/wallet-entity/getWalletHomePage` | session scoped | `accounts.balance` |
 | Current holdings | `GET /api/mob/trade/order-entity/getHoldingListByIsUsd` | `type`, boolean `isUsd`; session scoped | `positions.list` |
-| Submit order | `POST /api/mob/trade/order-entity/order` | `isBuy,isUsd,limitTime,market,orderId,orderType,price,quantity,ticker,isCreate,marginRatio,stopLose,takeProfit` | `orders.submit` |
+| Submit order | `POST /api/mob/trade/order-entity/order` | `isBuy,isUsd,limitTime,market,orderId,orderType,price,quantity,ticker,isCreate,marginRatio,stopLose,takeProfit`; Finger_desk sends `orderId: ""` for a newly created order | `orders.submit` |
 | Order history | `GET /api/mob/trade/order-entity/getOrderHistory/{page}/{limit}` | query from `HistorySearchDto` | `orders.history` |
 | Update limit order | `POST /api/mob/trade/order-entity/updateLimitOrder` | `id,price,quantity,stopLose,takeProfit` | `orders.update_limit` |
 | Cancel limit order | `POST /api/mob/trade/order-entity/cancelLimitOrder` | query `orderId` | `orders.cancel_limit` |

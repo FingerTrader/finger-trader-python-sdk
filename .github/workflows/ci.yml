@@ -27,7 +27,18 @@ jobs:
       - run: ruff format --check .
       - run: mypy
       - run: python -m build
-      - name: Audit resolved third-party dependencies
+
+  dependency-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+          cache: pip
+      - run: python -m pip install --upgrade pip
+      - run: python -m pip install ".[websocket]" "pip-audit>=2.10,<3"
+      - name: Audit resolved SDK and scanner dependencies
         run: |
           python -m pip freeze | grep -v -E '^(finger[-_.]trader[-_.]sdk([ @=]|$)|-e .*finger-trader-python-sdk)' > /tmp/requirements-audit.txt
           pip-audit --strict -r /tmp/requirements-audit.txt

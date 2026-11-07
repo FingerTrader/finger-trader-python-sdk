@@ -3,10 +3,16 @@
 Python 3.10+; the HTTP client uses only the standard library.
 
 ```sh
-python -m pip install finger-trader-sdk
+git clone https://github.com/FingerTrader/finger-trader-python-sdk.git
+cd finger-trader-python-sdk
+python -m pip install .
 ```
 
+The package is not currently published on PyPI; install from GitHub until an official package release is announced.
+
 ```python
+import os
+
 from finger_trader import FingerTraderClient
 
 client = FingerTraderClient(
@@ -52,33 +58,51 @@ import os
 
 if os.environ.get("FINGER_TRADER_ENABLE_LIVE_ORDER") != "YES":
     raise SystemExit("Set FINGER_TRADER_ENABLE_LIVE_ORDER=YES to enable this live request")
+# Fill these variables only after confirming the server enum values, environment,
+# instrument rules, and account permissions with Finger Trader.
 result = client.orders.submit(
     is_buy=True,
-    is_usd=False,
-    limit_time=0,
-    market=1,
+    is_usd=os.environ["FINGER_TRADER_ORDER_IS_USD"] == "true",
+    limit_time=int(os.environ["FINGER_TRADER_ORDER_LIMIT_TIME"]),
+    market=int(os.environ["FINGER_TRADER_ORDER_MARKET"]),
     order_id="",
-    order_type=1,
-    price="0",
-    quantity="1",
-    ticker="AAPL",
-    is_create=1,
+    order_type=int(os.environ["FINGER_TRADER_ORDER_TYPE"]),
+    price=os.environ["FINGER_TRADER_ORDER_PRICE"],
+    quantity=int(os.environ["FINGER_TRADER_ORDER_QUANTITY"]),
+    ticker=os.environ["FINGER_TRADER_ORDER_TICKER"],
+    is_create=int(os.environ["FINGER_TRADER_ORDER_IS_CREATE"]),
 )
 print(result.data)
 ```
 
-`order_type`, `market`, `limit_time`, `is_create`, and account/currency semantics are backend-defined enums and vary by instrument. Validate these against your account and product before enabling. Network errors on POST are not retried.
+`order_id=""` matches Finger_desk's new-order DTO. `order_type`, `market`, `limit_time`, `is_create`, and account/currency semantics are backend-defined enums and vary by instrument. This gated code submits a real order when enabled; validate every value, account, environment, and product before running it. Network errors on POST are not retried.
 
 ## WebSocket
 
-Install the WebSocket extra with `python -m pip install 'finger-trader-sdk[websocket]'`, then:
+Install the WebSocket extra from the repository with `python -m pip install '.[websocket]'`, then:
 
 ```python
+import os
+
+from finger_trader import FingerTraderClient
+
+client = FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"])
+
+
 def show(message):
     print(message)
 
 
-client.market_data.subscribe_quotes(["AAPL"], market="stock", on_message=show)
+socket = client.market_data.subscribe_quotes(["AAPL"], market="stock")
+try:
+    while True:
+        message = socket.recv()
+        if message is not None:
+            show(message)
+except KeyboardInterrupt:
+    pass
+finally:
+    socket.close()
 ```
 
-WebSocket callbacks run in the receive loop. Close the returned socket when finished. The current adapter obtains the Finger_desk ticket and sends quote subscribe frames. The backend protocol uses binary protobuf in some deployments; the adapter currently supports JSON text frames only. It does not yet implement reconnect, heartbeat, unsubscribe, or binary protobuf decoding.
+The current adapter obtains the Finger_desk ticket and sends quote subscribe frames. It supports the confirmed JSON text protocol with bounded reconnect, heartbeat, and replacement-list unsubscribe. Binary protobuf deployments and order/account event subscriptions are not implemented.

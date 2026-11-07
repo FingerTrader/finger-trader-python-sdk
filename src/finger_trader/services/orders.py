@@ -62,7 +62,8 @@ class Orders:
         stop_loss="0",
         take_profit="0",
     ) -> ApiResponse:
-        _validate_order_id(order_id)
+        # Finger_desk creates new orders with orderId=""; only update/cancel
+        # operations require an existing server order identifier.
         qty = _positive(quantity, "quantity")
         if isinstance(quantity, bool):
             raise ValueError("quantity must be a positive integer")

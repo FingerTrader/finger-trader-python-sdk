@@ -1,9 +1,9 @@
 # WebSocket market data
 
-Install the optional extra:
+From the cloned repository, install the optional extra:
 
 ```sh
-python -m pip install 'finger-trader-sdk[websocket]'
+python -m pip install '.[websocket]'
 ```
 
 Connect, subscribe, receive, and close:

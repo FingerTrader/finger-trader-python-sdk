@@ -85,7 +85,7 @@ class ClientTests(unittest.TestCase):
             is_usd=True,
             limit_time=0,
             market=1,
-            order_id="client-order-1",
+            order_id="",
             order_type=1,
             price=Decimal("1.20"),
             quantity=2,
