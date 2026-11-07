@@ -7,6 +7,7 @@ from io import BytesIO
 from types import SimpleNamespace
 from unittest.mock import Mock, patch
 from urllib.error import URLError
+from urllib.parse import parse_qs
 
 from finger_trader import APIError, FingerTraderClient, MarketBar, UnknownOutcomeError
 
@@ -124,6 +125,9 @@ class ClientTests(unittest.TestCase):
         result = client.auth.login("user", "password", account_type=1)
         self.assertTrue(client.auth.is_authenticated)
         self.assertIn(b"grant_type=password", self.seen[-1].data)
+        form = parse_qs(self.seen[-1].data.decode(), keep_blank_values=True)
+        self.assertEqual(form["captchaId"], [""])
+        self.assertEqual(form["captchaCode"], [""])
         self.assertNotIn("test-access-token", repr(result))
         self.assertNotIn("test-refresh-token", repr(result))
         self.assertNotIn("test-access-token", repr(client))

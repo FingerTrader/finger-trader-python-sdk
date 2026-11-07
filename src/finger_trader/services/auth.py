@@ -40,11 +40,12 @@ class Auth:
             "password": password,
             "grant_type": "password",
             "type": account_type,
+            # Finger_desk's LoginDTO includes both optional CAPTCHA properties
+            # in form bodies even when the values are null. An empty form value
+            # is the URL-encoded equivalent and preserves the server contract.
+            "captchaId": captcha_id or "",
+            "captchaCode": captcha_code or "",
         }
-        if captcha_id is not None:
-            data["captchaId"] = captcha_id
-        if captcha_code is not None:
-            data["captchaCode"] = captcha_code
         response = self._client._auth.request(
             "POST",
             "/oauth2/token",
