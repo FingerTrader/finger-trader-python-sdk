@@ -23,14 +23,14 @@ positions = client.positions.list()
 orders = client.orders.history()
 ```
 
-OAuth password login is available using the exact Finger_desk request shape:
+OAuth password login follows the Finger_desk request shape and requires a Basic OAuth client credential from the service operator:
 
 ```python
-client = FingerTraderClient()
+client = FingerTraderClient(oauth_basic_token=os.environ["FINGER_TRADER_OAUTH_BASIC_TOKEN"])
 client.auth.login("user@example.com", "password", account_type=1)
 ```
 
-Use a valid server login type, and pass CAPTCHA fields when required by the service. Never embed credentials in source. The SDK does not invent refresh-token behavior; log in again after expiration.
+Use a valid server login type, and pass CAPTCHA fields when required by the service. Never embed credentials in source. The SDK does not bundle the static client value copied by the desktop app. The SDK does not invent refresh-token behavior; log in again after expiration.
 
 ## Supported API surface
 
@@ -41,7 +41,7 @@ Use a valid server login type, and pass CAPTCHA fields when required by the serv
 - Orders: submit, history, update limit order, cancel limit order, set stop loss/take profit.
 - WebSocket: ticket-based quote subscription, using JSON text protocol.
 
-See [API mapping](docs/api-mapping.md) for endpoints, actual parameters, and limitations; [Quick Start](docs/quickstart.md) for executable snippets; and [Errors](docs/errors.md) for response handling. A read-only runnable example is in `examples/api_read_only.py`.
+See [API mapping](docs/api-mapping.md), [Authentication](docs/authentication.md), [Market Data](docs/market-data.md), [Accounts](docs/accounts.md), [Orders](docs/orders.md), [Positions](docs/positions.md), [WebSocket](docs/websocket.md), [Security](docs/security.md), [Errors](docs/errors.md), and [Quick Start](docs/quickstart.md). A read-only runnable example is in `examples/api_read_only.py`.
 
 The SDK returns `ApiResponse` envelopes and retains raw payload fields for forward compatibility. `MarketBar.from_dict` parses numeric OHLCV values as `Decimal`. Existing strategy `Bar` remains unchanged.
 
@@ -51,13 +51,13 @@ Order requests change live account state. They are never retried automatically. 
 
 ## WebSocket optional package
 
-Install `websocket-client` separately to use the optional socket adapter:
+Install the optional WebSocket extra:
 
 ```sh
-python -m pip install websocket-client
+python -m pip install 'finger-trader-sdk[websocket]'
 ```
 
-The SDK's default HTTP usage has no third-party runtime dependency. WebSocket currently supports ticket acquisition and JSON quote subscription; binary protobuf deployments, heartbeat, reconnect and unsubscribe are not implemented.
+The SDK's default HTTP usage has no third-party runtime dependency. WebSocket supports ticket acquisition, JSON quote subscription, the confirmed app heartbeat, bounded reconnect/resubscribe, dedupe, and replacement-list unsubscribe. Binary protobuf deployments and order/account event subscriptions are not implemented.
 
 ## Development
 

@@ -5,10 +5,10 @@ from __future__ import annotations
 from datetime import datetime, timedelta, timezone
 
 from finger_trader import (
+    SMA,
     Bar,
     BuySignal,
     CloseSignal,
-    SMA,
     Strategy,
     StrategyContext,
     StrategyParameter,
@@ -22,12 +22,8 @@ class DualMovingAverageStrategy(Strategy):
     """Buy a moving-average up-cross and close on a down-cross."""
 
     PARAMETERS = {
-        "short_period": StrategyParameter(
-            default=2, description="Fast SMA period", minimum=1
-        ),
-        "long_period": StrategyParameter(
-            default=3, description="Slow SMA period", minimum=2
-        ),
+        "short_period": StrategyParameter(default=2, description="Fast SMA period", minimum=1),
+        "long_period": StrategyParameter(default=3, description="Slow SMA period", minimum=2),
     }
 
     def __init__(self, **parameters: object) -> None:

@@ -9,7 +9,9 @@ python -m pip install finger-trader-sdk
 ```python
 from finger_trader import FingerTraderClient
 
-client = FingerTraderClient()  # production API roots from Finger_desk
+client = FingerTraderClient(
+    oauth_basic_token=os.environ["FINGER_TRADER_OAUTH_BASIC_TOKEN"]
+)  # production API roots from Finger_desk
 # Authenticate only when the account is eligible for the OAuth password flow.
 client.auth.login("user@example.com", "password", account_type=1)
 bars = client.market_data.history(market="stock", ticker="AAPL", interval="1d")
@@ -21,6 +23,7 @@ Or provide an existing access token without storing it in source:
 
 ```python
 import os
+
 client = FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"])
 ```
 
@@ -46,12 +49,20 @@ The SDK never submits orders automatically. This example is gated by an explicit
 
 ```python
 import os
+
 if os.environ.get("FINGER_TRADER_ENABLE_LIVE_ORDER") != "YES":
     raise SystemExit("Set FINGER_TRADER_ENABLE_LIVE_ORDER=YES to enable this live request")
 result = client.orders.submit(
-    is_buy=True, is_usd=False, limit_time=0, market=1,
-    order_id="", order_type=1, price="0", quantity="1",
-    ticker="AAPL", is_create=1,
+    is_buy=True,
+    is_usd=False,
+    limit_time=0,
+    market=1,
+    order_id="",
+    order_type=1,
+    price="0",
+    quantity="1",
+    ticker="AAPL",
+    is_create=1,
 )
 print(result.data)
 ```
@@ -60,11 +71,12 @@ print(result.data)
 
 ## WebSocket
 
-The optional transport imports `websocket-client`; install it separately with `python -m pip install websocket-client`, then:
+Install the WebSocket extra with `python -m pip install 'finger-trader-sdk[websocket]'`, then:
 
 ```python
 def show(message):
     print(message)
+
 
 client.market_data.subscribe_quotes(["AAPL"], market="stock", on_message=show)
 ```

@@ -40,9 +40,7 @@ class StrategyRunner:
             for bar in bars:
                 previous = self._last_timestamp.get(bar.symbol)
                 if previous is not None and bar.timestamp < previous:
-                    raise ValueError(
-                        f"bars for {bar.symbol!r} must be chronological"
-                    )
+                    raise ValueError(f"bars for {bar.symbol!r} must be chronological")
                 self._last_timestamp[bar.symbol] = bar.timestamp
                 self.context.current_bar = bar
                 result = self.strategy.on_bar(bar)

@@ -1,9 +1,16 @@
 from __future__ import annotations
 
-from datetime import datetime, timedelta, timezone
 import unittest
+from datetime import datetime, timedelta, timezone
 
-from finger_trader import Bar, RuntimeState, Strategy, StrategyContext, StrategyParameter, StrategyRunner
+from finger_trader import (
+    Bar,
+    RuntimeState,
+    Strategy,
+    StrategyContext,
+    StrategyParameter,
+    StrategyRunner,
+)
 
 
 def bar(minute: int, close: float = 10.0) -> Bar:
@@ -40,11 +47,15 @@ class RecordingStrategy(Strategy):
 class StrategyRunnerTests(unittest.TestCase):
     def test_import_public_api(self) -> None:
         from finger_trader import (
-            Bar as PublicBar,
+            SMA,
             BuySignal,
             CloseSignal,
             SellSignal,
-            SMA,
+        )
+        from finger_trader import (
+            Bar as PublicBar,
+        )
+        from finger_trader import (
             StrategyRunner as PublicRunner,
         )
 
@@ -58,9 +69,7 @@ class StrategyRunnerTests(unittest.TestCase):
 
         self.assertEqual(runner.state, RuntimeState.FINISHED)
         self.assertEqual(strategy.events[0], ("start", 5))
-        self.assertEqual(
-            [event[1] for event in strategy.events[1:4]], [10, 11, 12]
-        )
+        self.assertEqual([event[1] for event in strategy.events[1:4]], [10, 11, 12])
         self.assertEqual(strategy.events[-1], ("stop", None))
         self.assertEqual(runner.context.current_bar, bar(2, 12))
 
