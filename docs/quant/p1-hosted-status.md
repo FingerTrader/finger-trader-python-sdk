@@ -9,3 +9,5 @@ schema／methods／policy／API 映射随包携带，测试与 P0 原件及全�
 测试：原 SDK CI 继续运行 Python 3.10–3.14、pytest、integration、ruff、mypy、build、audit、secrets；新增 tests/test_hosted.py 纳入原 pytest，不替换旧 smoke。Desktop 的 check_host.py 使用固定 SDK SHA 运行真实 Python 进程、双向请求、停止、超时、写盘故障和记录恢复检查。
 
 尚未完成整个 P1：应用注册／页面闭环、环境绑定的正式平台交付、完整崩溃与进程树矩阵、性能基准仍需后续验收。P3 的交易服务／撮合／账本未实现，Desktop 本单元对交易请求明确返回 UNSUPPORTED_CAPABILITY。P4 安装、签名和无系统 Python 验收尚未完成。P0 development-P0-only 放行维持，不引入分支保护或额外签字门槛。
+
+本批：Wire.request 不再设置独立的 10 秒计时器。Host 将冻结的单回调预算写入配置并对整个回调／查询使用同一截止时间；断开唤醒同步等待并映射 HostedIOError（IO_FAILURE），迟到结果不再提交。独立 reader 在父管道断开后给正常退出留 1 秒，随后终止本 worker 独立进程组，覆盖用户回调卡住时的父进程异常退出；不向其他进程组发送信号。真实超过 10 秒查询与断开、超时、迟到及异常父进程回归由 Desktop 固定组合的统一入口执行。

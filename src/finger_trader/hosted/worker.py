@@ -13,6 +13,7 @@ import json
 import os
 import platform
 import queue
+import signal
 import sys
 import threading
 import traceback
@@ -109,6 +110,17 @@ class Wire:
                             raise ProtocolMismatchError("Incoming queue byte limit")
                     self.incoming.put_nowait((value, len(raw)))
         except BaseException as error:
+            if isinstance(error, (EOFError, OSError)):
+                # Parent disappeared. Even user code stuck in a callback must not
+                # outlive the application; terminate our own isolated group.
+                def disconnected_exit() -> None:
+                    if os.getpgrp() == os.getpid():
+                        os.killpg(os.getpgrp(), signal.SIGKILL)
+                    os._exit(70)
+
+                watchdog = threading.Timer(1.0, disconnected_exit)
+                watchdog.daemon = True
+                watchdog.start()
             with self.lock:
                 self.closed = True
                 for waiter in self.pending.values():
