@@ -48,13 +48,19 @@ def check_api(root):
             else defs[definition]
         )
         fields = {n.target.id: n for n in classes[name].body if isinstance(n, ast.AnnAssign)}
-        defaults = {field: ast.unparse(n.value) for field, n in fields.items() if n.value is not None}
+        defaults = {
+            field: ast.unparse(n.value) for field, n in fields.items() if n.value is not None
+        }
         if defaults != api["model_defaults"][name]:
             raise ValueError("Python model defaults changed: " + name)
         decorator = classes[name].decorator_list
-        if len(decorator) != 1 or not isinstance(decorator[0], ast.Call) or (
-            {k.arg: ast.literal_eval(k.value) for k in decorator[0].keywords}
-            != {"frozen": True, "slots": True, "kw_only": True}
+        if (
+            len(decorator) != 1
+            or not isinstance(decorator[0], ast.Call)
+            or (
+                {k.arg: ast.literal_eval(k.value) for k in decorator[0].keywords}
+                != {"frozen": True, "slots": True, "kw_only": True}
+            )
         ):
             raise ValueError("Python model must be immutable keyword-only data: " + name)
 

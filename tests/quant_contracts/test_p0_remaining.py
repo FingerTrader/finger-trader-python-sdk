@@ -82,29 +82,27 @@ class CoreAllowlist(unittest.TestCase):
         # Exercise the actual CLI used by CI, beyond calling boundaries alone.
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
-            for name in (
-                "contracts",
-                "tools/quant",
-                "tests/quant_contracts",
-                "lib/app/quant",
-                "ci",
-            ):
-                shutil.copytree(ROOT / name, root / name)
-            workflow = root / ".github/workflows/quant-contracts.yml"
-            workflow.parent.mkdir(parents=True)
-            workflow.write_bytes((ROOT / ".github/workflows/quant-contracts.yml").read_bytes())
+            inventory = json.loads((ROOT / "ci/quant-files.json").read_text())
+            for name in list(inventory["files"]) + ["ci/quant-files.json"]:
+                target = root / name
+                target.parent.mkdir(parents=True, exist_ok=True)
+                target.write_bytes((ROOT / name).read_bytes())
             (root / "lib/app/quant/host.dart").write_text(
                 "import 'package:get/get.dart'; class Host extends GetxController {}"
             )
+            command = [
+                sys.executable,
+                "-B",
+                str(root / "tools/quant/quality.py"),
+                "--local-only",
+                "--report-dir",
+                str(root / "report"),
+            ]
+            dart = shutil.which("dart")
+            if dart:
+                command += ["--dart", dart]
             result = subprocess.run(
-                [
-                    sys.executable,
-                    "-B",
-                    str(root / "tools/quant/quality.py"),
-                    "--local-only",
-                    "--report-dir",
-                    str(root / "report"),
-                ],
+                command,
                 capture_output=True,
                 text=True,
                 timeout=30,
