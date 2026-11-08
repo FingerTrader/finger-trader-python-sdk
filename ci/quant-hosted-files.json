@@ -2,7 +2,7 @@
   "stage": "P1-hosted-worker-development",
   "files": {
     "docs/quant/p1-hosted-status.md": {
-      "sha256": "4a03f717e7c2fb6571a39087255c302f5b6da41faac7bdf45cd2e87c36299246"
+      "sha256": "c6bad659664d709b67885204899e854dec0efb81f2a43fd4d4dce963dd761791"
     },
     "pyproject.toml": {
       "sha256": "9215006c5538dd2aebd86d064b4c25c9d1b0cff0e1ca6f1fb743fd04d739c56e"
@@ -38,7 +38,7 @@
       "sha256": "bc9548fd67eeb8c8c691266155fe829abc91fa1ca6b8a75e92d52b1a39eeab06"
     },
     "src/finger_trader/hosted/worker.py": {
-      "sha256": "66744357957d20b61351e6bfe0f0953e09fcf6af238cdd279731e7e5ede1d473"
+      "sha256": "e25b95770a967ecd876067cf8d065928a9b716995ce736a75915ec3230866ff6"
     },
     "src/finger_trader/indicators/__init__.py": {
       "sha256": "4a461f4344887dbe7e9acf2aec382613126c7e5e3ce98c923ee44ae5fa690645"
@@ -96,6 +96,18 @@
     },
     "tests/test_hosted.py": {
       "sha256": "85c2fb6bdff0f06630d50065998f577b8168c02bdedf09314c709e91fcf9e26a"
+    },
+    ".github/workflows/ci.yml": {
+      "sha256": "4688df5825a772818cc92e53a3b64d93f50fe03819fc7b006f495f63506218df"
+    },
+    "tests/test_hosted_disconnect.py": {
+      "sha256": "3aa559c6cf419d0e27ea08dee2124a703876f6d7d0f089ae51357a448f72ee6b"
+    },
+    "tests/test_disconnect_gate.py": {
+      "sha256": "372c95708146c2c7e1e53e5e7f55a3ecce0888b1638962771a6043d1a416870d"
+    },
+    "tools/quant/check_disconnect.py": {
+      "sha256": "188180d21b591ddf3b949572432be4cb58463e4b3126d3dad0e2a679162ae2bd"
     }
   }
 }

@@ -18,7 +18,7 @@ import sys
 import threading
 import traceback
 from pathlib import Path
-from typing import Any
+from typing import Any, NoReturn
 
 from finger_trader import __version__
 
@@ -110,17 +110,12 @@ class Wire:
                             raise ProtocolMismatchError("Incoming queue byte limit")
                     self.incoming.put_nowait((value, len(raw)))
         except BaseException as error:
-            if isinstance(error, (EOFError, OSError)):
-                # Parent disappeared. Even user code stuck in a callback must not
-                # outlive the application; terminate our own isolated group.
-                def disconnected_exit() -> None:
-                    if os.getpgrp() == os.getpid():
-                        os.killpg(os.getpgrp(), signal.SIGKILL)
-                    os._exit(70)
-
-                watchdog = threading.Timer(1.0, disconnected_exit)
-                watchdog.daemon = True
-                watchdog.start()
+            # Arm before waking the main thread: it may immediately exit on
+            # this error. A non-daemon timer survives interpreter shutdown and
+            # also terminates a strategy that remains inside its callback.
+            watchdog = threading.Timer(1.0, self._exit_disconnected_group)
+            watchdog.daemon = False
+            watchdog.start()
             with self.lock:
                 self.closed = True
                 for waiter in self.pending.values():
@@ -132,11 +127,26 @@ class Wire:
                         )
                     except queue.Full:
                         pass
-            # A callback may be stuck in user code. Parent still owns termination.
+            # Wake cooperative consumers; the watchdog handles a stuck callback.
             try:
                 self.incoming.put_nowait((error, 0))
             except queue.Full:
-                os._exit(70)
+                self._exit_disconnected_group()
+
+    @staticmethod
+    def _exit_disconnected_group() -> NoReturn:
+        # setsid precedes all strategy imports. Never signal an inherited group.
+        try:
+            group = os.getpgrp()
+            if group == os.getpid():
+                os.killpg(group, signal.SIGKILL)
+        except OSError:
+            try:
+                os.write(2, b"Worker process-group cleanup failed\n")
+            except OSError:
+                pass
+        finally:
+            os._exit(70)
 
     def next(self) -> Any:
         value, size = self.incoming.get()
