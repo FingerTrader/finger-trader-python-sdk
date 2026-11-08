@@ -1,6 +1,6 @@
 # Market data
 
-`client.market_data.markets()` returns the Finger_desk market menu. `symbols(market, page)` maps stock, crypto, forex, spot and indices to their market-specific endpoints. `history()` uses the observed shared K-line endpoint and accepts the backend interval string, page, limit and optional start time (epoch milliseconds or a timezone-aware datetime).
+`client.market_data.markets()` calls Finger_desk's current `POST /app-api/v1/public/get-maker-info`. `symbols(market, page, page_size)` calls `POST /app-api/v1/market/ticker-list` with the current paginated query DTO; stock, forex, crypto, spot and indices map to Desk `MarketTypeEnum` values 3, 0, 2, 1 and 6. `history()` calls `POST /app-api/v1/market/kline-list`; its current DTO uses the same market enum and an epoch-millisecond `startTime` string. To fetch older bars, pass an earlier `start_time`; the old `page` parameter is accepted only for page 1 because this endpoint pages by time.
 
 ```python
 markets = client.market_data.markets()

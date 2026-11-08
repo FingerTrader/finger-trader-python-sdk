@@ -55,7 +55,7 @@ def test_integration_config_repr_hides_secrets():
         oauth_basic_token="basic-secret-test-value",
         username="private-user-test-value",
         password="private-password-test-value",
-        login_type=1,
+        login_type=0,
         captcha_id="private-captcha-id",
         captcha_code="private-captcha-code",
         market="stock",
@@ -91,10 +91,15 @@ def test_integration_config_repr_hides_secrets():
 
 def test_read_only_guard_blocks_mutations_before_transport():
     class FakeClient:
-        def _post(self, *_args, **_kwargs):
-            raise AssertionError("the original transport must not run")
+        calls = []
+
+        def _post(self, *args, **kwargs):
+            self.calls.append((args, kwargs))
+            return "read-only response"
 
     client = FakeClient()
     block_state_changing_calls(client)
-    with pytest.raises(ProductionWriteBlocked, match="/api/mob/trade/order-entity/order"):
-        client._post("/api/mob/trade/order-entity/order", {"quantity": 1})
+    assert client._post("/app-api/v1/fund/get-spot-wallet") == "read-only response"
+    with pytest.raises(ProductionWriteBlocked, match="/app-api/v1/order/create-order"):
+        client._post("/app-api/v1/order/create-order", {"qty": "1"})
+    assert len(client.calls) == 1

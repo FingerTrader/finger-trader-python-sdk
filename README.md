@@ -31,10 +31,10 @@ OAuth password login follows the Finger_desk request shape and requires a Basic 
 
 ```python
 client = FingerTraderClient(oauth_basic_token=os.environ["FINGER_TRADER_OAUTH_BASIC_TOKEN"])
-client.auth.login("user@example.com", "password", account_type=1)
+client.auth.login("user@example.com", "password", account_type=0)
 ```
 
-Use a valid server login type, and pass CAPTCHA fields when required by the service. Never embed credentials in source. The SDK does not bundle the static client value copied by the desktop app. The SDK does not invent refresh-token behavior; log in again after expiration.
+`account_type` follows Finger_desk's `AccountTypeEnum`: `0` for email and `1` for mobile phone. The login screen passes this enum value as the OAuth form field `type`. Pass CAPTCHA fields when required by the service. Never embed credentials in source. The SDK does not bundle the static client value copied by the desktop app. The SDK does not invent refresh-token behavior; log in again after expiration.
 
 ## Supported API surface
 
@@ -42,7 +42,7 @@ Use a valid server login type, and pass CAPTCHA fields when required by the serv
 - Market data: market menu, supported market-specific symbol lists, and historical OHLCV.
 - Accounts: authenticated trade profile and wallet overview/balance.
 - Positions: session-scoped holdings.
-- Orders: submit, history, update limit order, cancel limit order, set stop loss/take profit.
+- Orders: current API order history and current holdings. Order mutation methods still target retired legacy paths and are not supported against the current app API.
 - WebSocket: ticket-based quote subscription, using JSON text protocol.
 
 See [API mapping](docs/api-mapping.md), [Authentication](docs/authentication.md), [Market Data](docs/market-data.md), [Accounts](docs/accounts.md), [Orders](docs/orders.md), [Positions](docs/positions.md), [WebSocket](docs/websocket.md), [Security](docs/security.md), [Errors](docs/errors.md), and [Quick Start](docs/quickstart.md). A read-only runnable example is in `examples/api_read_only.py`.
@@ -51,9 +51,9 @@ The separate [live API integration suite](docs/integration-testing.md) is opt-in
 
 The SDK returns `ApiResponse` envelopes and retains raw payload fields for forward compatibility. `MarketBar.from_dict` parses numeric OHLCV values as `Decimal`. Existing strategy `Bar` remains unchanged.
 
-## Orders are opt-in
+## Trading writes
 
-Order requests change live account state. They are never retried automatically. See the guarded live-order example in the Quick Start before using it, and confirm server enum values and account permissions for each instrument. The SDK does not simulate fills or add trading rules.
+The current Finger_desk order mutation contract has been confirmed in `dataSdk`, but the SDK has not yet migrated its write methods to that DTO. Do not use `orders.submit`, `update_limit`, `cancel_limit`, or `set_take_profit_loss` against the current API. The SDK does not simulate fills or add trading rules.
 
 ## WebSocket optional package
 

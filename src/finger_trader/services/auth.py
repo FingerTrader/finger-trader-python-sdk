@@ -38,13 +38,12 @@ class Auth:
         data = {
             "username": username,
             "password": password,
+            # Dio's form encoder writes a bare key for null DTO values (no '=');
+            # HTTPTransport preserves that exact representation.
+            "captchaId": captcha_id,
+            "captchaCode": captcha_code,
             "grant_type": "password",
             "type": account_type,
-            # Finger_desk's LoginDTO includes both optional CAPTCHA properties
-            # in form bodies even when the values are null. An empty form value
-            # is the URL-encoded equivalent and preserves the server contract.
-            "captchaId": captcha_id or "",
-            "captchaCode": captcha_code or "",
         }
         response = self._client._auth.request(
             "POST",

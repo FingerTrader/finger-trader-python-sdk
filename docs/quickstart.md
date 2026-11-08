@@ -19,7 +19,7 @@ client = FingerTraderClient(
     oauth_basic_token=os.environ["FINGER_TRADER_OAUTH_BASIC_TOKEN"]
 )  # production API roots from Finger_desk
 # Authenticate only when the account is eligible for the OAuth password flow.
-client.auth.login("user@example.com", "password", account_type=1)
+client.auth.login("user@example.com", "password", account_type=0)
 bars = client.market_data.history(market="stock", ticker="AAPL", interval="1d")
 print(bars.data)
 print(client.accounts.balance().data)
@@ -33,7 +33,7 @@ import os
 client = FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"])
 ```
 
-`account_type` is the server's login type enum. OAuth CAPTCHA fields are optional in the DTO. Token refresh is not documented by the inspected desktop code; re-authenticate when the access token expires. HTTP response `.data` preserves the backend shape. `MarketBar.from_dict` converts numeric OHLCV values to `Decimal` where the payload keys match.
+`account_type` is Finger_desk's `AccountTypeEnum` value: `0` for email, `1` for mobile phone. The login page passes this value as the OAuth form field `type`; it is separate from the selected UI `LoginType` enum (whose values are 1 for Email and 2 for Mobile). OAuth CAPTCHA fields are optional in the DTO. Token refresh is not documented by the inspected desktop code; re-authenticate when the access token expires. HTTP response `.data` preserves the backend shape. `MarketBar.from_dict` converts numeric OHLCV values to `Decimal` where the payload keys match.
 
 ## Read-only market and account calls
 
@@ -41,7 +41,7 @@ client = FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"])
 markets = client.market_data.markets()
 stocks = client.market_data.symbols(market="stock")
 bars = client.market_data.history(market="stock", ticker="AAPL", interval="1d", limit=200, page=1)
-profile = client.accounts.detail(market=0)
+profile = client.accounts.detail()
 balance = client.accounts.balance()
 positions = client.positions.list(is_usd=False)
 orders = client.orders.history(page=1, limit=20)

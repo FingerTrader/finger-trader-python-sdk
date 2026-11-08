@@ -160,7 +160,7 @@ def live_client(integration_config: IntegrationConfig):
         except APIError as exc:
             # Do not let pytest tracebacks expose credential-bearing locals.
             raise RuntimeError(
-                f"Sandbox/Dev OAuth failed (code={exc.code!r}, status={exc.status!r})"
+                f"{config.target} OAuth failed (code={exc.code!r}, status={exc.status!r})"
             ) from None
 
     try:
@@ -176,9 +176,21 @@ class ProductionWriteBlocked(AssertionError):
 
 
 def block_state_changing_calls(client) -> None:
-    """Guard every SDK state-changing API route before it reaches HTTP transport."""
+    """Allow only confirmed read-only POST routes in live test mode."""
+    read_only_paths = {
+        "/app-api/v1/public/get-maker-info",
+        "/app-api/v1/public/login-info",
+        "/app-api/v1/market/ticker-list",
+        "/app-api/v1/market/kline-list",
+        "/app-api/v1/fund/get-spot-wallet",
+        "/app-api/v1/order/get-holding-orders",
+        "/app-api/v1/order/trade-history",
+    }
+    original_post = client._post
 
-    def reject_write(path, *args, **kwargs):
-        raise ProductionWriteBlocked(path)
+    def guarded_post(path, *args, **kwargs):
+        if path not in read_only_paths:
+            raise ProductionWriteBlocked(path)
+        return original_post(path, *args, **kwargs)
 
-    client._post = reject_write
+    client._post = guarded_post

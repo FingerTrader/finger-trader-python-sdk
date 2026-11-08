@@ -1,10 +1,10 @@
 # Accounts and balances
 
-Finger_desk calls return the authenticated session's trading profile and wallet overview. The observed profile request requires a market value; `accounts.list()` maps to its market-0 default and `accounts.detail(market)` lets callers select a backend market. `accounts.balance()` returns the wallet overview. These calls do not enumerate arbitrary account IDs or accept an `account_id` filter.
+Finger_desk's current data SDK calls `POST /app-api/v1/public/login-info` for the authenticated user's profile and `POST /app-api/v1/fund/get-spot-wallet` for the spot wallet overview. These are session-scoped; they do not enumerate arbitrary account IDs or accept an `account_id` filter. The legacy `market` argument to `accounts.detail(market)` remains accepted for source compatibility and is ignored because the current profile endpoint is not market-scoped.
 
 ```python
 profile = client.accounts.list()
-market_profile = client.accounts.detail(market=0)
+profile = client.accounts.detail()
 wallet = client.accounts.balance()
 ```
 

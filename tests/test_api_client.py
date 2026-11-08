@@ -36,8 +36,7 @@ class ClientTests(unittest.TestCase):
             if request.full_url.endswith("/oauth2/token"):
                 payload = {
                     "code": 0,
-                    "success": True,
-                    "message": "ok",
+                    "msg": "ok",
                     "data": {
                         "access_token": "test-access-token",
                         "refresh_token": "test-refresh-token",
@@ -74,11 +73,81 @@ class ClientTests(unittest.TestCase):
         client = self.make_client()
         client.market_data.history(market="stock", ticker="AAPL", interval="1d", limit=10)
         request = self.seen[-1]
-        self.assertEqual(request.get_method(), "GET")
-        self.assertIn("/api/mob/market/kline/getKline?", request.full_url)
-        self.assertIn("market=stock", request.full_url)
+        self.assertEqual(request.get_method(), "POST")
+        self.assertTrue(request.full_url.endswith("/app-api/v1/market/kline-list"))
+        self.assertEqual(
+            json.loads(request.data),
+            {
+                "market": 3,
+                "ticker": "AAPL",
+                "interval": "1d",
+                "limit": 10,
+                "startTime": json.loads(request.data)["startTime"],
+            },
+        )
         self.assertEqual(request.get_header("Authorization"), "Bearer test-access-token")
         self.assertEqual(request.get_header("Token"), "test-access-token")
+        self.assertEqual(request.get_header("Accept"), "application/json")
+        self.assertEqual(
+            request.get_header("User-agent"),
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/122.0.0.0 Safari/537.36",
+        )
+
+    def test_current_desk_read_endpoint_mappings(self):
+        client = self.make_client()
+        client.market_data.markets()
+        self.assertEqual(self.seen[-1].get_method(), "POST")
+        self.assertTrue(self.seen[-1].full_url.endswith("/app-api/v1/public/get-maker-info"))
+
+        expected_market_types = {
+            "forex": 0,
+            "spot": 1,
+            "crypto": 2,
+            "stock": 3,
+            "indices": 6,
+        }
+        for market, market_type in expected_market_types.items():
+            client.market_data.symbols(market)
+            body = json.loads(self.seen[-1].data)
+            self.assertTrue(self.seen[-1].full_url.endswith("/app-api/v1/market/ticker-list"))
+            self.assertEqual(
+                body,
+                {"page": 1, "pageSize": 50, "query": {"marketType": market_type}},
+            )
+
+        client.accounts.balance()
+        self.assertTrue(self.seen[-1].full_url.endswith("/app-api/v1/fund/get-spot-wallet"))
+        client.accounts.detail(market=0)
+        self.assertTrue(self.seen[-1].full_url.endswith("/app-api/v1/public/login-info"))
+        client.positions.list(is_usd=False)
+        self.assertEqual(
+            json.loads(self.seen[-1].data),
+            {
+                "page": 1,
+                "pageSize": 100,
+                "query": {"marketType": None, "orderType": 0, "coinType": 100},
+            },
+        )
+        client.orders.history(page=2, limit=5, filters={"market_type": 3, "coin_type": 100})
+        self.assertTrue(self.seen[-1].full_url.endswith("/app-api/v1/order/trade-history"))
+        self.assertEqual(
+            json.loads(self.seen[-1].data),
+            {
+                "page": 2,
+                "pageSize": 5,
+                "query": {
+                    "walletType": None,
+                    "marketType": 3,
+                    "orderType": None,
+                    "coinType": 100,
+                    "orderSide": None,
+                    "startTime": None,
+                    "endTime": None,
+                },
+            },
+        )
 
     def test_trade_request_field_mapping_and_decimal(self):
         self.make_client().orders.submit(
@@ -122,12 +191,15 @@ class ClientTests(unittest.TestCase):
 
     def test_token_login_form_repr_and_no_refresh_secret_copy(self):
         client = self.make_client(token=None)
-        result = client.auth.login("user", "password", account_type=1)
+        result = client.auth.login("user", "password", account_type=0)
         self.assertTrue(client.auth.is_authenticated)
         self.assertIn(b"grant_type=password", self.seen[-1].data)
         form = parse_qs(self.seen[-1].data.decode(), keep_blank_values=True)
+        self.assertEqual(form["type"], ["0"])
+        self.assertEqual(self.seen[-1].get_header("Authorization"), "Basic test-basic-token")
         self.assertEqual(form["captchaId"], [""])
         self.assertEqual(form["captchaCode"], [""])
+        self.assertIn(b"&captchaId&captchaCode", self.seen[-1].data)
         self.assertNotIn("test-access-token", repr(result))
         self.assertNotIn("test-refresh-token", repr(result))
         self.assertNotIn("test-access-token", repr(client))
@@ -136,7 +208,7 @@ class ClientTests(unittest.TestCase):
     def test_login_requires_explicit_oauth_client_credential(self):
         client = self.make_client(oauth_basic_token=None)
         with self.assertRaisesRegex(RuntimeError, "oauth_basic_token"):
-            client.auth.login("user", "password", account_type=1)
+            client.auth.login("user", "password", account_type=0)
         self.assertEqual(self.seen, [])
 
     def test_bar_decimal_parsing(self):
@@ -150,6 +222,19 @@ class ClientTests(unittest.TestCase):
         response = client._api._unwrap({"account": "private-account", "token": "secret"})
         self.assertNotIn("private-account", repr(response))
         self.assertNotIn("secret", repr(response))
+
+    def test_finger_desk_response_envelope_is_unwrapped_and_errors_are_raised(self):
+        client = self.make_client()
+        response = client._api._unwrap(
+            {"code": 0, "msg": "ok", "data": {"value": 3}}
+        )
+        self.assertEqual(response.data, {"value": 3})
+        self.assertEqual(response.message, "ok")
+        with self.assertRaises(APIError) as caught:
+            client._api._unwrap(
+                {"code": 10013, "msg": "bad credentials", "data": None}
+            )
+        self.assertEqual(caught.exception.code, 10013)
 
     def test_history_rejects_naive_datetime_and_nonpositive_paging(self):
         from datetime import datetime
@@ -237,7 +322,10 @@ class ClientTests(unittest.TestCase):
 
         socket_impl = Mock()
         socket_impl.handshake_response = SimpleNamespace(status=101)
-        websocket_module = SimpleNamespace(create_connection=Mock(return_value=socket_impl))
+        websocket_module = SimpleNamespace(
+            create_connection=Mock(return_value=socket_impl),
+            ABNF=SimpleNamespace(OPCODE_BINARY=2),
+        )
         with (
             patch.dict("sys.modules", {"websocket": websocket_module}),
             patch(
@@ -251,6 +339,9 @@ class ClientTests(unittest.TestCase):
             stream.subscribe(["AAPL"])
             stream.unsubscribe("AAPL")
             sent = [json.loads(call.args[0]) for call in socket_impl.send.call_args_list]
+            self.assertTrue(
+                all(call.kwargs["opcode"] == 2 for call in socket_impl.send.call_args_list)
+            )
             self.assertEqual(sent[0]["action"], 3)
             self.assertEqual(sent[0]["msgType"], 1)
             self.assertEqual(sent[0]["content"], {"tickerList": ["AAPL"]})
@@ -258,6 +349,11 @@ class ClientTests(unittest.TestCase):
             socket_url = websocket_module.create_connection.call_args.args[0]
             self.assertTrue(
                 socket_url.startswith("wss://mock.invalid/finger-bff-socket/ws?ticket=")
+            )
+            self.assertTrue(websocket_module.create_connection.call_args.kwargs["suppress_origin"])
+            self.assertEqual(
+                websocket_module.create_connection.call_args.kwargs["header"],
+                ["User-Agent: Dart/3.5.1 (dart:io)"],
             )
             self.assertNotIn("ticket secret", repr(stream))
             stream.close()
@@ -269,7 +365,10 @@ class ClientTests(unittest.TestCase):
         socket_impl = Mock()
         socket_impl.handshake_response = SimpleNamespace(status=101)
         socket_impl.recv.side_effect = TimeoutError("socket timed out")
-        websocket_module = SimpleNamespace(create_connection=Mock(return_value=socket_impl))
+        websocket_module = SimpleNamespace(
+            create_connection=Mock(return_value=socket_impl),
+            ABNF=SimpleNamespace(OPCODE_BINARY=2),
+        )
         with (
             patch.dict("sys.modules", {"websocket": websocket_module}),
             patch(
@@ -281,6 +380,7 @@ class ClientTests(unittest.TestCase):
             stream.connect()
             self.assertIsNone(stream.recv())
             keepalive = json.loads(socket_impl.send.call_args.args[0])
+            self.assertEqual(socket_impl.send.call_args.kwargs["opcode"], 2)
             self.assertEqual(keepalive["action"], 1)
             self.assertEqual(keepalive["msgType"], 0)
             self.assertEqual(keepalive["content"], "")
@@ -296,7 +396,9 @@ class ClientTests(unittest.TestCase):
         recovered.handshake_response = SimpleNamespace(status=101)
         recovered.recv.return_value = '{"action":3,"msgType":0,"msgId":"quote-1"}'
         reconnect = Mock(side_effect=[initial, recovered])
-        websocket_module = SimpleNamespace(create_connection=reconnect)
+        websocket_module = SimpleNamespace(
+            create_connection=reconnect, ABNF=SimpleNamespace(OPCODE_BINARY=2)
+        )
         with (
             patch.dict("sys.modules", {"websocket": websocket_module}),
             patch(
@@ -339,7 +441,7 @@ class ClientTests(unittest.TestCase):
             }
         )
         with self.assertRaises(APIError) as caught:
-            client.auth.login("user", "supersecret", account_type=1)
+            client.auth.login("user", "supersecret", account_type=0)
         self.assertNotIn("supersecret", str(caught.exception))
         self.assertIsNone(caught.exception.details)
 

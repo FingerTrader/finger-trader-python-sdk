@@ -1,5 +1,6 @@
 """Order endpoints; state-changing requests are never retried."""
 
+from datetime import datetime
 from decimal import Decimal, InvalidOperation
 from typing import NoReturn
 
@@ -112,11 +113,46 @@ class Orders:
             _raise_unknown(exc)
 
     def history(self, *, page: int = 1, limit: int = 20, filters=None) -> ApiResponse:
-        if page < 1 or limit < 1:
-            raise ValueError("page and limit must be positive")
-        return self._client._get(
-            f"/api/mob/trade/order-entity/getOrderHistory/{page}/{limit}",
-            params=filters or {},
+        if isinstance(page, bool) or not isinstance(page, int) or page < 1:
+            raise ValueError("page must be a positive integer")
+        if isinstance(limit, bool) or not isinstance(limit, int) or limit < 1:
+            raise ValueError("limit must be a positive integer")
+        query = dict(filters or {})
+        allowed = {
+            "wallet_type": "walletType",
+            "market_type": "marketType",
+            "order_type": "orderType",
+            "coin_type": "coinType",
+            "order_side": "orderSide",
+            "start_time": "startTime",
+            "end_time": "endTime",
+        }
+        known = set(allowed) | set(allowed.values())
+        unknown = set(query) - known
+        if unknown:
+            raise ValueError(f"unsupported order history filter: {sorted(unknown)[0]}")
+        mapped = {allowed.get(key, key): value for key, value in query.items()}
+        for key in ("startTime", "endTime"):
+            value = mapped.get(key)
+            if isinstance(value, datetime):
+                if value.tzinfo is None or value.utcoffset() is None:
+                    raise ValueError(f"{key} datetime must be timezone-aware")
+                mapped[key] = int(value.timestamp() * 1000)
+        return self._client._post(
+            "/app-api/v1/order/trade-history",
+            {
+                "page": page,
+                "pageSize": limit,
+                "query": {
+                    "walletType": mapped.get("walletType"),
+                    "marketType": mapped.get("marketType"),
+                    "orderType": mapped.get("orderType"),
+                    "coinType": mapped.get("coinType"),
+                    "orderSide": mapped.get("orderSide"),
+                    "startTime": mapped.get("startTime"),
+                    "endTime": mapped.get("endTime"),
+                },
+            },
         )
 
     def update_limit(

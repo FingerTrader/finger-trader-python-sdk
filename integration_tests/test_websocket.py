@@ -19,7 +19,7 @@ class _FrameProbe:
         self.sent_frames = []
 
     def send(self, payload, *args, **kwargs):
-        if isinstance(payload, str):
+        if isinstance(payload, (str, bytes)):
             try:
                 parsed = json.loads(payload)
             except ValueError:

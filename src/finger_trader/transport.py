@@ -7,7 +7,7 @@ import logging
 import re
 import ssl
 from urllib.error import HTTPError, URLError
-from urllib.parse import urlencode, urlsplit
+from urllib.parse import quote_plus, urlencode, urlsplit
 from urllib.request import HTTPHandler, HTTPRedirectHandler, HTTPSHandler, Request, build_opener
 
 from .exceptions import APIError, NetworkError
@@ -15,6 +15,12 @@ from .models import ApiResponse
 
 MAX_RESPONSE_BYTES = 8 * 1024 * 1024
 MAX_ERROR_BYTES = 4096
+# Match AppPlatform.desktopUserAgent in Finger Desk's HTTP interceptor.
+FINGER_DESK_USER_AGENT = (
+    "Mozilla/5.0 (Macintosh; Intel Mac OS X 14_0) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/122.0.0.0 Safari/537.36"
+)
 
 
 class _RejectRedirects(HTTPRedirectHandler):
@@ -60,11 +66,25 @@ class HTTPTransport:
             raise RuntimeError("HTTP transport is closed")
         query = "?" + urlencode(params, doseq=True) if params else ""
         url = self.base_url + path + query
-        headers = {"Accept": "application/json"}
+        headers = {
+            "Accept": "application/json",
+            "User-Agent": FINGER_DESK_USER_AGENT,
+        }
+        if method.upper() in {"POST", "PUT", "PATCH"}:
+            headers["Content-Type"] = "application/json"
         payload = None
         if body is not None:
             if form:
-                payload = urlencode(body).encode()
+                # Match Dio's application/x-www-form-urlencoded encoding:
+                # null values become bare keys, while concrete values use
+                # standard form encoding.
+                encoded_fields = []
+                for key, value in body.items():
+                    if value is None:
+                        encoded_fields.append(quote_plus(str(key)))
+                    else:
+                        encoded_fields.append(urlencode({key: value}))
+                payload = "&".join(encoded_fields).encode()
                 headers["Content-Type"] = "application/x-www-form-urlencoded"
             else:
                 payload = json.dumps(body, separators=(",", ":"), default=_json_default).encode()
@@ -121,13 +141,25 @@ class HTTPTransport:
 
     @staticmethod
     def _unwrap(data, path=None, secrets=()):
-        if isinstance(data, dict) and "code" in data and "success" in data:
-            if not data.get("success"):
+        if isinstance(data, dict) and "code" in data:
+            has_success_envelope = "success" in data
+            has_finger_desk_envelope = "data" in data and (
+                "msg" in data or "message" in data
+            )
+            if not (has_success_envelope or has_finger_desk_envelope):
+                return ApiResponse(data, raw=data)
+
+            successful = (
+                bool(data.get("success"))
+                if has_success_envelope
+                else data.get("code") in (0, "0")
+            )
+            if not successful:
                 error = APIError.from_payload(data, path=path)
                 for secret in secrets:
                     error.message = error.message.replace(secret, "[REDACTED]")
                 raise error
-            message = str(data.get("message", ""))
+            message = str(data.get("message", data.get("msg", "")))
             for secret in secrets:
                 message = message.replace(secret, "[REDACTED]")
             return ApiResponse(data.get("data"), data.get("code"), message, data)

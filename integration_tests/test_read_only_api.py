@@ -26,7 +26,7 @@ def test_market_list(live_client):
 
 @pytest.mark.parametrize("market", ["stock", "forex", "crypto", "spot", "indices"])
 def test_product_list_for_supported_markets(live_client, market):
-    _assert_response(live_client.market_data.symbols(market=market))
+    _assert_response(live_client.market_data.symbols(market=market, page_size=1))
 
 
 def test_historical_bars(live_client, integration_config):
@@ -43,12 +43,8 @@ def test_historical_bars(live_client, integration_config):
     )
 
 
-def test_account_profile(live_client, integration_config):
-    if integration_config.account_market is None:
-        pytest.skip(
-            "Set FINGER_TRADER_IT_ACCOUNT_MARKET to the server market enum for this account"
-        )
-    _assert_response(live_client.accounts.detail(market=integration_config.account_market))
+def test_account_profile(live_client):
+    _assert_response(live_client.accounts.detail())
 
 
 def test_balance(live_client):
@@ -88,8 +84,6 @@ def test_invalid_token_is_rejected(integration_config):
 
 def test_live_client_blocks_all_state_changing_order_calls(live_client):
     """The live-client fixture rejects every order mutation before transport."""
-    from integration_tests.conftest import ProductionWriteBlocked
-
     calls = [
         lambda: live_client.orders.submit(
             is_buy=True,
@@ -110,5 +104,6 @@ def test_live_client_blocks_all_state_changing_order_calls(live_client):
         ),
     ]
     for call in calls:
-        with pytest.raises(ProductionWriteBlocked):
+        # Avoid importing conftest twice under different module names.
+        with pytest.raises(AssertionError):
             call()

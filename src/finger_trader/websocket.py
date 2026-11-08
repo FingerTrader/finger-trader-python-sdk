@@ -120,7 +120,11 @@ class MarketWebSocket:
         # follow redirects: that URL itself is a short-lived credential.
         try:
             self._ws = websocket.create_connection(
-                socket_url, timeout=self.heartbeat_interval, redirect_limit=0
+                socket_url,
+                timeout=self.heartbeat_interval,
+                redirect_limit=0,
+                suppress_origin=True,
+                header=["User-Agent: Dart/3.5.1 (dart:io)"],
             )
         except Exception:
             # The dependency may include the URL (and ticket) in its exception.
@@ -154,7 +158,16 @@ class MarketWebSocket:
         frame = self._frame(
             MARKET_ACTION, SUBSCRIBE_QUOTES_MSG_TYPE, {"tickerList": sorted(self._subscriptions)}
         )
-        self._ws.send(json.dumps(frame, separators=(",", ":")))
+        self._send_json_binary(frame)
+
+    def _send_json_binary(self, frame: dict[str, Any]) -> None:
+        """Finger_desk sends its JSON envelope as a binary WebSocket frame."""
+        import websocket
+
+        if self._ws is None:
+            raise RuntimeError("WebSocket is not connected")
+        payload = json.dumps(frame, separators=(",", ":")).encode("utf-8")
+        self._ws.send(payload, opcode=websocket.ABNF.OPCODE_BINARY)
 
     def subscribe(self, tickers, *, market="stock", on_message=None):
         if market not in {"stock", "crypto", "forex", "spot", "indices"}:
@@ -295,12 +308,7 @@ class MarketWebSocket:
         """Send the exact keepalive envelope used by Finger_desk."""
         if self._ws is None:
             raise RuntimeError("WebSocket is not connected")
-        self._ws.send(
-            json.dumps(
-                self._frame(HEARTBEAT_ACTION, HEARTBEAT_MSG_TYPE, ""),
-                separators=(",", ":"),
-            )
-        )
+        self._send_json_binary(self._frame(HEARTBEAT_ACTION, HEARTBEAT_MSG_TYPE, ""))
         self._last_heartbeat_sent = time.monotonic()
 
     def close(self):
