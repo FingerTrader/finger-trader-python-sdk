@@ -143,16 +143,12 @@ class HTTPTransport:
     def _unwrap(data, path=None, secrets=()):
         if isinstance(data, dict) and "code" in data:
             has_success_envelope = "success" in data
-            has_finger_desk_envelope = "data" in data and (
-                "msg" in data or "message" in data
-            )
+            has_finger_desk_envelope = "data" in data and ("msg" in data or "message" in data)
             if not (has_success_envelope or has_finger_desk_envelope):
                 return ApiResponse(data, raw=data)
 
             successful = (
-                bool(data.get("success"))
-                if has_success_envelope
-                else data.get("code") in (0, "0")
+                bool(data.get("success")) if has_success_envelope else data.get("code") in (0, "0")
             )
             if not successful:
                 error = APIError.from_payload(data, path=path)

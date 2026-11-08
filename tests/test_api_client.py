@@ -225,15 +225,11 @@ class ClientTests(unittest.TestCase):
 
     def test_finger_desk_response_envelope_is_unwrapped_and_errors_are_raised(self):
         client = self.make_client()
-        response = client._api._unwrap(
-            {"code": 0, "msg": "ok", "data": {"value": 3}}
-        )
+        response = client._api._unwrap({"code": 0, "msg": "ok", "data": {"value": 3}})
         self.assertEqual(response.data, {"value": 3})
         self.assertEqual(response.message, "ok")
         with self.assertRaises(APIError) as caught:
-            client._api._unwrap(
-                {"code": 10013, "msg": "bad credentials", "data": None}
-            )
+            client._api._unwrap({"code": 10013, "msg": "bad credentials", "data": None})
         self.assertEqual(caught.exception.code, 10013)
 
     def test_history_rejects_naive_datetime_and_nonpositive_paging(self):
