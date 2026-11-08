@@ -22,9 +22,9 @@ from workflow_spec import expected_workflow  # noqa: E402
 
 
 def check_boundaries(root):
-    policy = root / 'contracts/quant/v1/core-dependencies.json'
+    policy = root / "contracts/quant/v1/core-dependencies.json"
     policy.parent.mkdir(parents=True, exist_ok=True)
-    policy.write_bytes((ROOT / 'contracts/quant/v1/core-dependencies.json').read_bytes())
+    policy.write_bytes((ROOT / "contracts/quant/v1/core-dependencies.json").read_bytes())
     return boundaries(root)
 
 

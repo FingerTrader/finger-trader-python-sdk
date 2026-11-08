@@ -167,5 +167,29 @@
     "Strategy.on_start": "self, context: Context -> None",
     "Strategy.on_bar": "self, bar: Bar -> None",
     "Strategy.on_stop": "self -> None"
+  },
+  "model_defaults": {
+    "Bar": {},
+    "Instrument": {},
+    "Account": {},
+    "Position": {},
+    "Protection": {
+      "stop_loss_percent": "Decimal('0')",
+      "take_profit_percent": "Decimal('0')"
+    },
+    "OrderSnapshot": {
+      "limit_price": "None",
+      "fill_price": "None",
+      "group_id": "None"
+    },
+    "ProtectionGroup": {
+      "stop_price": "None",
+      "take_price": "None"
+    },
+    "OrderSubmission": {
+      "code": "None"
+    },
+    "ExitResult": {},
+    "Acknowledgement": {}
   }
 }

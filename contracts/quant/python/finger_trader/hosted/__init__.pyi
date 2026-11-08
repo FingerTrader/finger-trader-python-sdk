@@ -6,11 +6,13 @@ from datetime import datetime
 from decimal import Decimal
 from typing import Literal, Protocol, TypeAlias
 
-ParameterValue: TypeAlias = str | int | bool | None | tuple['ParameterValue', ...] | Mapping[str, 'ParameterValue']
-Side: TypeAlias = Literal['buy', 'sell']
-OrderKind: TypeAlias = Literal['market', 'limit']
-Phase: TypeAlias = Literal['start', 'warmup', 'bar', 'stop']
-LogLevel: TypeAlias = Literal['DEBUG', 'INFO', 'WARNING', 'ERROR']
+ParameterValue: TypeAlias = (
+    str | int | bool | None | tuple["ParameterValue", ...] | Mapping[str, "ParameterValue"]
+)
+Side: TypeAlias = Literal["buy", "sell"]
+OrderKind: TypeAlias = Literal["market", "limit"]
+Phase: TypeAlias = Literal["start", "warmup", "bar", "stop"]
+LogLevel: TypeAlias = Literal["DEBUG", "INFO", "WARNING", "ERROR"]
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Bar:
@@ -57,8 +59,8 @@ class Position:
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class Protection:
-    stop_loss_percent: Decimal = Decimal('0')
-    take_profit_percent: Decimal = Decimal('0')
+    stop_loss_percent: Decimal = Decimal("0")
+    take_profit_percent: Decimal = Decimal("0")
 
 @dataclass(frozen=True, slots=True, kw_only=True)
 class OrderSnapshot:
@@ -67,7 +69,7 @@ class OrderSnapshot:
     side: Side
     kind: OrderKind
     quantity: Decimal
-    status: Literal['accepted', 'filled', 'cancelled', 'rejected', 'ended']
+    status: Literal["accepted", "filled", "cancelled", "rejected", "ended"]
     reason: str
     run_id: str
     filled_quantity: Decimal
@@ -90,7 +92,7 @@ class ProtectionGroup:
 @dataclass(frozen=True, slots=True, kw_only=True)
 class OrderSubmission:
     order_id: str
-    status: Literal['accepted', 'rejected']
+    status: Literal["accepted", "rejected"]
     code: str | None = None
 
 @dataclass(frozen=True, slots=True, kw_only=True)
@@ -123,7 +125,7 @@ class Context(Protocol):
     @property
     def run_id(self) -> str: ...
     @property
-    def mode(self) -> Literal['backtest']: ...
+    def mode(self) -> Literal["backtest"]: ...
     @property
     def now(self) -> datetime: ...
     @property
@@ -134,20 +136,36 @@ class Context(Protocol):
     def instrument(self) -> Instrument: ...
     @property
     def parameters(self) -> Mapping[str, ParameterValue]: ...
-    def history(self, *, instrument_id: str | None = None, timeframe: str | None = None,
-                end_time: datetime | None = None, limit: int = 100) -> tuple[Bar, ...]: ...
+    def history(
+        self,
+        *,
+        instrument_id: str | None = None,
+        timeframe: str | None = None,
+        end_time: datetime | None = None,
+        limit: int = 100,
+    ) -> tuple[Bar, ...]: ...
     def account(self) -> Account: ...
     def position(self) -> Position: ...
-    def submit_order(self, *, client_order_id: str, side: Side, quantity: Decimal,
-                     kind: OrderKind = 'market', limit_price: Decimal | None = None,
-                     protection: Protection | None = None) -> OrderSubmission: ...
+    def submit_order(
+        self,
+        *,
+        client_order_id: str,
+        side: Side,
+        quantity: Decimal,
+        kind: OrderKind = "market",
+        limit_price: Decimal | None = None,
+        protection: Protection | None = None,
+    ) -> OrderSubmission: ...
     def cancel_order(self, order_id: str) -> OrderSnapshot: ...
     def get_order(self, order_id: str) -> OrderSnapshot: ...
     def exit_protected(self, group_id: str, quantity: Decimal) -> ExitResult: ...
-    def log(self, message: str, *, level: LogLevel = 'INFO') -> Acknowledgement: ...
-    def plot(self, series_id: str, value: Decimal, *, timestamp: datetime | None = None) -> Acknowledgement: ...
-    def marker(self, marker_id: str, *, label: str, price: Decimal,
-               timestamp: datetime | None = None) -> Acknowledgement: ...
+    def log(self, message: str, *, level: LogLevel = "INFO") -> Acknowledgement: ...
+    def plot(
+        self, series_id: str, value: Decimal, *, timestamp: datetime | None = None
+    ) -> Acknowledgement: ...
+    def marker(
+        self, marker_id: str, *, label: str, price: Decimal, timestamp: datetime | None = None
+    ) -> Acknowledgement: ...
 
 class Strategy:
     def __init__(self, **parameters: ParameterValue) -> None: ...

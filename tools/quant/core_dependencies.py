@@ -119,7 +119,9 @@ def boundaries(root):
                     raise ValueError("noncanonical internal dependency: " + uri)
                 target = (root / "lib" if package else path.parent) / relative
                 if not target.is_file():
-                    label = "missing package dependency" if package else "missing internal dependency"
+                    label = (
+                        "missing package dependency" if package else "missing internal dependency"
+                    )
                     raise ValueError(label + ": " + uri)
                 visit(target)
 
@@ -128,5 +130,9 @@ def boundaries(root):
         raise ValueError("quant core is missing; cannot pass an empty architecture check")
     for path in paths:
         visit(path)
-    return {"core_files": len(paths), "transitive_files": len(visited),
-            "policy": str(POLICY), "external_packages": []}
+    return {
+        "core_files": len(paths),
+        "transitive_files": len(visited),
+        "policy": str(POLICY),
+        "external_packages": [],
+    }
