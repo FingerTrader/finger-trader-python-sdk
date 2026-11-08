@@ -1,13 +1,16 @@
-"""Read-only P0 acceptance audit; absent remote or human evidence fails closed.
+"""Owner-approved development P0 gate; technical failures still fail closed.
 
-This is an evidence collector, not a replacement for protected human review.
-It never changes repository settings, account data, or reviews.
+Runs fixed local candidates and reads remote evidence. Protection and independent
+review remain truthful observations, not development gates. Never changes GitHub
+settings, reviews, visibility, merges or releases.
 """
 
 import argparse
+import hashlib
 import json
 import re
 import subprocess
+import sys
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -104,49 +107,145 @@ def accepted_manual(record, commits):
     return True
 
 
+POLICY_ID = "owner-development-p0-2026-11-08"
+TECHNICAL_REQUIREMENTS = {
+    "exact_candidate_pair", "local_unified_checks", "positive_negative_regressions",
+    "python_dart_contracts_and_accounting", "latest_candidate_remote_ci", "reports_versions_evidence",
+}
+OBSERVATIONS = {
+    "github_plan", "branch_protection", "codeowners", "independent_manual_signatures",
+    "protected_negative_pr",
+}
+
+
+def load_policy(root):
+    policy = json.loads((root / "ci/quant-acceptance-policy.json").read_text())
+    if (
+        policy.get("id") != POLICY_ID
+        or policy.get("scope") != "development-P0-only"
+        or set(policy.get("required", [])) != TECHNICAL_REQUIREMENTS
+        or set(policy.get("non_blocking_observations", [])) != OBSERVATIONS
+        or policy.get("production_release_authorized") is not False
+        or policy.get("merge_authorized") is not False
+        or policy.get("approved_by") != "George (repository owner)"
+    ):
+        raise ValueError("unrecognized or weakened owner development policy")
+    return policy
+
+
+def development_verdict(repositories, fixed_pair):
+    return bool(
+        fixed_pair
+        and set(repositories) == set(REPOSITORIES.values())
+        and all(
+            all(record.get(key) is True for key in (
+                "checks_passed", "local_checks_passed", "candidate_identity_passed"
+            ))
+            for record in repositories.values()
+        )
+    )
+
+
+def local_checks(role, checkout, sha, dart, evidence, peer=None):
+    from report_summary import validate
+
+    evidence.mkdir(parents=True, exist_ok=True)
+    result = {"passed": False, "candidate": sha}
+    try:
+        def git(*args):
+            return subprocess.check_output(
+                ["git", *args], cwd=checkout, text=True, timeout=20
+            ).strip()
+
+        if git("rev-parse", "HEAD") != sha or git("status", "--porcelain"):
+            raise ValueError("local candidate must be exact and clean")
+        result["tree"] = git("rev-parse", "HEAD^{tree}")
+        command = [sys.executable, "-B", "tools/quant/quality.py", "--dart", dart,
+                   "--report-dir", str(evidence)]
+        if peer is not None:
+            command += ["--peer", str(peer)]
+        run = subprocess.run(command, cwd=checkout, text=True, capture_output=True, timeout=180)
+        (evidence / "execution.log").write_text(run.stdout + run.stderr)
+        result["exit_code"] = run.returncode
+        if run.returncode:
+            raise ValueError("unified local checks failed")
+        path = evidence / "report.json"
+        report = json.loads(path.read_text())
+        validate(report)
+        if report["role"] != role or git("rev-parse", "HEAD") != sha:
+            raise ValueError("candidate/report role changed during checks")
+        result.update(passed=True, report=str(path),
+                      report_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+    except (ValueError, OSError, subprocess.SubprocessError) as exc:
+        result["error"] = str(exc)
+    return result
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--desktop-commit", required=True)
     parser.add_argument("--sdk-commit", required=True)
-    parser.add_argument("--manual", required=True, type=Path)
+    parser.add_argument("--desktop-checkout", required=True, type=Path)
+    parser.add_argument("--sdk-checkout", required=True, type=Path)
+    parser.add_argument("--dart", required=True)
+    parser.add_argument("--manual", type=Path, help="optional historical observation, never approval")
     args = parser.parse_args()
+    root = Path(__file__).resolve().parents[2]
+    policy = load_policy(root)
     commits = {"desktop": args.desktop_commit, "sdk": args.sdk_commit}
     result = {
         "observed_at": datetime.now(timezone.utc).isoformat(),
-        "read_only": True,
-        "candidates": commits,
-        "repositories": {},
+        "read_only_remote": True, "policy": policy, "candidates": commits,
+        "repositories": {}, "release_scope": "development-P0-only",
     }
-    remote_ok = True
+    directories = {"desktop": args.desktop_checkout.resolve(), "sdk": args.sdk_checkout.resolve()}
+    try:
+        peer = json.loads((directories["desktop"] / "ci/quant-peer.json").read_text())
+        fixed_pair = peer["commit"] == commits["sdk"] and peer["repository"] == REPOSITORIES["sdk"]
+    except (OSError, ValueError, KeyError):
+        fixed_pair = False
+    result["fixed_pair_passed"] = fixed_pair
     for role, repo in REPOSITORIES.items():
+        sha = commits[role]
+        exact = isinstance(sha, str) and re.fullmatch("[0-9a-f]{40}", sha)
+        local = local_checks(
+            role, directories[role], sha, args.dart,
+            args.output.resolve().parent / (args.output.stem + "-" + role),
+            directories["sdk"] if role == "desktop" else None,
+        ) if exact else {"passed": False, "error": "full candidate SHA required"}
         info = get("repos/" + repo)
         protection = get("repos/" + repo + "/branches/main/protection")
         rules = get("repos/" + repo + "/rulesets")
-        sha = commits[role]
-        if re.fullmatch("[0-9a-f]{40}", sha):
-            checks = get("repos/" + repo + "/commits/" + sha + "/check-runs?per_page=100")
-        else:
-            checks = {"ok": False, "data": {"message": "exact candidate SHA required"}}
+        checks = get("repos/" + repo + "/commits/" + sha + "/check-runs?per_page=100") if exact else {
+            "ok": False, "data": {"message": "exact candidate SHA required"}
+        }
+        number = 1 if role == "desktop" else 7
+        pr = get("repos/" + repo + "/pulls/" + str(number))
+        identity = bool(pr["ok"] and pr["data"].get("head", {}).get("sha") == sha
+                        and pr["data"].get("state") == "open" and pr["data"].get("draft") is True)
         check_ok = checks_passed(checks, sha, REQUIRED[role])
-        # Fail closed if the API response is truncated. Larger histories need
-        # an explicitly paginated collector before they can be accepted.
         check_ok = check_ok and checks.get("data", {}).get("total_count", 0) <= 100
         protection_ok = protected(protection, REQUIRED[role])
-        remote_ok = remote_ok and check_ok and protection_ok
         result["repositories"][repo] = {
             "permissions": info.get("data", {}).get("permissions", {}),
-            "branch_protection": protection,
-            "rulesets": rules,
-            "candidate_checks": checks,
-            "required_checks": sorted(REQUIRED[role]),
-            "checks_passed": check_ok,
+            "branch_protection": protection, "rulesets": rules,
+            "candidate_checks": checks, "required_checks": sorted(REQUIRED[role]),
+            "checks_passed": check_ok, "local_checks": local,
+            "local_checks_passed": local["passed"], "candidate_identity_passed": identity,
+            "pull_request": {"number": number, "head": pr.get("data", {}).get("head", {}).get("sha"),
+                             "draft": pr.get("data", {}).get("draft")},
             "protection_passed": protection_ok,
+            "protection_status": "verified" if protection_ok else "not_configured_or_unverified",
+            "protection_required_for_development": False,
         }
-        print(repo, "candidate_checks=" + str(check_ok), "protected=" + str(protection_ok))
-    manual = json.loads(args.manual.read_text())
+        print(repo, "local=" + str(local["passed"]), "candidate_checks=" + str(check_ok),
+              "protected=" + str(protection_ok) + " (observation only)")
+    manual = json.loads(args.manual.read_text()) if args.manual else {}
     result["manual_accepted"] = accepted_manual(manual, commits)
-    result["p0_released"] = bool(remote_ok and result["manual_accepted"])
+    result["manual_required_for_development"] = False
+    result["p0_released"] = development_verdict(result["repositories"], fixed_pair)
+    result["production_release_authorized"] = False
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_text(json.dumps(result, indent=2) + "\n")
     return 0 if result["p0_released"] else 1
