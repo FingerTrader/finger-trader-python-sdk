@@ -190,6 +190,7 @@ def main() -> int:
     )
     started = False
     stopped = False
+    failed = False
     last_event = 0
     seen_callbacks: set[str] = set()
     while True:
@@ -213,6 +214,8 @@ def main() -> int:
             raise ProtocolMismatchError("Stale, out-of-order or cross-run lifecycle")
         if (method == "runtime.on_start") == started:
             raise ProtocolMismatchError("Invalid lifecycle order")
+        if failed and method != "runtime.on_stop":
+            raise ProtocolMismatchError("Only cleanup stop is allowed after callback failure")
         seen_callbacks.add(params["callback_id"])
         last_event = params["event_seq"]
         phase = "start" if method == "runtime.on_start" else "stop"
@@ -263,8 +266,9 @@ def main() -> int:
                 "result": {"callback_id": params["callback_id"], "outcome": outcome},
             }
         )
-        if outcome == "error" or stopped:
-            return 1 if outcome == "error" else 0
+        failed = failed or outcome == "error"
+        if stopped or not started:
+            return 1 if failed else 0
 
 
 if __name__ == "__main__":

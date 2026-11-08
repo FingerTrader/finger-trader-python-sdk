@@ -38,7 +38,7 @@
       "sha256": "bc9548fd67eeb8c8c691266155fe829abc91fa1ca6b8a75e92d52b1a39eeab06"
     },
     "src/finger_trader/hosted/worker.py": {
-      "sha256": "02f72c6bd960e5756f05dc3ac17f6782815a795b979f502038e2e3a06c42e668"
+      "sha256": "8dae1b880de0e1cc3f3f6f07249878cefab29c9127fd5f3be63132158c5632f6"
     },
     "src/finger_trader/indicators/__init__.py": {
       "sha256": "4a461f4344887dbe7e9acf2aec382613126c7e5e3ce98c923ee44ae5fa690645"
