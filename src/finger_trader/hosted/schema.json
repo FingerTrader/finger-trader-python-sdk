@@ -1,0 +1,2171 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:finger:quant:contract:1",
+  "title": "Finger hosted strategy contract v1",
+  "$defs": {
+    "Decimal": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "NonNegativeDecimal": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]+)?$"
+    },
+    "Id": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "Versions": {
+      "type": "object",
+      "properties": {
+        "strategy_api": {
+          "const": "1"
+        },
+        "business_ipc": {
+          "const": "1.0"
+        },
+        "sdk": {
+          "type": "string",
+          "minLength": 1
+        },
+        "worker": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adapter": {
+          "type": "string",
+          "minLength": 1
+        },
+        "engine_model": {
+          "const": "cash-long-ohlcv/1"
+        },
+        "storage": {
+          "const": 1
+        }
+      },
+      "required": [
+        "strategy_api",
+        "business_ipc",
+        "sdk",
+        "worker",
+        "adapter",
+        "engine_model",
+        "storage"
+      ],
+      "additionalProperties": false
+    },
+    "Order": {
+      "type": "object",
+      "properties": {
+        "client_order_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "side": {
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "market",
+            "limit"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "limit_price": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "protection": {
+          "$ref": "#/$defs/Protection"
+        }
+      },
+      "required": [
+        "client_order_id",
+        "side",
+        "kind",
+        "quantity"
+      ],
+      "additionalProperties": false
+    },
+    "Protection": {
+      "type": "object",
+      "properties": {
+        "stop_loss_percent": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "take_profit_percent": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        }
+      },
+      "required": [
+        "stop_loss_percent",
+        "take_profit_percent"
+      ],
+      "additionalProperties": false
+    },
+    "Bar": {
+      "type": "object",
+      "properties": {
+        "instrument_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "timeframe": {
+          "type": "string",
+          "minLength": 1
+        },
+        "open_time": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "close_time": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "open": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "high": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "low": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "close": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "volume": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "is_closed": {
+          "const": true
+        },
+        "is_warmup": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "timeframe",
+        "open_time",
+        "close_time",
+        "open",
+        "high",
+        "low",
+        "close",
+        "volume",
+        "is_closed",
+        "is_warmup"
+      ],
+      "additionalProperties": false
+    },
+    "Timestamp": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,6})?Z$"
+    },
+    "Account": {
+      "type": "object",
+      "properties": {
+        "cash": {
+          "$ref": "#/$defs/Decimal"
+        },
+        "reserved_cash": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "available_cash": {
+          "$ref": "#/$defs/Decimal"
+        },
+        "position_quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "position_cost": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "realized_pnl": {
+          "$ref": "#/$defs/Decimal"
+        }
+      },
+      "required": [
+        "cash",
+        "reserved_cash",
+        "available_cash",
+        "position_quantity",
+        "position_cost",
+        "realized_pnl"
+      ],
+      "additionalProperties": false
+    },
+    "Strategy": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "strategy_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "language": {
+          "const": "python"
+        },
+        "api_major": {
+          "const": "1"
+        },
+        "source_kind": {
+          "enum": [
+            "visual",
+            "handwritten"
+          ]
+        },
+        "entrypoint": {
+          "type": "object",
+          "properties": {
+            "file": {
+              "type": "string",
+              "pattern": "^(?!/)(?!.*\\.\\.)[A-Za-z0-9_./-]+\\.py$"
+            },
+            "class_name": {
+              "type": "string",
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+            }
+          },
+          "required": [
+            "file",
+            "class_name"
+          ],
+          "additionalProperties": false
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": true
+        },
+        "requested_capabilities": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "history.read",
+              "account.read",
+              "orders.write",
+              "plots.write"
+            ]
+          }
+        }
+      },
+      "required": [
+        "schema_version",
+        "strategy_id",
+        "name",
+        "language",
+        "api_major",
+        "source_kind",
+        "entrypoint",
+        "parameters",
+        "requested_capabilities"
+      ],
+      "additionalProperties": false
+    },
+    "RuntimeBinding": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "binding_id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "platform": {
+          "enum": [
+            "macos-arm64"
+          ]
+        },
+        "versions": {
+          "$ref": "#/$defs/Versions"
+        },
+        "assets": {
+          "type": "object",
+          "properties": {
+            "runtime_sha256": {
+              "$ref": "#/$defs/Digest"
+            },
+            "sdk_sha256": {
+              "$ref": "#/$defs/Digest"
+            },
+            "worker_sha256": {
+              "$ref": "#/$defs/Digest"
+            },
+            "adapter_sha256": {
+              "$ref": "#/$defs/Digest"
+            }
+          },
+          "required": [
+            "runtime_sha256",
+            "sdk_sha256",
+            "worker_sha256",
+            "adapter_sha256"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "schema_version",
+        "binding_id",
+        "platform",
+        "versions",
+        "assets"
+      ],
+      "additionalProperties": false
+    },
+    "Digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "Call": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "method": {
+          "enum": [
+            "context.submit_order"
+          ]
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "callback_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "$ref": "#/$defs/Order"
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "Response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "result": {
+          "type": "object",
+          "properties": {
+            "order_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "status": {
+              "enum": [
+                "accepted",
+                "rejected"
+              ]
+            },
+            "code": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "order_id",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Error": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "error": {
+          "type": "object",
+          "properties": {
+            "code": {
+              "type": "integer",
+              "maximum": 9007199254740991
+            },
+            "message": {
+              "type": "string",
+              "minLength": 1
+            },
+            "data": {
+              "type": "object",
+              "properties": {
+                "code": {
+                  "enum": [
+                    "INVALID_ARGUMENT",
+                    "INSUFFICIENT_CASH",
+                    "INSUFFICIENT_POSITION",
+                    "PERMISSION_DENIED",
+                    "STALE_CALLBACK",
+                    "PROTOCOL_MISMATCH",
+                    "PROTECTION_INVALID",
+                    "STOPPING",
+                    "IO_FAILURE",
+                    "UNSUPPORTED_CAPABILITY"
+                  ]
+                }
+              },
+              "required": [
+                "code"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "code",
+            "message",
+            "data"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "error"
+      ],
+      "additionalProperties": false
+    },
+    "Handshake": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+        },
+        "method": {
+          "const": "runtime.initialize"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "protocol_min": {
+              "const": "1.0"
+            },
+            "protocol_max": {
+              "const": "1.0"
+            },
+            "api_major": {
+              "const": "1"
+            },
+            "mode": {
+              "const": "backtest"
+            },
+            "binding_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "granted_capabilities": {
+              "type": "array",
+              "items": {
+                "enum": [
+                  "history.read",
+                  "account.read",
+                  "orders.write",
+                  "plots.write"
+                ]
+              }
+            },
+            "limits": {
+              "type": "object",
+              "properties": {
+                "message_bytes": {
+                  "const": 1048576
+                },
+                "queue_bytes": {
+                  "const": 16777216
+                },
+                "queue_items": {
+                  "const": 1000
+                }
+              },
+              "required": [
+                "message_bytes",
+                "queue_bytes",
+                "queue_items"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "protocol_min",
+            "protocol_max",
+            "api_major",
+            "mode",
+            "binding_id",
+            "granted_capabilities",
+            "limits"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "CallbackComplete": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "method": {
+          "const": "runtime.callback_complete"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "callback_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "last_request_seq": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 9007199254740991
+            },
+            "outcome": {
+              "enum": [
+                "ok",
+                "error"
+              ]
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "last_request_seq",
+            "outcome"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "AccountQuery": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.account"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {},
+              "required": [],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "PositionQuery": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.position"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "instrument_id": {
+                  "$ref": "#/$defs/Id"
+                }
+              },
+              "required": [
+                "instrument_id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "HistoryQuery": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.history"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "instrument_id": {
+                  "$ref": "#/$defs/Id"
+                },
+                "timeframe": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "end_time": {
+                  "$ref": "#/$defs/Timestamp"
+                },
+                "limit": {
+                  "type": "integer",
+                  "minimum": 1,
+                  "maximum": 9007199254740991
+                }
+              },
+              "required": [
+                "instrument_id",
+                "timeframe",
+                "end_time",
+                "limit"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "CancelOrder": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.cancel_order"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "$ref": "#/$defs/Id"
+                }
+              },
+              "required": [
+                "order_id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "GetOrder": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.get_order"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "order_id": {
+                  "$ref": "#/$defs/Id"
+                }
+              },
+              "required": [
+                "order_id"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ExitProtected": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.exit_protected"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "group_id": {
+                  "$ref": "#/$defs/Id"
+                },
+                "quantity": {
+                  "$ref": "#/$defs/NonNegativeDecimal"
+                }
+              },
+              "required": [
+                "group_id",
+                "quantity"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "Log": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.log"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "level": {
+                  "enum": [
+                    "DEBUG",
+                    "INFO",
+                    "WARNING",
+                    "ERROR"
+                  ]
+                },
+                "message": {
+                  "type": "string",
+                  "minLength": 1
+                }
+              },
+              "required": [
+                "level",
+                "message"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "Plot": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.plot"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "series_id": {
+                  "$ref": "#/$defs/Id"
+                },
+                "timestamp": {
+                  "$ref": "#/$defs/Timestamp"
+                },
+                "value": {
+                  "$ref": "#/$defs/Decimal"
+                }
+              },
+              "required": [
+                "series_id",
+                "timestamp",
+                "value"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "Marker": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "context.marker"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "request_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "payload": {
+              "type": "object",
+              "properties": {
+                "marker_id": {
+                  "$ref": "#/$defs/Id"
+                },
+                "timestamp": {
+                  "$ref": "#/$defs/Timestamp"
+                },
+                "label": {
+                  "type": "string",
+                  "minLength": 1
+                },
+                "price": {
+                  "$ref": "#/$defs/NonNegativeDecimal"
+                }
+              },
+              "required": [
+                "marker_id",
+                "timestamp",
+                "label",
+                "price"
+              ],
+              "additionalProperties": false
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "request_seq",
+            "payload"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "BarEvent": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "runtime.on_bar"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "event_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "bar": {
+              "$ref": "#/$defs/Bar"
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "event_seq",
+            "bar"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "ReadResponse": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/Account"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Position": {
+      "type": "object",
+      "properties": {
+        "instrument_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "available_quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "reserved_quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "cost": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "quantity",
+        "available_quantity",
+        "reserved_quantity",
+        "cost"
+      ],
+      "additionalProperties": false
+    },
+    "OrderState": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "client_order_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "side": {
+          "enum": [
+            "buy",
+            "sell"
+          ]
+        },
+        "kind": {
+          "enum": [
+            "market",
+            "limit"
+          ]
+        },
+        "quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "status": {
+          "enum": [
+            "accepted",
+            "filled",
+            "cancelled",
+            "rejected",
+            "ended"
+          ]
+        },
+        "reason": {
+          "type": "string"
+        },
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "limit_price": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "filled_quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "fill_price": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "fee": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "reserved_cash": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "reserved_quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "group_id": {
+          "$ref": "#/$defs/Id"
+        }
+      },
+      "required": [
+        "order_id",
+        "client_order_id",
+        "side",
+        "kind",
+        "quantity",
+        "status",
+        "reason",
+        "run_id",
+        "filled_quantity",
+        "fee",
+        "reserved_cash",
+        "reserved_quantity"
+      ],
+      "additionalProperties": false
+    },
+    "Accepted": {
+      "type": "object",
+      "properties": {
+        "accepted": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "accepted"
+      ],
+      "additionalProperties": false
+    },
+    "ExitResult": {
+      "type": "object",
+      "properties": {
+        "order_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "group_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "remaining_quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        }
+      },
+      "required": [
+        "order_id",
+        "group_id",
+        "remaining_quantity"
+      ],
+      "additionalProperties": false
+    },
+    "WorkerReady": {
+      "type": "object",
+      "properties": {
+        "protocol": {
+          "const": "1.0"
+        },
+        "api_major": {
+          "const": "1"
+        },
+        "sdk_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "worker_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adapter_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "python_version": {
+          "type": "string",
+          "minLength": 1
+        },
+        "python_implementation": {
+          "const": "CPython"
+        },
+        "platform": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "protocol",
+        "api_major",
+        "sdk_version",
+        "worker_version",
+        "adapter_version",
+        "python_version",
+        "python_implementation",
+        "platform"
+      ],
+      "additionalProperties": false
+    },
+    "CallbackResult": {
+      "type": "object",
+      "properties": {
+        "callback_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "outcome": {
+          "enum": [
+            "ok",
+            "error"
+          ]
+        }
+      },
+      "required": [
+        "callback_id",
+        "outcome"
+      ],
+      "additionalProperties": false
+    },
+    "StartEvent": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "runtime.on_start"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "event_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "simulation_time": {
+              "$ref": "#/$defs/Timestamp"
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "event_seq",
+            "simulation_time"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "StopEvent": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "method": {
+          "const": "runtime.on_stop"
+        },
+        "params": {
+          "type": "object",
+          "properties": {
+            "run_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "callback_id": {
+              "$ref": "#/$defs/Id"
+            },
+            "event_seq": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 9007199254740991
+            },
+            "simulation_time": {
+              "$ref": "#/$defs/Timestamp"
+            },
+            "reason": {
+              "enum": [
+                "completed",
+                "user_stop",
+                "failure"
+              ]
+            }
+          },
+          "required": [
+            "run_id",
+            "callback_id",
+            "event_seq",
+            "simulation_time",
+            "reason"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "method",
+        "params"
+      ],
+      "additionalProperties": false
+    },
+    "runtime_initialize_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/WorkerReady"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "runtime_on_start_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/CallbackResult"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "runtime_on_bar_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/CallbackResult"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "runtime_on_stop_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/CallbackResult"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_account_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/Account"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_position_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/Position"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_history_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Bar"
+          }
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_submit_order_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "type": "object",
+          "properties": {
+            "order_id": {
+              "type": "string",
+              "pattern": "^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+            },
+            "status": {
+              "enum": [
+                "accepted",
+                "rejected"
+              ]
+            },
+            "code": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "order_id",
+            "status"
+          ],
+          "additionalProperties": false
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_cancel_order_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/OrderState"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_get_order_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/OrderState"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_exit_protected_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/ExitResult"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_log_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/Accepted"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_plot_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/Accepted"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "context_marker_response": {
+      "type": "object",
+      "properties": {
+        "jsonrpc": {
+          "const": "2.0"
+        },
+        "id": {
+          "$ref": "#/$defs/Id"
+        },
+        "result": {
+          "$ref": "#/$defs/Accepted"
+        }
+      },
+      "required": [
+        "jsonrpc",
+        "id",
+        "result"
+      ],
+      "additionalProperties": false
+    },
+    "Instrument": {
+      "type": "object",
+      "properties": {
+        "instrument_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "quote_currency": {
+          "type": "string",
+          "minLength": 1
+        },
+        "price_step": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "quantity_step": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "minimum_quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "minimum_notional": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "money_step": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "timezone": {
+          "type": "string",
+          "minLength": 1
+        },
+        "calendar_id": {
+          "$ref": "#/$defs/Id"
+        }
+      },
+      "required": [
+        "instrument_id",
+        "quote_currency",
+        "price_step",
+        "quantity_step",
+        "minimum_quantity",
+        "minimum_notional",
+        "money_step",
+        "timezone",
+        "calendar_id"
+      ],
+      "additionalProperties": false
+    },
+    "Dataset": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "dataset_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "instrument": {
+          "$ref": "#/$defs/Instrument"
+        },
+        "timeframe": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source": {
+          "type": "string",
+          "minLength": 1
+        },
+        "adjustment": {
+          "enum": [
+            "raw-no-actions",
+            "adjusted-verified"
+          ]
+        },
+        "content_sha256": {
+          "$ref": "#/$defs/Digest"
+        },
+        "first_open": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "last_close": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "bar_count": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "schema_version",
+        "dataset_id",
+        "instrument",
+        "timeframe",
+        "source",
+        "adjustment",
+        "content_sha256",
+        "first_open",
+        "last_close",
+        "bar_count"
+      ],
+      "additionalProperties": false
+    },
+    "RunRecord": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "strategy_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "source_sha256": {
+          "$ref": "#/$defs/Digest"
+        },
+        "parameters_sha256": {
+          "$ref": "#/$defs/Digest"
+        },
+        "binding_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "dataset_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "model": {
+          "const": "cash-long-ohlcv/1"
+        },
+        "state": {
+          "enum": [
+            "CREATED",
+            "VALIDATING",
+            "STARTING",
+            "RUNNING",
+            "STOPPING",
+            "STOPPED",
+            "COMPLETED",
+            "FAILED"
+          ]
+        }
+      },
+      "required": [
+        "schema_version",
+        "run_id",
+        "strategy_id",
+        "source_sha256",
+        "parameters_sha256",
+        "binding_id",
+        "dataset_id",
+        "model",
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "ProtectionGroup": {
+      "type": "object",
+      "properties": {
+        "group_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "entry_order_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "quantity": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "stop_price": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "take_price": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        },
+        "active_from_event_seq": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        }
+      },
+      "required": [
+        "group_id",
+        "entry_order_id",
+        "quantity",
+        "active_from_event_seq"
+      ],
+      "additionalProperties": false
+    },
+    "RunEvent": {
+      "type": "object",
+      "properties": {
+        "schema_version": {
+          "const": 1
+        },
+        "run_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "event_seq": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "simulation_time": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "kind": {
+          "enum": [
+            "run.state",
+            "order.changed",
+            "account.changed",
+            "position.changed",
+            "protection.changed",
+            "plot",
+            "marker",
+            "log"
+          ]
+        },
+        "payload": {
+          "type": "object",
+          "additionalProperties": true
+        }
+      },
+      "required": [
+        "schema_version",
+        "run_id",
+        "event_seq",
+        "simulation_time",
+        "kind",
+        "payload"
+      ],
+      "additionalProperties": false
+    },
+    "RunStatePayload": {
+      "type": "object",
+      "properties": {
+        "state": {
+          "enum": [
+            "CREATED",
+            "VALIDATING",
+            "STARTING",
+            "RUNNING",
+            "STOPPING",
+            "STOPPED",
+            "COMPLETED",
+            "FAILED"
+          ]
+        }
+      },
+      "required": [
+        "state"
+      ],
+      "additionalProperties": false
+    },
+    "PlotPayload": {
+      "type": "object",
+      "properties": {
+        "series_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "timestamp": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "value": {
+          "$ref": "#/$defs/Decimal"
+        }
+      },
+      "required": [
+        "series_id",
+        "timestamp",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "MarkerPayload": {
+      "type": "object",
+      "properties": {
+        "marker_id": {
+          "$ref": "#/$defs/Id"
+        },
+        "timestamp": {
+          "$ref": "#/$defs/Timestamp"
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1
+        },
+        "price": {
+          "$ref": "#/$defs/NonNegativeDecimal"
+        }
+      },
+      "required": [
+        "marker_id",
+        "timestamp",
+        "label",
+        "price"
+      ],
+      "additionalProperties": false
+    },
+    "LogPayload": {
+      "type": "object",
+      "properties": {
+        "level": {
+          "enum": [
+            "DEBUG",
+            "INFO",
+            "WARNING",
+            "ERROR"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "level",
+        "message"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "event_payloads": {
+    "run.state": "RunStatePayload",
+    "order.changed": "OrderState",
+    "account.changed": "Account",
+    "position.changed": "Position",
+    "protection.changed": "ProtectionGroup",
+    "plot": "PlotPayload",
+    "marker": "MarkerPayload",
+    "log": "LogPayload"
+  }
+}
