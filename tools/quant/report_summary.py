@@ -6,6 +6,8 @@ from pathlib import Path
 
 
 def validate(report):
+    if report["role"] not in {"desktop", "sdk"}:
+        raise ValueError("unknown report role")
     required = {
         "bundle-integrity",
         "architecture-boundaries",

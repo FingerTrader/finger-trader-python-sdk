@@ -60,8 +60,11 @@ def parse_json(text):
 
     try:
         return json.loads(
-            text, object_pairs_hook=unique, parse_constant=invalid,
-            parse_int=integer, parse_float=floating,
+            text,
+            object_pairs_hook=unique,
+            parse_constant=invalid,
+            parse_int=integer,
+            parse_float=floating,
         )
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise ContractError(str(exc)) from exc

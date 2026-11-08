@@ -28,16 +28,6 @@ jobs:
       - run: ruff format --check .
       - run: mypy
       - run: python -m build
-      - name: Temporary P0 formatting diagnostic (preserves lint failure)
-        if: failure()
-        run: |
-          ruff check tools/quant tests/quant_contracts --fix || true
-          ruff format tools/quant tests/quant_contracts
-          python - <<'PYDIAG'
-          import base64, subprocess
-          data=subprocess.check_output(['git','diff','--','tools/quant','tests/quant_contracts'])
-          print('P0_FORMAT_PATCH='+base64.b64encode(data).decode())
-          PYDIAG
 
   dependency-audit:
     runs-on: ubuntu-latest

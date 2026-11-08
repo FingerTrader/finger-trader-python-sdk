@@ -42,10 +42,12 @@ class NegativeQualityTests(unittest.TestCase):
     def test_empty_or_skipped_suite_cannot_pass(self):
         from types import SimpleNamespace
 
+        require_complete(SimpleNamespace(testsRun=27, skipped=[], wasSuccessful=lambda: True))
         for count, skipped, success in [
             (0, [], True),
-            (21, [("test", "missing environment")], True),
-            (21, [], False),
+            (26, [], True),
+            (27, [("test", "missing environment")], True),
+            (27, [], False),
         ]:
             result = SimpleNamespace(
                 testsRun=count, skipped=skipped, wasSuccessful=lambda success=success: success
@@ -166,12 +168,14 @@ class NegativeQualityTests(unittest.TestCase):
         validate_report(valid)
         import copy
 
-        for mutation in ("missing", "duplicate", "skipped", "cancelled", "failed"):
+        for mutation in ("missing", "duplicate", "skipped", "cancelled", "failed", "unknown-role"):
             report = copy.deepcopy(valid)
             if mutation == "missing":
                 report["checks"].pop()
             elif mutation == "duplicate":
                 report["checks"].append(report["checks"][0])
+            elif mutation == "unknown-role":
+                report["role"] = "unknown"
             else:
                 report["checks"][0]["status"] = mutation
             with self.subTest(mutation=mutation), self.assertRaises(ValueError):
