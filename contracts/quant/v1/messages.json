@@ -1,0 +1,5971 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "name": "decimal_exact",
+      "definition": "Decimal",
+      "valid": true,
+      "value": "0.1000000000000000001"
+    },
+    {
+      "name": "decimal_float_rejected",
+      "definition": "Decimal",
+      "valid": false,
+      "value": 0.1
+    },
+    {
+      "name": "decimal_nan",
+      "definition": "Decimal",
+      "valid": false,
+      "value": "NaN"
+    },
+    {
+      "name": "decimal_exponent",
+      "definition": "Decimal",
+      "valid": false,
+      "value": "1e-3"
+    },
+    {
+      "name": "bar",
+      "definition": "Bar",
+      "valid": true,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "buy_market_protected",
+      "definition": "Order",
+      "valid": true,
+      "value": {
+        "client_order_id": "order-1",
+        "side": "buy",
+        "kind": "market",
+        "quantity": "0.5",
+        "protection": {
+          "stop_loss_percent": "5",
+          "take_profit_percent": "10"
+        }
+      }
+    },
+    {
+      "name": "buy_limit",
+      "definition": "Order",
+      "valid": true,
+      "value": {
+        "client_order_id": "order-2",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "8",
+        "limit_price": "100"
+      }
+    },
+    {
+      "name": "zero_quantity",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-3",
+        "side": "buy",
+        "kind": "market",
+        "quantity": "0"
+      }
+    },
+    {
+      "name": "market_with_limit",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-4",
+        "side": "buy",
+        "kind": "market",
+        "quantity": "1",
+        "limit_price": "100"
+      }
+    },
+    {
+      "name": "limit_missing_price",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-5",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "1"
+      }
+    },
+    {
+      "name": "sell_with_protection",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-6",
+        "side": "sell",
+        "kind": "market",
+        "quantity": "1",
+        "protection": {
+          "stop_loss_percent": "5",
+          "take_profit_percent": "0"
+        }
+      }
+    },
+    {
+      "name": "stop_percent_100",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-7",
+        "side": "buy",
+        "kind": "market",
+        "quantity": "1",
+        "protection": {
+          "stop_loss_percent": "100",
+          "take_profit_percent": "0"
+        }
+      }
+    },
+    {
+      "name": "unknown_field",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-8",
+        "side": "buy",
+        "kind": "market",
+        "quantity": "1",
+        "flutter_widget": "unsafe"
+      }
+    },
+    {
+      "name": "bad_bar_range",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "99",
+        "low": "90",
+        "close": "95",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "rpc_submit",
+      "definition": "Call",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "rpc-1",
+        "method": "context.submit_order",
+        "params": {
+          "run_id": "run-1",
+          "callback_id": "bar-1",
+          "request_seq": 1,
+          "payload": {
+            "client_order_id": "order-9",
+            "side": "buy",
+            "kind": "market",
+            "quantity": "1"
+          }
+        }
+      }
+    },
+    {
+      "name": "rpc_no_callback",
+      "definition": "Call",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "rpc-2",
+        "method": "context.submit_order",
+        "params": {
+          "run_id": "run-1",
+          "request_seq": 1,
+          "payload": {
+            "client_order_id": "order-9",
+            "side": "buy",
+            "kind": "market",
+            "quantity": "1"
+          }
+        }
+      }
+    },
+    {
+      "name": "callback_done",
+      "definition": "CallbackComplete",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.callback_complete",
+        "params": {
+          "run_id": "run-1",
+          "callback_id": "bar-1",
+          "last_request_seq": 1,
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "response",
+      "definition": "Response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "rpc-1",
+        "result": {
+          "order_id": "order-1",
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "name": "structured_error",
+      "definition": "Error",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "rpc-2",
+        "error": {
+          "code": -32003,
+          "message": "Trading is disabled",
+          "data": {
+            "code": "PERMISSION_DENIED"
+          }
+        }
+      }
+    },
+    {
+      "name": "source_escape",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "s-1",
+        "name": "escape",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "handwritten",
+        "entrypoint": {
+          "file": "../escape.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": []
+      }
+    },
+    {
+      "name": "strategy",
+      "definition": "Strategy",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "s-1",
+        "name": "example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "handwritten",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {
+          "quantity": "0.5"
+        },
+        "requested_capabilities": [
+          "history.read",
+          "account.read",
+          "orders.write"
+        ]
+      }
+    },
+    {
+      "name": "precision_overflow",
+      "definition": "Decimal",
+      "valid": false,
+      "value": "12345678901234567890123456789012345"
+    },
+    {
+      "name": "invalid_calendar",
+      "definition": "Timestamp",
+      "valid": false,
+      "value": "2026-02-30T00:00:00Z"
+    },
+    {
+      "name": "account_invariant",
+      "definition": "Account",
+      "valid": true,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "available_cash": "200",
+        "position_quantity": "0",
+        "position_cost": "0",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "account_bad_invariant",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "available_cash": "201",
+        "position_quantity": "0",
+        "position_cost": "0",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "decimal_trailing_newline",
+      "definition": "Decimal",
+      "valid": false,
+      "value": "1\n"
+    },
+    {
+      "name": "account_34_digit_context",
+      "definition": "Account",
+      "valid": true,
+      "value": {
+        "cash": "123456789012345678901234567890",
+        "reserved_cash": "1",
+        "available_cash": "123456789012345678901234567889",
+        "position_quantity": "0",
+        "position_cost": "0",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "coverage_Decimal",
+      "definition": "Decimal",
+      "valid": true,
+      "value": "0.123"
+    },
+    {
+      "name": "wrong_type_Decimal",
+      "definition": "Decimal",
+      "valid": false,
+      "value": {}
+    },
+    {
+      "name": "coverage_NonNegativeDecimal",
+      "definition": "NonNegativeDecimal",
+      "valid": true,
+      "value": "0.123"
+    },
+    {
+      "name": "wrong_type_NonNegativeDecimal",
+      "definition": "NonNegativeDecimal",
+      "valid": false,
+      "value": {}
+    },
+    {
+      "name": "coverage_Id",
+      "definition": "Id",
+      "valid": true,
+      "value": "id-1"
+    },
+    {
+      "name": "wrong_type_Id",
+      "definition": "Id",
+      "valid": false,
+      "value": {}
+    },
+    {
+      "name": "coverage_Versions",
+      "definition": "Versions",
+      "valid": true,
+      "value": {
+        "strategy_api": "1",
+        "business_ipc": "1.0",
+        "sdk": "Example",
+        "worker": "Example",
+        "adapter": "Example",
+        "engine_model": "cash-long-ohlcv/1",
+        "storage": 1
+      }
+    },
+    {
+      "name": "unknown_Versions",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "strategy_api": "1",
+        "business_ipc": "1.0",
+        "sdk": "Example",
+        "worker": "Example",
+        "adapter": "Example",
+        "engine_model": "cash-long-ohlcv/1",
+        "storage": 1,
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Versions_strategy_api",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "business_ipc": "1.0",
+        "sdk": "Example",
+        "worker": "Example",
+        "adapter": "Example",
+        "engine_model": "cash-long-ohlcv/1",
+        "storage": 1
+      }
+    },
+    {
+      "name": "missing_Versions_business_ipc",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "strategy_api": "1",
+        "sdk": "Example",
+        "worker": "Example",
+        "adapter": "Example",
+        "engine_model": "cash-long-ohlcv/1",
+        "storage": 1
+      }
+    },
+    {
+      "name": "missing_Versions_sdk",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "strategy_api": "1",
+        "business_ipc": "1.0",
+        "worker": "Example",
+        "adapter": "Example",
+        "engine_model": "cash-long-ohlcv/1",
+        "storage": 1
+      }
+    },
+    {
+      "name": "missing_Versions_worker",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "strategy_api": "1",
+        "business_ipc": "1.0",
+        "sdk": "Example",
+        "adapter": "Example",
+        "engine_model": "cash-long-ohlcv/1",
+        "storage": 1
+      }
+    },
+    {
+      "name": "missing_Versions_adapter",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "strategy_api": "1",
+        "business_ipc": "1.0",
+        "sdk": "Example",
+        "worker": "Example",
+        "engine_model": "cash-long-ohlcv/1",
+        "storage": 1
+      }
+    },
+    {
+      "name": "missing_Versions_engine_model",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "strategy_api": "1",
+        "business_ipc": "1.0",
+        "sdk": "Example",
+        "worker": "Example",
+        "adapter": "Example",
+        "storage": 1
+      }
+    },
+    {
+      "name": "missing_Versions_storage",
+      "definition": "Versions",
+      "valid": false,
+      "value": {
+        "strategy_api": "1",
+        "business_ipc": "1.0",
+        "sdk": "Example",
+        "worker": "Example",
+        "adapter": "Example",
+        "engine_model": "cash-long-ohlcv/1"
+      }
+    },
+    {
+      "name": "coverage_Order",
+      "definition": "Order",
+      "valid": true,
+      "value": {
+        "client_order_id": "order-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "limit_price": "100"
+      }
+    },
+    {
+      "name": "unknown_Order",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "limit_price": "100",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Order_client_order_id",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "limit_price": "100"
+      }
+    },
+    {
+      "name": "missing_Order_side",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-1",
+        "kind": "limit",
+        "quantity": "2",
+        "limit_price": "100"
+      }
+    },
+    {
+      "name": "missing_Order_kind",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-1",
+        "side": "buy",
+        "quantity": "2",
+        "limit_price": "100"
+      }
+    },
+    {
+      "name": "missing_Order_quantity",
+      "definition": "Order",
+      "valid": false,
+      "value": {
+        "client_order_id": "order-1",
+        "side": "buy",
+        "kind": "limit",
+        "limit_price": "100"
+      }
+    },
+    {
+      "name": "coverage_Protection",
+      "definition": "Protection",
+      "valid": true,
+      "value": {
+        "stop_loss_percent": "5",
+        "take_profit_percent": "10"
+      }
+    },
+    {
+      "name": "unknown_Protection",
+      "definition": "Protection",
+      "valid": false,
+      "value": {
+        "stop_loss_percent": "5",
+        "take_profit_percent": "10",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Protection_stop_loss_percent",
+      "definition": "Protection",
+      "valid": false,
+      "value": {
+        "take_profit_percent": "10"
+      }
+    },
+    {
+      "name": "missing_Protection_take_profit_percent",
+      "definition": "Protection",
+      "valid": false,
+      "value": {
+        "stop_loss_percent": "5"
+      }
+    },
+    {
+      "name": "coverage_Bar",
+      "definition": "Bar",
+      "valid": true,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "unknown_Bar",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false,
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Bar_instrument_id",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_timeframe",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_open_time",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_close_time",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_open",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_high",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_low",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_close",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "volume": "10",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_volume",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "is_closed": true,
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_is_closed",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_warmup": false
+      }
+    },
+    {
+      "name": "missing_Bar_is_warmup",
+      "definition": "Bar",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "timeframe": "1m",
+        "open_time": "2026-01-01T00:00:00Z",
+        "close_time": "2026-01-01T00:01:00Z",
+        "open": "100",
+        "high": "110",
+        "low": "90",
+        "close": "105",
+        "volume": "10",
+        "is_closed": true
+      }
+    },
+    {
+      "name": "coverage_Timestamp",
+      "definition": "Timestamp",
+      "valid": true,
+      "value": "2026-01-01T00:00:00Z"
+    },
+    {
+      "name": "wrong_type_Timestamp",
+      "definition": "Timestamp",
+      "valid": false,
+      "value": {}
+    },
+    {
+      "name": "coverage_Account",
+      "definition": "Account",
+      "valid": true,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "available_cash": "200",
+        "position_quantity": "2",
+        "position_cost": "200",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "unknown_Account",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "available_cash": "200",
+        "position_quantity": "2",
+        "position_cost": "200",
+        "realized_pnl": "0",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Account_cash",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "reserved_cash": "800",
+        "available_cash": "200",
+        "position_quantity": "2",
+        "position_cost": "200",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "missing_Account_reserved_cash",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000",
+        "available_cash": "200",
+        "position_quantity": "2",
+        "position_cost": "200",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "missing_Account_available_cash",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "position_quantity": "2",
+        "position_cost": "200",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "missing_Account_position_quantity",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "available_cash": "200",
+        "position_cost": "200",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "missing_Account_position_cost",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "available_cash": "200",
+        "position_quantity": "2",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "missing_Account_realized_pnl",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000",
+        "reserved_cash": "800",
+        "available_cash": "200",
+        "position_quantity": "2",
+        "position_cost": "200"
+      }
+    },
+    {
+      "name": "coverage_Strategy",
+      "definition": "Strategy",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "unknown_Strategy",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ],
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Strategy_schema_version",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_strategy_id",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_name",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_language",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_api_major",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_source_kind",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_entrypoint",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_parameters",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "missing_Strategy_requested_capabilities",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "strategy.py",
+          "class_name": "Example"
+        },
+        "parameters": {}
+      }
+    },
+    {
+      "name": "coverage_RuntimeBinding",
+      "definition": "RuntimeBinding",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "binding_id": "Example",
+        "platform": "macos-arm64",
+        "versions": {
+          "strategy_api": "1",
+          "business_ipc": "1.0",
+          "sdk": "Example",
+          "worker": "Example",
+          "adapter": "Example",
+          "engine_model": "cash-long-ohlcv/1",
+          "storage": 1
+        },
+        "assets": {
+          "runtime_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sdk_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "worker_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "adapter_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    {
+      "name": "unknown_RuntimeBinding",
+      "definition": "RuntimeBinding",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "binding_id": "Example",
+        "platform": "macos-arm64",
+        "versions": {
+          "strategy_api": "1",
+          "business_ipc": "1.0",
+          "sdk": "Example",
+          "worker": "Example",
+          "adapter": "Example",
+          "engine_model": "cash-long-ohlcv/1",
+          "storage": 1
+        },
+        "assets": {
+          "runtime_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sdk_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "worker_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "adapter_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_RuntimeBinding_schema_version",
+      "definition": "RuntimeBinding",
+      "valid": false,
+      "value": {
+        "binding_id": "Example",
+        "platform": "macos-arm64",
+        "versions": {
+          "strategy_api": "1",
+          "business_ipc": "1.0",
+          "sdk": "Example",
+          "worker": "Example",
+          "adapter": "Example",
+          "engine_model": "cash-long-ohlcv/1",
+          "storage": 1
+        },
+        "assets": {
+          "runtime_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sdk_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "worker_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "adapter_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    {
+      "name": "missing_RuntimeBinding_binding_id",
+      "definition": "RuntimeBinding",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "platform": "macos-arm64",
+        "versions": {
+          "strategy_api": "1",
+          "business_ipc": "1.0",
+          "sdk": "Example",
+          "worker": "Example",
+          "adapter": "Example",
+          "engine_model": "cash-long-ohlcv/1",
+          "storage": 1
+        },
+        "assets": {
+          "runtime_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sdk_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "worker_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "adapter_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    {
+      "name": "missing_RuntimeBinding_platform",
+      "definition": "RuntimeBinding",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "binding_id": "Example",
+        "versions": {
+          "strategy_api": "1",
+          "business_ipc": "1.0",
+          "sdk": "Example",
+          "worker": "Example",
+          "adapter": "Example",
+          "engine_model": "cash-long-ohlcv/1",
+          "storage": 1
+        },
+        "assets": {
+          "runtime_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sdk_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "worker_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "adapter_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    {
+      "name": "missing_RuntimeBinding_versions",
+      "definition": "RuntimeBinding",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "binding_id": "Example",
+        "platform": "macos-arm64",
+        "assets": {
+          "runtime_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "sdk_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "worker_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "adapter_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+        }
+      }
+    },
+    {
+      "name": "missing_RuntimeBinding_assets",
+      "definition": "RuntimeBinding",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "binding_id": "Example",
+        "platform": "macos-arm64",
+        "versions": {
+          "strategy_api": "1",
+          "business_ipc": "1.0",
+          "sdk": "Example",
+          "worker": "Example",
+          "adapter": "Example",
+          "engine_model": "cash-long-ohlcv/1",
+          "storage": 1
+        }
+      }
+    },
+    {
+      "name": "coverage_Digest",
+      "definition": "Digest",
+      "valid": true,
+      "value": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    },
+    {
+      "name": "wrong_type_Digest",
+      "definition": "Digest",
+      "valid": false,
+      "value": {}
+    },
+    {
+      "name": "coverage_Call",
+      "definition": "Call",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "method": "context.submit_order",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "request_seq": 1,
+          "payload": {
+            "client_order_id": "order-1",
+            "side": "buy",
+            "kind": "limit",
+            "quantity": "2",
+            "limit_price": "100"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_Call",
+      "definition": "Call",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "method": "context.submit_order",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "request_seq": 1,
+          "payload": {
+            "client_order_id": "order-1",
+            "side": "buy",
+            "kind": "limit",
+            "quantity": "2",
+            "limit_price": "100"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Call_jsonrpc",
+      "definition": "Call",
+      "valid": false,
+      "value": {
+        "id": "Example",
+        "method": "context.submit_order",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "request_seq": 1,
+          "payload": {
+            "client_order_id": "order-1",
+            "side": "buy",
+            "kind": "limit",
+            "quantity": "2",
+            "limit_price": "100"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Call_id",
+      "definition": "Call",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.submit_order",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "request_seq": 1,
+          "payload": {
+            "client_order_id": "order-1",
+            "side": "buy",
+            "kind": "limit",
+            "quantity": "2",
+            "limit_price": "100"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Call_method",
+      "definition": "Call",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "request_seq": 1,
+          "payload": {
+            "client_order_id": "order-1",
+            "side": "buy",
+            "kind": "limit",
+            "quantity": "2",
+            "limit_price": "100"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Call_params",
+      "definition": "Call",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "method": "context.submit_order"
+      }
+    },
+    {
+      "name": "coverage_Response",
+      "definition": "Response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "name": "unknown_Response",
+      "definition": "Response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Response_jsonrpc",
+      "definition": "Response",
+      "valid": false,
+      "value": {
+        "id": "Example",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "name": "missing_Response_id",
+      "definition": "Response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "name": "missing_Response_result",
+      "definition": "Response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example"
+      }
+    },
+    {
+      "name": "coverage_Error",
+      "definition": "Error",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "error": {
+          "code": 1,
+          "message": "Example",
+          "data": {
+            "code": "INVALID_ARGUMENT"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_Error",
+      "definition": "Error",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "error": {
+          "code": 1,
+          "message": "Example",
+          "data": {
+            "code": "INVALID_ARGUMENT"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Error_jsonrpc",
+      "definition": "Error",
+      "valid": false,
+      "value": {
+        "id": "Example",
+        "error": {
+          "code": 1,
+          "message": "Example",
+          "data": {
+            "code": "INVALID_ARGUMENT"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Error_id",
+      "definition": "Error",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "error": {
+          "code": 1,
+          "message": "Example",
+          "data": {
+            "code": "INVALID_ARGUMENT"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Error_error",
+      "definition": "Error",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example"
+      }
+    },
+    {
+      "name": "coverage_Handshake",
+      "definition": "Handshake",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "method": "runtime.initialize",
+        "params": {
+          "run_id": "Example",
+          "protocol_min": "1.0",
+          "protocol_max": "1.0",
+          "api_major": "1",
+          "mode": "backtest",
+          "binding_id": "Example",
+          "granted_capabilities": [
+            "history.read"
+          ],
+          "limits": {
+            "message_bytes": 1048576,
+            "queue_bytes": 16777216,
+            "queue_items": 1000
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_Handshake",
+      "definition": "Handshake",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "method": "runtime.initialize",
+        "params": {
+          "run_id": "Example",
+          "protocol_min": "1.0",
+          "protocol_max": "1.0",
+          "api_major": "1",
+          "mode": "backtest",
+          "binding_id": "Example",
+          "granted_capabilities": [
+            "history.read"
+          ],
+          "limits": {
+            "message_bytes": 1048576,
+            "queue_bytes": 16777216,
+            "queue_items": 1000
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Handshake_jsonrpc",
+      "definition": "Handshake",
+      "valid": false,
+      "value": {
+        "id": "Example",
+        "method": "runtime.initialize",
+        "params": {
+          "run_id": "Example",
+          "protocol_min": "1.0",
+          "protocol_max": "1.0",
+          "api_major": "1",
+          "mode": "backtest",
+          "binding_id": "Example",
+          "granted_capabilities": [
+            "history.read"
+          ],
+          "limits": {
+            "message_bytes": 1048576,
+            "queue_bytes": 16777216,
+            "queue_items": 1000
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Handshake_id",
+      "definition": "Handshake",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.initialize",
+        "params": {
+          "run_id": "Example",
+          "protocol_min": "1.0",
+          "protocol_max": "1.0",
+          "api_major": "1",
+          "mode": "backtest",
+          "binding_id": "Example",
+          "granted_capabilities": [
+            "history.read"
+          ],
+          "limits": {
+            "message_bytes": 1048576,
+            "queue_bytes": 16777216,
+            "queue_items": 1000
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Handshake_method",
+      "definition": "Handshake",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "params": {
+          "run_id": "Example",
+          "protocol_min": "1.0",
+          "protocol_max": "1.0",
+          "api_major": "1",
+          "mode": "backtest",
+          "binding_id": "Example",
+          "granted_capabilities": [
+            "history.read"
+          ],
+          "limits": {
+            "message_bytes": 1048576,
+            "queue_bytes": 16777216,
+            "queue_items": 1000
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Handshake_params",
+      "definition": "Handshake",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "Example",
+        "method": "runtime.initialize"
+      }
+    },
+    {
+      "name": "coverage_CallbackComplete",
+      "definition": "CallbackComplete",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.callback_complete",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "last_request_seq": 1,
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "unknown_CallbackComplete",
+      "definition": "CallbackComplete",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.callback_complete",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "last_request_seq": 1,
+          "outcome": "ok"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_CallbackComplete_jsonrpc",
+      "definition": "CallbackComplete",
+      "valid": false,
+      "value": {
+        "method": "runtime.callback_complete",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "last_request_seq": 1,
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_CallbackComplete_method",
+      "definition": "CallbackComplete",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "params": {
+          "run_id": "Example",
+          "callback_id": "Example",
+          "last_request_seq": 1,
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_CallbackComplete_params",
+      "definition": "CallbackComplete",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.callback_complete"
+      }
+    },
+    {
+      "name": "coverage_AccountQuery",
+      "definition": "AccountQuery",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.account",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {}
+        }
+      }
+    },
+    {
+      "name": "unknown_AccountQuery",
+      "definition": "AccountQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.account",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {}
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_AccountQuery_jsonrpc",
+      "definition": "AccountQuery",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.account",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {}
+        }
+      }
+    },
+    {
+      "name": "missing_AccountQuery_id",
+      "definition": "AccountQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.account",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {}
+        }
+      }
+    },
+    {
+      "name": "missing_AccountQuery_method",
+      "definition": "AccountQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {}
+        }
+      }
+    },
+    {
+      "name": "missing_AccountQuery_params",
+      "definition": "AccountQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.account"
+      }
+    },
+    {
+      "name": "coverage_PositionQuery",
+      "definition": "PositionQuery",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.position",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_PositionQuery",
+      "definition": "PositionQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.position",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_PositionQuery_jsonrpc",
+      "definition": "PositionQuery",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.position",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_PositionQuery_id",
+      "definition": "PositionQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.position",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_PositionQuery_method",
+      "definition": "PositionQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_PositionQuery_params",
+      "definition": "PositionQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.position"
+      }
+    },
+    {
+      "name": "coverage_HistoryQuery",
+      "definition": "HistoryQuery",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.history",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1",
+            "timeframe": "Example",
+            "end_time": "2026-01-01T00:00:00Z",
+            "limit": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_HistoryQuery",
+      "definition": "HistoryQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.history",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1",
+            "timeframe": "Example",
+            "end_time": "2026-01-01T00:00:00Z",
+            "limit": 1
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_HistoryQuery_jsonrpc",
+      "definition": "HistoryQuery",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.history",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1",
+            "timeframe": "Example",
+            "end_time": "2026-01-01T00:00:00Z",
+            "limit": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_HistoryQuery_id",
+      "definition": "HistoryQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.history",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1",
+            "timeframe": "Example",
+            "end_time": "2026-01-01T00:00:00Z",
+            "limit": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_HistoryQuery_method",
+      "definition": "HistoryQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "instrument_id": "id-1",
+            "timeframe": "Example",
+            "end_time": "2026-01-01T00:00:00Z",
+            "limit": 1
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_HistoryQuery_params",
+      "definition": "HistoryQuery",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.history"
+      }
+    },
+    {
+      "name": "coverage_CancelOrder",
+      "definition": "CancelOrder",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.cancel_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_CancelOrder",
+      "definition": "CancelOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.cancel_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_CancelOrder_jsonrpc",
+      "definition": "CancelOrder",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.cancel_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_CancelOrder_id",
+      "definition": "CancelOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.cancel_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_CancelOrder_method",
+      "definition": "CancelOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_CancelOrder_params",
+      "definition": "CancelOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.cancel_order"
+      }
+    },
+    {
+      "name": "coverage_GetOrder",
+      "definition": "GetOrder",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.get_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_GetOrder",
+      "definition": "GetOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.get_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_GetOrder_jsonrpc",
+      "definition": "GetOrder",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.get_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_GetOrder_id",
+      "definition": "GetOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.get_order",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_GetOrder_method",
+      "definition": "GetOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "order_id": "id-1"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_GetOrder_params",
+      "definition": "GetOrder",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.get_order"
+      }
+    },
+    {
+      "name": "coverage_ExitProtected",
+      "definition": "ExitProtected",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.exit_protected",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "group_id": "id-1",
+            "quantity": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_ExitProtected",
+      "definition": "ExitProtected",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.exit_protected",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "group_id": "id-1",
+            "quantity": "0.123"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_ExitProtected_jsonrpc",
+      "definition": "ExitProtected",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.exit_protected",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "group_id": "id-1",
+            "quantity": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_ExitProtected_id",
+      "definition": "ExitProtected",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.exit_protected",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "group_id": "id-1",
+            "quantity": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_ExitProtected_method",
+      "definition": "ExitProtected",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "group_id": "id-1",
+            "quantity": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_ExitProtected_params",
+      "definition": "ExitProtected",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.exit_protected"
+      }
+    },
+    {
+      "name": "coverage_Log",
+      "definition": "Log",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.log",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "level": "DEBUG",
+            "message": "Example"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_Log",
+      "definition": "Log",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.log",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "level": "DEBUG",
+            "message": "Example"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Log_jsonrpc",
+      "definition": "Log",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.log",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "level": "DEBUG",
+            "message": "Example"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Log_id",
+      "definition": "Log",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.log",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "level": "DEBUG",
+            "message": "Example"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Log_method",
+      "definition": "Log",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "level": "DEBUG",
+            "message": "Example"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Log_params",
+      "definition": "Log",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.log"
+      }
+    },
+    {
+      "name": "coverage_Plot",
+      "definition": "Plot",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.plot",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "series_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "value": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_Plot",
+      "definition": "Plot",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.plot",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "series_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "value": "0.123"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Plot_jsonrpc",
+      "definition": "Plot",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.plot",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "series_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "value": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Plot_id",
+      "definition": "Plot",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.plot",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "series_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "value": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Plot_method",
+      "definition": "Plot",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "series_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "value": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Plot_params",
+      "definition": "Plot",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.plot"
+      }
+    },
+    {
+      "name": "coverage_Marker",
+      "definition": "Marker",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.marker",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "marker_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "label": "Example",
+            "price": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_Marker",
+      "definition": "Marker",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.marker",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "marker_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "label": "Example",
+            "price": "0.123"
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Marker_jsonrpc",
+      "definition": "Marker",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "context.marker",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "marker_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "label": "Example",
+            "price": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Marker_id",
+      "definition": "Marker",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "context.marker",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "marker_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "label": "Example",
+            "price": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Marker_method",
+      "definition": "Marker",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "request_seq": 1,
+          "payload": {
+            "marker_id": "id-1",
+            "timestamp": "2026-01-01T00:00:00Z",
+            "label": "Example",
+            "price": "0.123"
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_Marker_params",
+      "definition": "Marker",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "context.marker"
+      }
+    },
+    {
+      "name": "coverage_BarEvent",
+      "definition": "BarEvent",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_bar",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "bar": {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        }
+      }
+    },
+    {
+      "name": "unknown_BarEvent",
+      "definition": "BarEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_bar",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "bar": {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_BarEvent_jsonrpc",
+      "definition": "BarEvent",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "runtime.on_bar",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "bar": {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_BarEvent_id",
+      "definition": "BarEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.on_bar",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "bar": {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_BarEvent_method",
+      "definition": "BarEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "bar": {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        }
+      }
+    },
+    {
+      "name": "missing_BarEvent_params",
+      "definition": "BarEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_bar"
+      }
+    },
+    {
+      "name": "coverage_ReadResponse",
+      "definition": "ReadResponse",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        }
+      }
+    },
+    {
+      "name": "unknown_ReadResponse",
+      "definition": "ReadResponse",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_ReadResponse_jsonrpc",
+      "definition": "ReadResponse",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_ReadResponse_id",
+      "definition": "ReadResponse",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_ReadResponse_result",
+      "definition": "ReadResponse",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_Position",
+      "definition": "Position",
+      "valid": true,
+      "value": {
+        "instrument_id": "TEST",
+        "quantity": "100",
+        "available_quantity": "60",
+        "reserved_quantity": "40",
+        "cost": "1000"
+      }
+    },
+    {
+      "name": "unknown_Position",
+      "definition": "Position",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quantity": "100",
+        "available_quantity": "60",
+        "reserved_quantity": "40",
+        "cost": "1000",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Position_instrument_id",
+      "definition": "Position",
+      "valid": false,
+      "value": {
+        "quantity": "100",
+        "available_quantity": "60",
+        "reserved_quantity": "40",
+        "cost": "1000"
+      }
+    },
+    {
+      "name": "missing_Position_quantity",
+      "definition": "Position",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "available_quantity": "60",
+        "reserved_quantity": "40",
+        "cost": "1000"
+      }
+    },
+    {
+      "name": "missing_Position_available_quantity",
+      "definition": "Position",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quantity": "100",
+        "reserved_quantity": "40",
+        "cost": "1000"
+      }
+    },
+    {
+      "name": "missing_Position_reserved_quantity",
+      "definition": "Position",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quantity": "100",
+        "available_quantity": "60",
+        "cost": "1000"
+      }
+    },
+    {
+      "name": "missing_Position_cost",
+      "definition": "Position",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quantity": "100",
+        "available_quantity": "60",
+        "reserved_quantity": "40"
+      }
+    },
+    {
+      "name": "coverage_OrderState",
+      "definition": "OrderState",
+      "valid": true,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "unknown_OrderState",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_OrderState_order_id",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_client_order_id",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_side",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_kind",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_quantity",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_status",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_reason",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_run_id",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_filled_quantity",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_fee",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_reserved_cash",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "missing_OrderState_reserved_quantity",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "0",
+        "fee": "0",
+        "reserved_cash": "200"
+      }
+    },
+    {
+      "name": "coverage_Accepted",
+      "definition": "Accepted",
+      "valid": true,
+      "value": {
+        "accepted": true
+      }
+    },
+    {
+      "name": "unknown_Accepted",
+      "definition": "Accepted",
+      "valid": false,
+      "value": {
+        "accepted": true,
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Accepted_accepted",
+      "definition": "Accepted",
+      "valid": false,
+      "value": {}
+    },
+    {
+      "name": "coverage_ExitResult",
+      "definition": "ExitResult",
+      "valid": true,
+      "value": {
+        "order_id": "id-1",
+        "group_id": "id-1",
+        "remaining_quantity": "0.123"
+      }
+    },
+    {
+      "name": "unknown_ExitResult",
+      "definition": "ExitResult",
+      "valid": false,
+      "value": {
+        "order_id": "id-1",
+        "group_id": "id-1",
+        "remaining_quantity": "0.123",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_ExitResult_order_id",
+      "definition": "ExitResult",
+      "valid": false,
+      "value": {
+        "group_id": "id-1",
+        "remaining_quantity": "0.123"
+      }
+    },
+    {
+      "name": "missing_ExitResult_group_id",
+      "definition": "ExitResult",
+      "valid": false,
+      "value": {
+        "order_id": "id-1",
+        "remaining_quantity": "0.123"
+      }
+    },
+    {
+      "name": "missing_ExitResult_remaining_quantity",
+      "definition": "ExitResult",
+      "valid": false,
+      "value": {
+        "order_id": "id-1",
+        "group_id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_WorkerReady",
+      "definition": "WorkerReady",
+      "valid": true,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "unknown_WorkerReady",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_WorkerReady_protocol",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "api_major": "1",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "missing_WorkerReady_api_major",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "missing_WorkerReady_sdk_version",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "missing_WorkerReady_worker_version",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "sdk_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "missing_WorkerReady_adapter_version",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "missing_WorkerReady_python_version",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_implementation": "CPython",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "missing_WorkerReady_python_implementation",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "platform": "Example"
+      }
+    },
+    {
+      "name": "missing_WorkerReady_platform",
+      "definition": "WorkerReady",
+      "valid": false,
+      "value": {
+        "protocol": "1.0",
+        "api_major": "1",
+        "sdk_version": "Example",
+        "worker_version": "Example",
+        "adapter_version": "Example",
+        "python_version": "Example",
+        "python_implementation": "CPython"
+      }
+    },
+    {
+      "name": "coverage_CallbackResult",
+      "definition": "CallbackResult",
+      "valid": true,
+      "value": {
+        "callback_id": "id-1",
+        "outcome": "ok"
+      }
+    },
+    {
+      "name": "unknown_CallbackResult",
+      "definition": "CallbackResult",
+      "valid": false,
+      "value": {
+        "callback_id": "id-1",
+        "outcome": "ok",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_CallbackResult_callback_id",
+      "definition": "CallbackResult",
+      "valid": false,
+      "value": {
+        "outcome": "ok"
+      }
+    },
+    {
+      "name": "missing_CallbackResult_outcome",
+      "definition": "CallbackResult",
+      "valid": false,
+      "value": {
+        "callback_id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_StartEvent",
+      "definition": "StartEvent",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_start",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "unknown_StartEvent",
+      "definition": "StartEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_start",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_StartEvent_jsonrpc",
+      "definition": "StartEvent",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "runtime.on_start",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "missing_StartEvent_id",
+      "definition": "StartEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.on_start",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "missing_StartEvent_method",
+      "definition": "StartEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z"
+        }
+      }
+    },
+    {
+      "name": "missing_StartEvent_params",
+      "definition": "StartEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_start"
+      }
+    },
+    {
+      "name": "coverage_StopEvent",
+      "definition": "StopEvent",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_stop",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z",
+          "reason": "completed"
+        }
+      }
+    },
+    {
+      "name": "unknown_StopEvent",
+      "definition": "StopEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_stop",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z",
+          "reason": "completed"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_StopEvent_jsonrpc",
+      "definition": "StopEvent",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "method": "runtime.on_stop",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z",
+          "reason": "completed"
+        }
+      }
+    },
+    {
+      "name": "missing_StopEvent_id",
+      "definition": "StopEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "method": "runtime.on_stop",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z",
+          "reason": "completed"
+        }
+      }
+    },
+    {
+      "name": "missing_StopEvent_method",
+      "definition": "StopEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "params": {
+          "run_id": "id-1",
+          "callback_id": "id-1",
+          "event_seq": 1,
+          "simulation_time": "2026-01-01T00:00:00Z",
+          "reason": "completed"
+        }
+      }
+    },
+    {
+      "name": "missing_StopEvent_params",
+      "definition": "StopEvent",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "method": "runtime.on_stop"
+      }
+    },
+    {
+      "name": "coverage_runtime_initialize_response",
+      "definition": "runtime_initialize_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "protocol": "1.0",
+          "api_major": "1",
+          "sdk_version": "Example",
+          "worker_version": "Example",
+          "adapter_version": "Example",
+          "python_version": "Example",
+          "python_implementation": "CPython",
+          "platform": "Example"
+        }
+      }
+    },
+    {
+      "name": "unknown_runtime_initialize_response",
+      "definition": "runtime_initialize_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "protocol": "1.0",
+          "api_major": "1",
+          "sdk_version": "Example",
+          "worker_version": "Example",
+          "adapter_version": "Example",
+          "python_version": "Example",
+          "python_implementation": "CPython",
+          "platform": "Example"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_runtime_initialize_response_jsonrpc",
+      "definition": "runtime_initialize_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "protocol": "1.0",
+          "api_major": "1",
+          "sdk_version": "Example",
+          "worker_version": "Example",
+          "adapter_version": "Example",
+          "python_version": "Example",
+          "python_implementation": "CPython",
+          "platform": "Example"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_initialize_response_id",
+      "definition": "runtime_initialize_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "protocol": "1.0",
+          "api_major": "1",
+          "sdk_version": "Example",
+          "worker_version": "Example",
+          "adapter_version": "Example",
+          "python_version": "Example",
+          "python_implementation": "CPython",
+          "platform": "Example"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_initialize_response_result",
+      "definition": "runtime_initialize_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_runtime_on_start_response",
+      "definition": "runtime_on_start_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "unknown_runtime_on_start_response",
+      "definition": "runtime_on_start_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_runtime_on_start_response_jsonrpc",
+      "definition": "runtime_on_start_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_on_start_response_id",
+      "definition": "runtime_on_start_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_on_start_response_result",
+      "definition": "runtime_on_start_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_runtime_on_bar_response",
+      "definition": "runtime_on_bar_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "unknown_runtime_on_bar_response",
+      "definition": "runtime_on_bar_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_runtime_on_bar_response_jsonrpc",
+      "definition": "runtime_on_bar_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_on_bar_response_id",
+      "definition": "runtime_on_bar_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_on_bar_response_result",
+      "definition": "runtime_on_bar_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_runtime_on_stop_response",
+      "definition": "runtime_on_stop_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "unknown_runtime_on_stop_response",
+      "definition": "runtime_on_stop_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_runtime_on_stop_response_jsonrpc",
+      "definition": "runtime_on_stop_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_on_stop_response_id",
+      "definition": "runtime_on_stop_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "callback_id": "id-1",
+          "outcome": "ok"
+        }
+      }
+    },
+    {
+      "name": "missing_runtime_on_stop_response_result",
+      "definition": "runtime_on_stop_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_account_response",
+      "definition": "context_account_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        }
+      }
+    },
+    {
+      "name": "unknown_context_account_response",
+      "definition": "context_account_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_account_response_jsonrpc",
+      "definition": "context_account_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_context_account_response_id",
+      "definition": "context_account_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "cash": "1000",
+          "reserved_cash": "800",
+          "available_cash": "200",
+          "position_quantity": "2",
+          "position_cost": "200",
+          "realized_pnl": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_context_account_response_result",
+      "definition": "context_account_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_position_response",
+      "definition": "context_position_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "instrument_id": "TEST",
+          "quantity": "100",
+          "available_quantity": "60",
+          "reserved_quantity": "40",
+          "cost": "1000"
+        }
+      }
+    },
+    {
+      "name": "unknown_context_position_response",
+      "definition": "context_position_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "instrument_id": "TEST",
+          "quantity": "100",
+          "available_quantity": "60",
+          "reserved_quantity": "40",
+          "cost": "1000"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_position_response_jsonrpc",
+      "definition": "context_position_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "instrument_id": "TEST",
+          "quantity": "100",
+          "available_quantity": "60",
+          "reserved_quantity": "40",
+          "cost": "1000"
+        }
+      }
+    },
+    {
+      "name": "missing_context_position_response_id",
+      "definition": "context_position_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "instrument_id": "TEST",
+          "quantity": "100",
+          "available_quantity": "60",
+          "reserved_quantity": "40",
+          "cost": "1000"
+        }
+      }
+    },
+    {
+      "name": "missing_context_position_response_result",
+      "definition": "context_position_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_history_response",
+      "definition": "context_history_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": [
+          {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "unknown_context_history_response",
+      "definition": "context_history_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": [
+          {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        ],
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_history_response_jsonrpc",
+      "definition": "context_history_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": [
+          {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_context_history_response_id",
+      "definition": "context_history_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": [
+          {
+            "instrument_id": "TEST",
+            "timeframe": "1m",
+            "open_time": "2026-01-01T00:00:00Z",
+            "close_time": "2026-01-01T00:01:00Z",
+            "open": "100",
+            "high": "110",
+            "low": "90",
+            "close": "105",
+            "volume": "10",
+            "is_closed": true,
+            "is_warmup": false
+          }
+        ]
+      }
+    },
+    {
+      "name": "missing_context_history_response_result",
+      "definition": "context_history_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_submit_order_response",
+      "definition": "context_submit_order_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "name": "unknown_context_submit_order_response",
+      "definition": "context_submit_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_submit_order_response_jsonrpc",
+      "definition": "context_submit_order_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "name": "missing_context_submit_order_response_id",
+      "definition": "context_submit_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "order_id": "Example",
+          "status": "accepted"
+        }
+      }
+    },
+    {
+      "name": "missing_context_submit_order_response_result",
+      "definition": "context_submit_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_cancel_order_response",
+      "definition": "context_cancel_order_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        }
+      }
+    },
+    {
+      "name": "unknown_context_cancel_order_response",
+      "definition": "context_cancel_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_cancel_order_response_jsonrpc",
+      "definition": "context_cancel_order_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_context_cancel_order_response_id",
+      "definition": "context_cancel_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_context_cancel_order_response_result",
+      "definition": "context_cancel_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_get_order_response",
+      "definition": "context_get_order_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        }
+      }
+    },
+    {
+      "name": "unknown_context_get_order_response",
+      "definition": "context_get_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_get_order_response_jsonrpc",
+      "definition": "context_get_order_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_context_get_order_response_id",
+      "definition": "context_get_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "order_id": "order-1",
+          "client_order_id": "client-1",
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "status": "accepted",
+          "reason": "",
+          "run_id": "run-1",
+          "limit_price": "100",
+          "filled_quantity": "0",
+          "fee": "0",
+          "reserved_cash": "200",
+          "reserved_quantity": "0"
+        }
+      }
+    },
+    {
+      "name": "missing_context_get_order_response_result",
+      "definition": "context_get_order_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_exit_protected_response",
+      "definition": "context_exit_protected_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "id-1",
+          "group_id": "id-1",
+          "remaining_quantity": "0.123"
+        }
+      }
+    },
+    {
+      "name": "unknown_context_exit_protected_response",
+      "definition": "context_exit_protected_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "order_id": "id-1",
+          "group_id": "id-1",
+          "remaining_quantity": "0.123"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_exit_protected_response_jsonrpc",
+      "definition": "context_exit_protected_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "order_id": "id-1",
+          "group_id": "id-1",
+          "remaining_quantity": "0.123"
+        }
+      }
+    },
+    {
+      "name": "missing_context_exit_protected_response_id",
+      "definition": "context_exit_protected_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "order_id": "id-1",
+          "group_id": "id-1",
+          "remaining_quantity": "0.123"
+        }
+      }
+    },
+    {
+      "name": "missing_context_exit_protected_response_result",
+      "definition": "context_exit_protected_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_log_response",
+      "definition": "context_log_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "unknown_context_log_response",
+      "definition": "context_log_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_log_response_jsonrpc",
+      "definition": "context_log_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "missing_context_log_response_id",
+      "definition": "context_log_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "missing_context_log_response_result",
+      "definition": "context_log_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_plot_response",
+      "definition": "context_plot_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "unknown_context_plot_response",
+      "definition": "context_plot_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_plot_response_jsonrpc",
+      "definition": "context_plot_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "missing_context_plot_response_id",
+      "definition": "context_plot_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "missing_context_plot_response_result",
+      "definition": "context_plot_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_context_marker_response",
+      "definition": "context_marker_response",
+      "valid": true,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "unknown_context_marker_response",
+      "definition": "context_marker_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_context_marker_response_jsonrpc",
+      "definition": "context_marker_response",
+      "valid": false,
+      "value": {
+        "id": "id-1",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "missing_context_marker_response_id",
+      "definition": "context_marker_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "result": {
+          "accepted": true
+        }
+      }
+    },
+    {
+      "name": "missing_context_marker_response_result",
+      "definition": "context_marker_response",
+      "valid": false,
+      "value": {
+        "jsonrpc": "2.0",
+        "id": "id-1"
+      }
+    },
+    {
+      "name": "coverage_Instrument",
+      "definition": "Instrument",
+      "valid": true,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "unknown_Instrument",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Instrument_instrument_id",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_quote_currency",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_price_step",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_quantity_step",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_minimum_quantity",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_minimum_notional",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_money_step",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_timezone",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "missing_Instrument_calendar_id",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0.01",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC"
+      }
+    },
+    {
+      "name": "coverage_Dataset",
+      "definition": "Dataset",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "unknown_Dataset",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1,
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_Dataset_schema_version",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_dataset_id",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_instrument",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_timeframe",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_source",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_adjustment",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_content_sha256",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_first_open",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "last_close": "2026-01-01T00:01:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_last_close",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "missing_Dataset_bar_count",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2026-01-01T00:01:00Z"
+      }
+    },
+    {
+      "name": "coverage_RunRecord",
+      "definition": "RunRecord",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "unknown_RunRecord",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED",
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_RunRecord_schema_version",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_run_id",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_strategy_id",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_source_sha256",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_parameters_sha256",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_binding_id",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_dataset_id",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "model": "cash-long-ohlcv/1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_model",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "missing_RunRecord_state",
+      "definition": "RunRecord",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "strategy_id": "id-1",
+        "source_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "parameters_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "binding_id": "id-1",
+        "dataset_id": "id-1",
+        "model": "cash-long-ohlcv/1"
+      }
+    },
+    {
+      "name": "coverage_ProtectionGroup",
+      "definition": "ProtectionGroup",
+      "valid": true,
+      "value": {
+        "group_id": "id-1",
+        "entry_order_id": "id-1",
+        "quantity": "0.123",
+        "active_from_event_seq": 1,
+        "stop_price": "90"
+      }
+    },
+    {
+      "name": "unknown_ProtectionGroup",
+      "definition": "ProtectionGroup",
+      "valid": false,
+      "value": {
+        "group_id": "id-1",
+        "entry_order_id": "id-1",
+        "quantity": "0.123",
+        "active_from_event_seq": 1,
+        "unexpected": true,
+        "stop_price": "90"
+      }
+    },
+    {
+      "name": "missing_ProtectionGroup_group_id",
+      "definition": "ProtectionGroup",
+      "valid": false,
+      "value": {
+        "entry_order_id": "id-1",
+        "quantity": "0.123",
+        "active_from_event_seq": 1,
+        "stop_price": "90"
+      }
+    },
+    {
+      "name": "missing_ProtectionGroup_entry_order_id",
+      "definition": "ProtectionGroup",
+      "valid": false,
+      "value": {
+        "group_id": "id-1",
+        "quantity": "0.123",
+        "active_from_event_seq": 1,
+        "stop_price": "90"
+      }
+    },
+    {
+      "name": "missing_ProtectionGroup_quantity",
+      "definition": "ProtectionGroup",
+      "valid": false,
+      "value": {
+        "group_id": "id-1",
+        "entry_order_id": "id-1",
+        "active_from_event_seq": 1,
+        "stop_price": "90"
+      }
+    },
+    {
+      "name": "missing_ProtectionGroup_active_from_event_seq",
+      "definition": "ProtectionGroup",
+      "valid": false,
+      "value": {
+        "group_id": "id-1",
+        "entry_order_id": "id-1",
+        "quantity": "0.123",
+        "stop_price": "90"
+      }
+    },
+    {
+      "name": "coverage_RunEvent",
+      "definition": "RunEvent",
+      "valid": true,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "event_seq": 1,
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "kind": "run.state",
+        "payload": {
+          "state": "CREATED"
+        }
+      }
+    },
+    {
+      "name": "unknown_RunEvent",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "event_seq": 1,
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "kind": "run.state",
+        "payload": {
+          "state": "CREATED"
+        },
+        "unexpected": true
+      }
+    },
+    {
+      "name": "missing_RunEvent_schema_version",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "run_id": "id-1",
+        "event_seq": 1,
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "kind": "run.state",
+        "payload": {
+          "state": "CREATED"
+        }
+      }
+    },
+    {
+      "name": "missing_RunEvent_run_id",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "event_seq": 1,
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "kind": "run.state",
+        "payload": {
+          "state": "CREATED"
+        }
+      }
+    },
+    {
+      "name": "missing_RunEvent_event_seq",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "kind": "run.state",
+        "payload": {
+          "state": "CREATED"
+        }
+      }
+    },
+    {
+      "name": "missing_RunEvent_simulation_time",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "event_seq": 1,
+        "kind": "run.state",
+        "payload": {
+          "state": "CREATED"
+        }
+      }
+    },
+    {
+      "name": "missing_RunEvent_kind",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "event_seq": 1,
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "payload": {
+          "state": "CREATED"
+        }
+      }
+    },
+    {
+      "name": "missing_RunEvent_payload",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "event_seq": 1,
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "kind": "run.state"
+      }
+    },
+    {
+      "name": "position_rounding_hides_violation",
+      "definition": "Position",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quantity": "1000000000000000000000000000000000",
+        "available_quantity": "1000000000000000000000000000000000",
+        "reserved_quantity": "0.01",
+        "cost": "0"
+      }
+    },
+    {
+      "name": "cash_rounding_hides_violation",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "1000000000000000000000000000000000",
+        "reserved_cash": "0.01",
+        "available_cash": "1000000000000000000000000000000000",
+        "position_quantity": "0",
+        "position_cost": "0",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "zero_scale_overflow",
+      "definition": "Decimal",
+      "valid": false,
+      "value": "0.0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "zero_scale_boundary",
+      "definition": "Decimal",
+      "valid": true,
+      "value": "0.000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000"
+    },
+    {
+      "name": "year_zero",
+      "definition": "Timestamp",
+      "valid": false,
+      "value": "0000-01-01T00:00:00Z"
+    },
+    {
+      "name": "leap_second",
+      "definition": "Timestamp",
+      "valid": false,
+      "value": "2026-01-01T00:00:60Z"
+    },
+    {
+      "name": "leap_day",
+      "definition": "Timestamp",
+      "valid": true,
+      "value": "2024-02-29T00:00:00.000001Z"
+    },
+    {
+      "name": "too_precise_timestamp",
+      "definition": "Timestamp",
+      "valid": false,
+      "value": "2024-02-29T00:00:00.0000001Z"
+    },
+    {
+      "name": "empty_path_segment",
+      "definition": "Strategy",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "strategy_id": "Example",
+        "name": "Example",
+        "language": "python",
+        "api_major": "1",
+        "source_kind": "visual",
+        "entrypoint": {
+          "file": "foo//bar.py",
+          "class_name": "Example"
+        },
+        "parameters": {},
+        "requested_capabilities": [
+          "history.read"
+        ]
+      }
+    },
+    {
+      "name": "negative_cash",
+      "definition": "Account",
+      "valid": false,
+      "value": {
+        "cash": "-1",
+        "reserved_cash": "0",
+        "available_cash": "-1",
+        "position_quantity": "0",
+        "position_cost": "0",
+        "realized_pnl": "0"
+      }
+    },
+    {
+      "name": "duplicate_quantity",
+      "definition": "Order",
+      "valid": false,
+      "raw": "{\"client_order_id\":\"o\",\"side\":\"buy\",\"kind\":\"market\",\"quantity\":\"1\",\"quantity\":\"100\"}"
+    },
+    {
+      "name": "escaped_duplicate",
+      "definition": "Order",
+      "valid": false,
+      "raw": "{\"client_order_id\":\"o\",\"side\":\"buy\",\"kind\":\"market\",\"quantity\":\"1\",\"quanti\\u0074y\":\"100\"}"
+    },
+    {
+      "name": "raw_nan",
+      "definition": "Decimal",
+      "valid": false,
+      "raw": "NaN"
+    },
+    {
+      "name": "raw_trailing",
+      "definition": "Decimal",
+      "valid": false,
+      "raw": "\"1\" \"2\""
+    },
+    {
+      "name": "coverage_RunStatePayload",
+      "definition": "RunStatePayload",
+      "valid": true,
+      "value": {
+        "state": "CREATED"
+      }
+    },
+    {
+      "name": "unknown_RunStatePayload",
+      "definition": "RunStatePayload",
+      "valid": false,
+      "value": {
+        "state": "CREATED",
+        "extra": true
+      }
+    },
+    {
+      "name": "missing_RunStatePayload_state",
+      "definition": "RunStatePayload",
+      "valid": false,
+      "value": {}
+    },
+    {
+      "name": "coverage_PlotPayload",
+      "definition": "PlotPayload",
+      "valid": true,
+      "value": {
+        "series_id": "s-1",
+        "timestamp": "2026-01-01T00:00:00Z",
+        "value": "1"
+      }
+    },
+    {
+      "name": "unknown_PlotPayload",
+      "definition": "PlotPayload",
+      "valid": false,
+      "value": {
+        "series_id": "s-1",
+        "timestamp": "2026-01-01T00:00:00Z",
+        "value": "1",
+        "extra": true
+      }
+    },
+    {
+      "name": "missing_PlotPayload_series_id",
+      "definition": "PlotPayload",
+      "valid": false,
+      "value": {
+        "timestamp": "2026-01-01T00:00:00Z",
+        "value": "1"
+      }
+    },
+    {
+      "name": "missing_PlotPayload_timestamp",
+      "definition": "PlotPayload",
+      "valid": false,
+      "value": {
+        "series_id": "s-1",
+        "value": "1"
+      }
+    },
+    {
+      "name": "missing_PlotPayload_value",
+      "definition": "PlotPayload",
+      "valid": false,
+      "value": {
+        "series_id": "s-1",
+        "timestamp": "2026-01-01T00:00:00Z"
+      }
+    },
+    {
+      "name": "coverage_MarkerPayload",
+      "definition": "MarkerPayload",
+      "valid": true,
+      "value": {
+        "marker_id": "m-1",
+        "timestamp": "2026-01-01T00:00:00Z",
+        "label": "entry",
+        "price": "100"
+      }
+    },
+    {
+      "name": "unknown_MarkerPayload",
+      "definition": "MarkerPayload",
+      "valid": false,
+      "value": {
+        "marker_id": "m-1",
+        "timestamp": "2026-01-01T00:00:00Z",
+        "label": "entry",
+        "price": "100",
+        "extra": true
+      }
+    },
+    {
+      "name": "missing_MarkerPayload_marker_id",
+      "definition": "MarkerPayload",
+      "valid": false,
+      "value": {
+        "timestamp": "2026-01-01T00:00:00Z",
+        "label": "entry",
+        "price": "100"
+      }
+    },
+    {
+      "name": "missing_MarkerPayload_timestamp",
+      "definition": "MarkerPayload",
+      "valid": false,
+      "value": {
+        "marker_id": "m-1",
+        "label": "entry",
+        "price": "100"
+      }
+    },
+    {
+      "name": "missing_MarkerPayload_label",
+      "definition": "MarkerPayload",
+      "valid": false,
+      "value": {
+        "marker_id": "m-1",
+        "timestamp": "2026-01-01T00:00:00Z",
+        "price": "100"
+      }
+    },
+    {
+      "name": "missing_MarkerPayload_price",
+      "definition": "MarkerPayload",
+      "valid": false,
+      "value": {
+        "marker_id": "m-1",
+        "timestamp": "2026-01-01T00:00:00Z",
+        "label": "entry"
+      }
+    },
+    {
+      "name": "coverage_LogPayload",
+      "definition": "LogPayload",
+      "valid": true,
+      "value": {
+        "level": "INFO",
+        "message": "hello"
+      }
+    },
+    {
+      "name": "unknown_LogPayload",
+      "definition": "LogPayload",
+      "valid": false,
+      "value": {
+        "level": "INFO",
+        "message": "hello",
+        "extra": true
+      }
+    },
+    {
+      "name": "missing_LogPayload_level",
+      "definition": "LogPayload",
+      "valid": false,
+      "value": {
+        "message": "hello"
+      }
+    },
+    {
+      "name": "missing_LogPayload_message",
+      "definition": "LogPayload",
+      "valid": false,
+      "value": {
+        "level": "INFO"
+      }
+    },
+    {
+      "name": "domain_Instrument_price_step",
+      "definition": "Instrument",
+      "valid": false,
+      "value": {
+        "instrument_id": "TEST",
+        "quote_currency": "USD",
+        "price_step": "0",
+        "quantity_step": "0.1",
+        "minimum_quantity": "0.1",
+        "minimum_notional": "1",
+        "money_step": "0.01",
+        "timezone": "UTC",
+        "calendar_id": "always-open"
+      }
+    },
+    {
+      "name": "domain_ProtectionGroup_quantity",
+      "definition": "ProtectionGroup",
+      "valid": false,
+      "value": {
+        "group_id": "id-1",
+        "entry_order_id": "id-1",
+        "quantity": "0",
+        "active_from_event_seq": 1,
+        "stop_price": "90"
+      }
+    },
+    {
+      "name": "domain_Dataset_last_close",
+      "definition": "Dataset",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "dataset_id": "id-1",
+        "instrument": {
+          "instrument_id": "TEST",
+          "quote_currency": "USD",
+          "price_step": "0.01",
+          "quantity_step": "0.1",
+          "minimum_quantity": "0.1",
+          "minimum_notional": "1",
+          "money_step": "0.01",
+          "timezone": "UTC",
+          "calendar_id": "always-open"
+        },
+        "timeframe": "Example",
+        "source": "Example",
+        "adjustment": "raw-no-actions",
+        "content_sha256": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "first_open": "2026-01-01T00:00:00Z",
+        "last_close": "2025-01-01T00:00:00Z",
+        "bar_count": 1
+      }
+    },
+    {
+      "name": "domain_RunEvent_payload",
+      "definition": "RunEvent",
+      "valid": false,
+      "value": {
+        "schema_version": 1,
+        "run_id": "id-1",
+        "event_seq": 1,
+        "simulation_time": "2026-01-01T00:00:00Z",
+        "kind": "run.state",
+        "payload": {
+          "anything": "unsafe"
+        }
+      }
+    },
+    {
+      "name": "domain_OrderState_filled_quantity",
+      "definition": "OrderState",
+      "valid": false,
+      "value": {
+        "order_id": "order-1",
+        "client_order_id": "client-1",
+        "side": "buy",
+        "kind": "limit",
+        "quantity": "2",
+        "status": "accepted",
+        "reason": "",
+        "run_id": "run-1",
+        "limit_price": "100",
+        "filled_quantity": "100",
+        "fee": "0",
+        "reserved_cash": "200",
+        "reserved_quantity": "0"
+      }
+    },
+    {
+      "name": "integer_safe_max",
+      "definition": "AccountQuery",
+      "valid": true,
+      "raw": "{\"jsonrpc\": \"2.0\", \"id\": \"id-1\", \"method\": \"context.account\", \"params\": {\"run_id\": \"id-1\", \"callback_id\": \"id-1\", \"request_seq\": 9007199254740991, \"payload\": {}}}"
+    },
+    {
+      "name": "integer_above_max",
+      "definition": "AccountQuery",
+      "valid": false,
+      "raw": "{\"jsonrpc\": \"2.0\", \"id\": \"id-1\", \"method\": \"context.account\", \"params\": {\"run_id\": \"id-1\", \"callback_id\": \"id-1\", \"request_seq\": 9007199254740992, \"payload\": {}}}"
+    },
+    {
+      "name": "integer_above_int64",
+      "definition": "AccountQuery",
+      "valid": false,
+      "raw": "{\"jsonrpc\": \"2.0\", \"id\": \"id-1\", \"method\": \"context.account\", \"params\": {\"run_id\": \"id-1\", \"callback_id\": \"id-1\", \"request_seq\": 9223372036854775808, \"payload\": {}}}"
+    },
+    {
+      "name": "integer_safe_min",
+      "definition": "Strategy",
+      "valid": true,
+      "raw": "{\"schema_version\": 1, \"strategy_id\": \"s-1\", \"name\": \"example\", \"language\": \"python\", \"api_major\": \"1\", \"source_kind\": \"handwritten\", \"entrypoint\": {\"file\": \"strategy.py\", \"class_name\": \"Example\"}, \"parameters\": {\"quantity\": \"0.5\", \"boundary\": -9007199254740991}, \"requested_capabilities\": [\"history.read\", \"account.read\", \"orders.write\"]}"
+    },
+    {
+      "name": "integer_below_min",
+      "definition": "Strategy",
+      "valid": false,
+      "raw": "{\"schema_version\": 1, \"strategy_id\": \"s-1\", \"name\": \"example\", \"language\": \"python\", \"api_major\": \"1\", \"source_kind\": \"handwritten\", \"entrypoint\": {\"file\": \"strategy.py\", \"class_name\": \"Example\"}, \"parameters\": {\"quantity\": \"0.5\", \"boundary\": -9007199254740992}, \"requested_capabilities\": [\"history.read\", \"account.read\", \"orders.write\"]}"
+    },
+    {
+      "name": "integer_nonfinite",
+      "definition": "Strategy",
+      "valid": false,
+      "raw": "{\"schema_version\": 1, \"strategy_id\": \"s-1\", \"name\": \"example\", \"language\": \"python\", \"api_major\": \"1\", \"source_kind\": \"handwritten\", \"entrypoint\": {\"file\": \"strategy.py\", \"class_name\": \"Example\"}, \"parameters\": {\"quantity\": \"0.5\", \"boundary\": 1e400}, \"requested_capabilities\": [\"history.read\", \"account.read\", \"orders.write\"]}"
+    }
+  ]
+}

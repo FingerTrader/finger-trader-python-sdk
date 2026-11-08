@@ -1,0 +1,56 @@
+{
+  "name": "Quant contracts",
+  "on": {
+    "pull_request": null,
+    "push": null,
+    "merge_group": null,
+    "workflow_dispatch": null
+  },
+  "permissions": {
+    "contents": "read"
+  },
+  "concurrency": {
+    "group": "quant-${{ github.workflow }}-${{ github.ref }}",
+    "cancel-in-progress": true
+  },
+  "jobs": {
+    "quant-quality": {
+      "name": "quant-quality",
+      "runs-on": "ubuntu-24.04",
+      "timeout-minutes": 10,
+      "steps": [
+        {
+          "name": "Checkout candidate",
+          "uses": "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803",
+          "with": {
+            "persist-credentials": false
+          }
+        },
+        {
+          "name": "Fixed Python",
+          "uses": "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1",
+          "with": {
+            "python-version": "3.12.14",
+            "check-latest": false
+          }
+        },
+        {
+          "name": "Fixed Dart",
+          "uses": "dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d",
+          "with": {
+            "sdk": "3.5.1"
+          }
+        },
+        {
+          "name": "Required P0 checks",
+          "run": "python -B tools/quant/quality.py --dart \"$(command -v dart)\" --report-dir \"$RUNNER_TEMP/quant-p0\""
+        },
+        {
+          "name": "Required evidence",
+          "if": "always()",
+          "run": "python -B tools/quant/report_summary.py \"$RUNNER_TEMP/quant-p0/report.json\" \"$GITHUB_STEP_SUMMARY\""
+        }
+      ]
+    }
+  }
+}

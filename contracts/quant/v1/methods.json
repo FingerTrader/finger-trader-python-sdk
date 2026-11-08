@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "business_ipc": "1.0",
+  "requests": {
+    "runtime.initialize": "Handshake",
+    "runtime.on_bar": "BarEvent",
+    "context.submit_order": "Call",
+    "context.account": "AccountQuery",
+    "context.position": "PositionQuery",
+    "context.history": "HistoryQuery",
+    "context.cancel_order": "CancelOrder",
+    "context.get_order": "GetOrder",
+    "context.exit_protected": "ExitProtected",
+    "context.log": "Log",
+    "context.plot": "Plot",
+    "context.marker": "Marker",
+    "runtime.on_start": "StartEvent",
+    "runtime.on_stop": "StopEvent"
+  },
+  "notifications": {
+    "runtime.callback_complete": "CallbackComplete"
+  },
+  "responses": {
+    "context.account": "context_account_response",
+    "context.submit_order": "context_submit_order_response",
+    "runtime.initialize": "runtime_initialize_response",
+    "runtime.on_start": "runtime_on_start_response",
+    "runtime.on_bar": "runtime_on_bar_response",
+    "runtime.on_stop": "runtime_on_stop_response",
+    "context.position": "context_position_response",
+    "context.history": "context_history_response",
+    "context.cancel_order": "context_cancel_order_response",
+    "context.get_order": "context_get_order_response",
+    "context.exit_protected": "context_exit_protected_response",
+    "context.log": "context_log_response",
+    "context.plot": "context_plot_response",
+    "context.marker": "context_marker_response"
+  },
+  "stage": "P0-candidate"
+}

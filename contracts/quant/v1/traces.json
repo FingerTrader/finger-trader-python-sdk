@@ -1,0 +1,244 @@
+{
+  "schema_version": 1,
+  "cases": [
+    {
+      "name": "sync_context_roundtrip",
+      "valid": true,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": true
+        },
+        {
+          "type": "response",
+          "seq": 1,
+          "callback_id": "bar-1"
+        },
+        {
+          "type": "complete",
+          "callback_id": "bar-1",
+          "last_seq": 1
+        },
+        {
+          "type": "advance"
+        }
+      ]
+    },
+    {
+      "name": "advance_before_complete",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        },
+        {
+          "type": "advance"
+        }
+      ]
+    },
+    {
+      "name": "complete_before_response",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": true
+        },
+        {
+          "type": "complete",
+          "callback_id": "bar-1",
+          "last_seq": 1
+        }
+      ]
+    },
+    {
+      "name": "stale_request",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        },
+        {
+          "type": "request",
+          "callback_id": "old",
+          "seq": 1,
+          "write": true
+        }
+      ]
+    },
+    {
+      "name": "duplicate_request",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": true
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": true
+        }
+      ]
+    },
+    {
+      "name": "stop_closes_writes",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        },
+        {
+          "type": "stop"
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": true
+        }
+      ]
+    },
+    {
+      "name": "warmup_write_denied",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "warmup"
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": true
+        }
+      ]
+    },
+    {
+      "name": "start_write_denied",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "start"
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": true
+        }
+      ]
+    },
+    {
+      "name": "stop_read_allowed",
+      "valid": true,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "stop"
+        },
+        {
+          "type": "request",
+          "callback_id": "bar-1",
+          "seq": 1,
+          "write": false
+        },
+        {
+          "type": "response",
+          "seq": 1,
+          "callback_id": "bar-1"
+        },
+        {
+          "type": "complete",
+          "callback_id": "bar-1",
+          "last_seq": 1
+        }
+      ]
+    },
+    {
+      "name": "reentry_denied",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        },
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        }
+      ]
+    },
+    {
+      "name": "cross_callback_response",
+      "valid": false,
+      "events": [
+        {
+          "type": "begin",
+          "callback_id": "new",
+          "phase": "bar"
+        },
+        {
+          "type": "request",
+          "callback_id": "new",
+          "seq": 1,
+          "write": false
+        },
+        {
+          "type": "response",
+          "callback_id": "old",
+          "seq": 1
+        }
+      ]
+    },
+    {
+      "name": "begin_after_stop",
+      "valid": false,
+      "events": [
+        {
+          "type": "stop"
+        },
+        {
+          "type": "begin",
+          "callback_id": "bar-1",
+          "phase": "bar"
+        }
+      ]
+    }
+  ]
+}

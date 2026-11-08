@@ -1,0 +1,10 @@
+# Reviewed P0 SHA-256 digest false positives only; no paths or rules disabled.
+# These exact historical findings are not credentials; see docs/quant/p0-review-remediation.md.
+d70fa200535fe4568e9402c23ba482d0fd678064:ci/quant-files.json:generic-api-key:16
+d70fa200535fe4568e9402c23ba482d0fd678064:contracts/quant/v1/bundle.lock.json:generic-api-key:12
+d70fa200535fe4568e9402c23ba482d0fd678064:ci/quant-files.json:generic-api-key:19
+d70fa200535fe4568e9402c23ba482d0fd678064:ci/quant-files.json:generic-api-key:31
+045e7ef982bf97baa121a57e3b20f8db50ef704c:contracts/quant/v1/bundle.lock.json:generic-api-key:12
+045e7ef982bf97baa121a57e3b20f8db50ef704c:ci/quant-files.json:generic-api-key:17
+045e7ef982bf97baa121a57e3b20f8db50ef704c:ci/quant-files.json:generic-api-key:32
+f7e9ffc796845ef74c2b96c4f4dff7f91fdd7273:ci/quant-files.json:generic-api-key:32

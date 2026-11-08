@@ -1,0 +1,710 @@
+{
+  "schema_version": 1,
+  "model": "cash-long-ohlcv/1",
+  "scope": "P0 opening-only zero-fee/zero-slippage hand accounting; terminal probe is a no-op check, not intrabar matching",
+  "cases": [
+    {
+      "name": "market_stop_limit_resource_competition",
+      "fee_rate": "0",
+      "slippage_bps": "0",
+      "product": {
+        "instrument_id": "fixture:cash",
+        "quote_currency": "USD",
+        "price_step": "1",
+        "quantity_step": "1",
+        "money_step": "1",
+        "minimum_quantity": "1",
+        "minimum_notional": "1"
+      },
+      "bar": {
+        "open": "10",
+        "high": "15",
+        "low": "8",
+        "close": "11"
+      },
+      "initial": {
+        "cash": "30",
+        "quantity": "4",
+        "position_cost": "40"
+      },
+      "groups": [
+        {
+          "group_id": "g1",
+          "status": "active",
+          "quantity": "2"
+        }
+      ],
+      "orders": [
+        {
+          "order_id": "take",
+          "submit_seq": 1,
+          "side": "sell",
+          "kind": "limit",
+          "quantity": "2",
+          "reserved_cash": "0",
+          "reserved_quantity": "0",
+          "status": "accepted",
+          "group_id": "g1",
+          "limit_price": "14"
+        },
+        {
+          "order_id": "limit-buy",
+          "submit_seq": 2,
+          "side": "buy",
+          "kind": "limit",
+          "quantity": "2",
+          "reserved_cash": "20",
+          "reserved_quantity": "0",
+          "status": "accepted",
+          "limit_price": "10"
+        },
+        {
+          "order_id": "stop",
+          "submit_seq": 30,
+          "side": "sell",
+          "kind": "protective_stop",
+          "quantity": "2",
+          "reserved_cash": "0",
+          "reserved_quantity": "0",
+          "status": "accepted",
+          "group_id": "g1",
+          "stop_price": "11"
+        },
+        {
+          "order_id": "market-sell",
+          "submit_seq": 11,
+          "side": "sell",
+          "kind": "market",
+          "quantity": "1",
+          "reserved_cash": "0",
+          "reserved_quantity": "1",
+          "status": "accepted"
+        },
+        {
+          "order_id": "market-buy",
+          "submit_seq": 10,
+          "side": "buy",
+          "kind": "market",
+          "quantity": "2",
+          "reserved_cash": "10",
+          "reserved_quantity": "0",
+          "status": "accepted"
+        }
+      ],
+      "terminal_probes": [
+        "take"
+      ],
+      "expected": {
+        "initial": {
+          "cash": "30",
+          "reserved_cash": "30",
+          "available_cash": "0",
+          "quantity": "4",
+          "reserved_quantity": "3",
+          "available_quantity": "1",
+          "position_cost": "40",
+          "realized_pnl": "0",
+          "orders": {
+            "take": {
+              "status": "accepted",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            },
+            "limit-buy": {
+              "status": "accepted",
+              "reserved_cash": "20",
+              "reserved_quantity": "0"
+            },
+            "stop": {
+              "status": "accepted",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            },
+            "market-sell": {
+              "status": "accepted",
+              "reserved_cash": "0",
+              "reserved_quantity": "1"
+            },
+            "market-buy": {
+              "status": "accepted",
+              "reserved_cash": "10",
+              "reserved_quantity": "0"
+            }
+          },
+          "groups": {
+            "g1": {
+              "status": "active",
+              "quantity": "2"
+            }
+          },
+          "fills": []
+        },
+        "steps": [
+          {
+            "stage": "open",
+            "order_id": "market-buy",
+            "outcome": "INSUFFICIENT_CASH",
+            "state": {
+              "cash": "30",
+              "reserved_cash": "20",
+              "available_cash": "10",
+              "quantity": "4",
+              "reserved_quantity": "3",
+              "available_quantity": "1",
+              "position_cost": "40",
+              "realized_pnl": "0",
+              "orders": {
+                "take": {
+                  "status": "accepted",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "limit-buy": {
+                  "status": "accepted",
+                  "reserved_cash": "20",
+                  "reserved_quantity": "0"
+                },
+                "stop": {
+                  "status": "accepted",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-sell": {
+                  "status": "accepted",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "1"
+                },
+                "market-buy": {
+                  "status": "rejected",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                }
+              },
+              "groups": {
+                "g1": {
+                  "status": "active",
+                  "quantity": "2"
+                }
+              },
+              "fills": []
+            }
+          },
+          {
+            "stage": "open",
+            "order_id": "market-sell",
+            "outcome": "FILLED",
+            "state": {
+              "cash": "40",
+              "reserved_cash": "20",
+              "available_cash": "20",
+              "quantity": "3",
+              "reserved_quantity": "2",
+              "available_quantity": "1",
+              "position_cost": "30",
+              "realized_pnl": "0",
+              "orders": {
+                "take": {
+                  "status": "accepted",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "limit-buy": {
+                  "status": "accepted",
+                  "reserved_cash": "20",
+                  "reserved_quantity": "0"
+                },
+                "stop": {
+                  "status": "accepted",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-sell": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-buy": {
+                  "status": "rejected",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                }
+              },
+              "groups": {
+                "g1": {
+                  "status": "active",
+                  "quantity": "2"
+                }
+              },
+              "fills": [
+                {
+                  "order_id": "market-sell",
+                  "side": "sell",
+                  "quantity": "1",
+                  "price": "10",
+                  "fee": "0"
+                }
+              ]
+            }
+          },
+          {
+            "stage": "open",
+            "order_id": "stop",
+            "outcome": "FILLED",
+            "state": {
+              "cash": "60",
+              "reserved_cash": "20",
+              "available_cash": "40",
+              "quantity": "1",
+              "reserved_quantity": "0",
+              "available_quantity": "1",
+              "position_cost": "10",
+              "realized_pnl": "0",
+              "orders": {
+                "take": {
+                  "status": "cancelled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "limit-buy": {
+                  "status": "accepted",
+                  "reserved_cash": "20",
+                  "reserved_quantity": "0"
+                },
+                "stop": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-sell": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-buy": {
+                  "status": "rejected",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                }
+              },
+              "groups": {
+                "g1": {
+                  "status": "closed",
+                  "quantity": "0"
+                }
+              },
+              "fills": [
+                {
+                  "order_id": "market-sell",
+                  "side": "sell",
+                  "quantity": "1",
+                  "price": "10",
+                  "fee": "0"
+                },
+                {
+                  "order_id": "stop",
+                  "side": "sell",
+                  "quantity": "2",
+                  "price": "10",
+                  "fee": "0"
+                }
+              ]
+            }
+          },
+          {
+            "stage": "open",
+            "order_id": "limit-buy",
+            "outcome": "FILLED",
+            "state": {
+              "cash": "40",
+              "reserved_cash": "0",
+              "available_cash": "40",
+              "quantity": "3",
+              "reserved_quantity": "0",
+              "available_quantity": "3",
+              "position_cost": "30",
+              "realized_pnl": "0",
+              "orders": {
+                "take": {
+                  "status": "cancelled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "limit-buy": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "stop": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-sell": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-buy": {
+                  "status": "rejected",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                }
+              },
+              "groups": {
+                "g1": {
+                  "status": "closed",
+                  "quantity": "0"
+                }
+              },
+              "fills": [
+                {
+                  "order_id": "market-sell",
+                  "side": "sell",
+                  "quantity": "1",
+                  "price": "10",
+                  "fee": "0"
+                },
+                {
+                  "order_id": "stop",
+                  "side": "sell",
+                  "quantity": "2",
+                  "price": "10",
+                  "fee": "0"
+                },
+                {
+                  "order_id": "limit-buy",
+                  "side": "buy",
+                  "quantity": "2",
+                  "price": "10",
+                  "fee": "0"
+                }
+              ]
+            }
+          },
+          {
+            "stage": "terminal_probe",
+            "order_id": "take",
+            "outcome": "ignored_terminal",
+            "state": {
+              "cash": "40",
+              "reserved_cash": "0",
+              "available_cash": "40",
+              "quantity": "3",
+              "reserved_quantity": "0",
+              "available_quantity": "3",
+              "position_cost": "30",
+              "realized_pnl": "0",
+              "orders": {
+                "take": {
+                  "status": "cancelled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "limit-buy": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "stop": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-sell": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "market-buy": {
+                  "status": "rejected",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                }
+              },
+              "groups": {
+                "g1": {
+                  "status": "closed",
+                  "quantity": "0"
+                }
+              },
+              "fills": [
+                {
+                  "order_id": "market-sell",
+                  "side": "sell",
+                  "quantity": "1",
+                  "price": "10",
+                  "fee": "0"
+                },
+                {
+                  "order_id": "stop",
+                  "side": "sell",
+                  "quantity": "2",
+                  "price": "10",
+                  "fee": "0"
+                },
+                {
+                  "order_id": "limit-buy",
+                  "side": "buy",
+                  "quantity": "2",
+                  "price": "10",
+                  "fee": "0"
+                }
+              ]
+            }
+          }
+        ],
+        "final": {
+          "cash": "40",
+          "reserved_cash": "0",
+          "available_cash": "40",
+          "quantity": "3",
+          "reserved_quantity": "0",
+          "available_quantity": "3",
+          "position_cost": "30",
+          "realized_pnl": "0",
+          "orders": {
+            "take": {
+              "status": "cancelled",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            },
+            "limit-buy": {
+              "status": "filled",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            },
+            "stop": {
+              "status": "filled",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            },
+            "market-sell": {
+              "status": "filled",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            },
+            "market-buy": {
+              "status": "rejected",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            }
+          },
+          "groups": {
+            "g1": {
+              "status": "closed",
+              "quantity": "0"
+            }
+          },
+          "fills": [
+            {
+              "order_id": "market-sell",
+              "side": "sell",
+              "quantity": "1",
+              "price": "10",
+              "fee": "0"
+            },
+            {
+              "order_id": "stop",
+              "side": "sell",
+              "quantity": "2",
+              "price": "10",
+              "fee": "0"
+            },
+            {
+              "order_id": "limit-buy",
+              "side": "buy",
+              "quantity": "2",
+              "price": "10",
+              "fee": "0"
+            }
+          ]
+        }
+      },
+      "submission_reference_close": "5"
+    },
+    {
+      "name": "market_same_priority_submission_resource_competition",
+      "fee_rate": "0",
+      "slippage_bps": "0",
+      "product": {
+        "instrument_id": "fixture:cash",
+        "quote_currency": "USD",
+        "price_step": "1",
+        "quantity_step": "1",
+        "money_step": "1",
+        "minimum_quantity": "1",
+        "minimum_notional": "1"
+      },
+      "bar": {
+        "open": "10",
+        "high": "10",
+        "low": "10",
+        "close": "10"
+      },
+      "initial": {
+        "cash": "30",
+        "quantity": "0",
+        "position_cost": "0"
+      },
+      "groups": [],
+      "orders": [
+        {
+          "order_id": "later",
+          "submit_seq": 20,
+          "side": "buy",
+          "kind": "market",
+          "quantity": "2",
+          "reserved_cash": "10",
+          "reserved_quantity": "0",
+          "status": "accepted"
+        },
+        {
+          "order_id": "earlier",
+          "submit_seq": 10,
+          "side": "buy",
+          "kind": "market",
+          "quantity": "2",
+          "reserved_cash": "10",
+          "reserved_quantity": "0",
+          "status": "accepted"
+        }
+      ],
+      "terminal_probes": [],
+      "expected": {
+        "initial": {
+          "cash": "30",
+          "reserved_cash": "20",
+          "available_cash": "10",
+          "quantity": "0",
+          "reserved_quantity": "0",
+          "available_quantity": "0",
+          "position_cost": "0",
+          "realized_pnl": "0",
+          "orders": {
+            "later": {
+              "status": "accepted",
+              "reserved_cash": "10",
+              "reserved_quantity": "0"
+            },
+            "earlier": {
+              "status": "accepted",
+              "reserved_cash": "10",
+              "reserved_quantity": "0"
+            }
+          },
+          "groups": {},
+          "fills": []
+        },
+        "steps": [
+          {
+            "stage": "open",
+            "order_id": "earlier",
+            "outcome": "FILLED",
+            "state": {
+              "cash": "10",
+              "reserved_cash": "10",
+              "available_cash": "0",
+              "quantity": "2",
+              "reserved_quantity": "0",
+              "available_quantity": "2",
+              "position_cost": "20",
+              "realized_pnl": "0",
+              "orders": {
+                "later": {
+                  "status": "accepted",
+                  "reserved_cash": "10",
+                  "reserved_quantity": "0"
+                },
+                "earlier": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                }
+              },
+              "groups": {},
+              "fills": [
+                {
+                  "order_id": "earlier",
+                  "side": "buy",
+                  "quantity": "2",
+                  "price": "10",
+                  "fee": "0"
+                }
+              ]
+            }
+          },
+          {
+            "stage": "open",
+            "order_id": "later",
+            "outcome": "INSUFFICIENT_CASH",
+            "state": {
+              "cash": "10",
+              "reserved_cash": "0",
+              "available_cash": "10",
+              "quantity": "2",
+              "reserved_quantity": "0",
+              "available_quantity": "2",
+              "position_cost": "20",
+              "realized_pnl": "0",
+              "orders": {
+                "later": {
+                  "status": "rejected",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                },
+                "earlier": {
+                  "status": "filled",
+                  "reserved_cash": "0",
+                  "reserved_quantity": "0"
+                }
+              },
+              "groups": {},
+              "fills": [
+                {
+                  "order_id": "earlier",
+                  "side": "buy",
+                  "quantity": "2",
+                  "price": "10",
+                  "fee": "0"
+                }
+              ]
+            }
+          }
+        ],
+        "final": {
+          "cash": "10",
+          "reserved_cash": "0",
+          "available_cash": "10",
+          "quantity": "2",
+          "reserved_quantity": "0",
+          "available_quantity": "2",
+          "position_cost": "20",
+          "realized_pnl": "0",
+          "orders": {
+            "later": {
+              "status": "rejected",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            },
+            "earlier": {
+              "status": "filled",
+              "reserved_cash": "0",
+              "reserved_quantity": "0"
+            }
+          },
+          "groups": {},
+          "fills": [
+            {
+              "order_id": "earlier",
+              "side": "buy",
+              "quantity": "2",
+              "price": "10",
+              "fee": "0"
+            }
+          ]
+        }
+      },
+      "submission_reference_close": "5"
+    }
+  ]
+}

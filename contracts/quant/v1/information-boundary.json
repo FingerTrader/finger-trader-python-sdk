@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "entries": [
+    {
+      "id": "cash-long-ohlcv/1",
+      "classification": "public_rule",
+      "source": "user-approved implementation plan P0.2-P0.4",
+      "locations": [
+        "contracts/quant/v1",
+        "lib/app/quant"
+      ],
+      "scope": "local simulation only"
+    },
+    {
+      "id": "test-fixtures",
+      "classification": "public_rule",
+      "source": "synthetic hand-calculated examples; no customer records",
+      "locations": [
+        "contracts/quant/v1/goldens.json",
+        "contracts/quant/v1/messages.json"
+      ],
+      "scope": "test only"
+    },
+    {
+      "id": "account-authorized-configuration",
+      "classification": "authorized_visible",
+      "source": "not implemented in P0",
+      "locations": [],
+      "required_restrictions": [
+        "account",
+        "purpose",
+        "expires_at"
+      ],
+      "scope": "must validate authorization before use"
+    },
+    {
+      "id": "server-confidential",
+      "classification": "prohibited",
+      "source": "production internal risk, antifraud, scoring, routing, hedge decisions, unpublished dynamic parameters",
+      "locations": [],
+      "scope": "never distribute"
+    },
+    {
+      "id": "server-secrets-and-other-customers",
+      "classification": "prohibited",
+      "source": "private keys, production credentials, admin permissions, other customer data, platform aggregate exposure",
+      "locations": [],
+      "scope": "never distribute"
+    }
+  ],
+  "authority": "server independently authorizes, validates and books live operations; no simulator output is trusted",
+  "manual_checks": [
+    "classification completeness",
+    "authorization provenance",
+    "release assets and debug materials",
+    "P6 tampered-client negative tests"
+  ],
+  "automated_checks_scope": "known credential patterns only; not proof that all sensitive information is absent"
+}
