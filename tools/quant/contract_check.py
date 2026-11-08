@@ -9,11 +9,18 @@ silently pretending to implement the whole JSON Schema specification.
 from __future__ import annotations
 
 import hashlib
-from fractions import Fraction
 import json
 import re
 from datetime import datetime
-from decimal import Decimal, ROUND_CEILING, ROUND_FLOOR, ROUND_HALF_EVEN, ROUND_HALF_UP, localcontext
+from decimal import (
+    ROUND_CEILING,
+    ROUND_FLOOR,
+    ROUND_HALF_EVEN,
+    ROUND_HALF_UP,
+    Decimal,
+    localcontext,
+)
+from fractions import Fraction
 from pathlib import Path
 
 
@@ -44,8 +51,19 @@ def load_json(path: Path):
 
 
 class Schema:
-    KEYWORDS = {"$ref", "type", "properties", "required", "additionalProperties", "items",
-                "pattern", "minLength", "minimum", "const", "enum"}
+    KEYWORDS = {
+        "$ref",
+        "type",
+        "properties",
+        "required",
+        "additionalProperties",
+        "items",
+        "pattern",
+        "minLength",
+        "minimum",
+        "const",
+        "enum",
+    }
 
     def __init__(self, document):
         self.document = document
@@ -71,9 +89,13 @@ class Schema:
             self._check(self.document["$defs"][name], value, path)
             self._semantic(name, value)
             return
-        if "const" in schema and (type(value) is not type(schema["const"]) or value != schema["const"]):
+        if "const" in schema and (
+            type(value) is not type(schema["const"]) or value != schema["const"]
+        ):
             raise ContractError(f"{path}: const mismatch")
-        if "enum" in schema and not any(type(value) is type(item) and value == item for item in schema["enum"]):
+        if "enum" in schema and not any(
+            type(value) is type(item) and value == item for item in schema["enum"]
+        ):
             raise ContractError(f"{path}: enum mismatch")
         kind = schema.get("type")
         types = {"object": dict, "array": list, "string": str, "integer": int, "boolean": bool}
@@ -107,7 +129,11 @@ class Schema:
     def _semantic(self, name, value):
         if name in {"Decimal", "NonNegativeDecimal"}:
             number = Decimal(value)
-            if len(number.as_tuple().digits) > 34 or abs(number.adjusted()) > 6144 or (number.is_zero() and abs(number.as_tuple().exponent) > 6144):
+            if (
+                len(number.as_tuple().digits) > 34
+                or abs(number.adjusted()) > 6144
+                or (number.is_zero() and abs(number.as_tuple().exponent) > 6144)
+            ):
                 raise ContractError("decimal exceeds decimal128 domain")
         elif name == "Order":
             if Decimal(value["quantity"]) <= 0:
@@ -132,15 +158,21 @@ class Schema:
             prices = [Decimal(value[key]) for key in ("open", "high", "low", "close")]
             if min(prices) <= 0 or prices[1] < max(prices) or prices[2] > min(prices):
                 raise ContractError("invalid positive OHLC range")
-            if datetime.fromisoformat(value["open_time"].replace("Z", "+00:00")) >= datetime.fromisoformat(value["close_time"].replace("Z", "+00:00")):
+            if datetime.fromisoformat(
+                value["open_time"].replace("Z", "+00:00")
+            ) >= datetime.fromisoformat(value["close_time"].replace("Z", "+00:00")):
                 raise ContractError("bar interval must increase")
         elif name == "Account":
-            if Fraction(value["cash"]) - Fraction(value["reserved_cash"]) != Fraction(value["available_cash"]):
+            if Fraction(value["cash"]) - Fraction(value["reserved_cash"]) != Fraction(
+                value["available_cash"]
+            ):
                 raise ContractError("cash reservation invariant failed")
             if Decimal(value["cash"]) < 0 or Decimal(value["available_cash"]) < 0:
                 raise ContractError("cash account cannot borrow")
         elif name == "Position":
-            if Fraction(value["available_quantity"]) + Fraction(value["reserved_quantity"]) != Fraction(value["quantity"]):
+            if Fraction(value["available_quantity"]) + Fraction(
+                value["reserved_quantity"]
+            ) != Fraction(value["quantity"]):
                 raise ContractError("position reservation invariant failed")
         elif name == "Strategy":
             path = value["entrypoint"]["file"]
@@ -148,29 +180,42 @@ class Schema:
                 raise ContractError("entrypoint must be normalized relative path")
             if len(value["requested_capabilities"]) != len(set(value["requested_capabilities"])):
                 raise ContractError("duplicate capabilities")
-            canonical(value['parameters'])
+            canonical(value["parameters"])
         elif name == "Instrument":
-            for field in ('price_step', 'quantity_step', 'money_step'):
+            for field in ("price_step", "quantity_step", "money_step"):
                 if Decimal(value[field]) <= 0:
-                    raise ContractError('product steps must be positive')
+                    raise ContractError("product steps must be positive")
         elif name == "Dataset":
-            if datetime.fromisoformat(value['first_open'].replace('Z', '+00:00')) >= datetime.fromisoformat(value['last_close'].replace('Z', '+00:00')):
-                raise ContractError('dataset interval must increase')
+            if datetime.fromisoformat(
+                value["first_open"].replace("Z", "+00:00")
+            ) >= datetime.fromisoformat(value["last_close"].replace("Z", "+00:00")):
+                raise ContractError("dataset interval must increase")
         elif name == "ProtectionGroup":
-            if Decimal(value['quantity']) <= 0 or not any(key in value for key in ('stop_price', 'take_price')):
-                raise ContractError('protection needs quantity and at least one trigger')
-            if any(Decimal(value[key]) <= 0 for key in ('stop_price', 'take_price') if key in value):
-                raise ContractError('protection prices must be positive')
+            if Decimal(value["quantity"]) <= 0 or not any(
+                key in value for key in ("stop_price", "take_price")
+            ):
+                raise ContractError("protection needs quantity and at least one trigger")
+            if any(
+                Decimal(value[key]) <= 0 for key in ("stop_price", "take_price") if key in value
+            ):
+                raise ContractError("protection prices must be positive")
         elif name == "RunEvent":
-            self.check(self.document['event_payloads'][value['kind']], value['payload'])
+            self.check(self.document["event_payloads"][value["kind"]], value["payload"])
         elif name == "OrderState":
-            if Decimal(value['quantity']) <= 0 or Decimal(value['filled_quantity']) > Decimal(value['quantity']):
-                raise ContractError('invalid order quantity')
-            if (value['kind'] == 'limit') != ('limit_price' in value):
-                raise ContractError('order state limit price mismatch')
-            if value['status'] == 'filled' and (value['quantity'] != value['filled_quantity'] or 'fill_price' not in value):
-                if Decimal(value['quantity']) != Decimal(value['filled_quantity']) or 'fill_price' not in value:
-                    raise ContractError('filled order requires full quantity and price')
+            if Decimal(value["quantity"]) <= 0 or Decimal(value["filled_quantity"]) > Decimal(
+                value["quantity"]
+            ):
+                raise ContractError("invalid order quantity")
+            if (value["kind"] == "limit") != ("limit_price" in value):
+                raise ContractError("order state limit price mismatch")
+            if value["status"] == "filled" and (
+                value["quantity"] != value["filled_quantity"] or "fill_price" not in value
+            ):
+                if (
+                    Decimal(value["quantity"]) != Decimal(value["filled_quantity"])
+                    or "fill_price" not in value
+                ):
+                    raise ContractError("filled order requires full quantity and price")
         elif name == "ExitProtected":
             if Decimal(value["params"]["payload"]["quantity"]) <= 0:
                 raise ContractError("exit quantity must be positive")
@@ -207,22 +252,38 @@ def golden_result(case):
         ctx.Emax = 6144
         ctx.Emin = -6143
         ctx.rounding = ROUND_HALF_EVEN
-        d = lambda key: Decimal(case[key])
+        def d(key):
+            return Decimal(case[key])
+
         kind = case["kind"]
         if kind in {"reservation", "fill"}:
             gross = d("price") * d("quantity")
-            fee = align(max(gross * d("fee_rate"), d("minimum_fee")), d("money_step"), ROUND_HALF_UP)
+            fee = align(
+                max(gross * d("fee_rate"), d("minimum_fee")), d("money_step"), ROUND_HALF_UP
+            )
             if kind == "reservation":
                 reserved = align(gross + fee, d("money_step"), ROUND_CEILING)
                 second_gross = d("price") * d("second_quantity")
-                second_fee = align(max(second_gross * d("fee_rate"), d("minimum_fee")), d("money_step"), ROUND_HALF_UP)
+                second_fee = align(
+                    max(second_gross * d("fee_rate"), d("minimum_fee")),
+                    d("money_step"),
+                    ROUND_HALF_UP,
+                )
                 second = align(second_gross + second_fee, d("money_step"), ROUND_CEILING)
-                return {"reservation": reserved, "second_accepted": d("cash") - d("existing_reserved") - reserved >= second}
+                return {
+                    "reservation": reserved,
+                    "second_accepted": d("cash") - d("existing_reserved") - reserved >= second,
+                }
             debit = align(gross + fee, d("money_step"), ROUND_HALF_UP)
             accepted = debit <= d("cash") - d("other_reserved")
             cash = d("cash") - debit if accepted else d("cash")
-            return {"accepted": accepted, "cash": cash, "reserved_cash": d("other_reserved"),
-                    "available_cash": cash - d("other_reserved"), "position_cost": debit if accepted else Decimal(0)}
+            return {
+                "accepted": accepted,
+                "cash": cash,
+                "reserved_cash": d("other_reserved"),
+                "available_cash": cash - d("other_reserved"),
+                "position_cost": debit if accepted else Decimal(0),
+            }
         if kind == "release":
             available = d("cash") - d("reserved") + d("release")
             return {"available_cash": available, "accepted": available >= d("new_reservation")}
@@ -237,9 +298,21 @@ def golden_result(case):
                 return {"winner": "take", "price": d("take")}
             return {"winner": None, "price": None}
         if kind == "protection":
-            stop = align(d("fill_price") * (1 - d("stop_percent") / 100), d("price_step"), ROUND_FLOOR) if d("stop_percent") else None
-            take = align(d("fill_price") * (1 + d("take_percent") / 100), d("price_step"), ROUND_CEILING) if d("take_percent") else None
-            valid = (stop is None or 0 < stop < d("fill_price")) and (take is None or take > d("fill_price"))
+            stop = (
+                align(d("fill_price") * (1 - d("stop_percent") / 100), d("price_step"), ROUND_FLOOR)
+                if d("stop_percent")
+                else None
+            )
+            take = (
+                align(
+                    d("fill_price") * (1 + d("take_percent") / 100), d("price_step"), ROUND_CEILING
+                )
+                if d("take_percent")
+                else None
+            )
+            valid = (stop is None or 0 < stop < d("fill_price")) and (
+                take is None or take > d("fill_price")
+            )
             return {"stop": stop, "take": take, "valid": valid}
         if kind == "slippage":
             buy = case["side"] == "buy"
@@ -248,11 +321,21 @@ def golden_result(case):
         if kind == "cost":
             quantity = sum(Decimal(row["quantity"]) for row in case["buys"])
             cost = sum(Decimal(row["gross"]) + Decimal(row["fee"]) for row in case["buys"])
-            allocated = cost if d("sell_quantity") == quantity else cost * d("sell_quantity") / quantity
-            return {"initial_cost": cost, "allocated_cost": allocated, "remaining_cost": cost - allocated,
-                    "realized_pnl": d("sell_gross") - d("sell_fee") - allocated}
+            allocated = (
+                cost if d("sell_quantity") == quantity else cost * d("sell_quantity") / quantity
+            )
+            return {
+                "initial_cost": cost,
+                "allocated_cost": allocated,
+                "remaining_cost": cost - allocated,
+                "realized_pnl": d("sell_gross") - d("sell_fee") - allocated,
+            }
         if kind == "protected_exit":
-            return {"protected": d("quantity") - d("exit_quantity"), "exit_reserved": d("exit_quantity"), "total_reserved": d("quantity")}
+            return {
+                "protected": d("quantity") - d("exit_quantity"),
+                "exit_reserved": d("exit_quantity"),
+                "total_reserved": d("quantity"),
+            }
         raise ContractError(f"unknown golden kind {kind}")
 
 
@@ -266,8 +349,11 @@ def canonical(payload):
         elif isinstance(value, list):
             for item in value:
                 no_float(item)
+
     no_float(payload)
-    return json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return json.dumps(payload, ensure_ascii=True, sort_keys=True, separators=(",", ":")).encode(
+        "utf-8"
+    )
 
 
 def validate_trace(events, policy):
@@ -282,26 +368,39 @@ def validate_trace(events, policy):
             if active is not None:
                 raise ContractError("callback reentry")
             active = event
-            if event['phase'] not in policy['phases'] or (stopping and event['phase'] != 'stop'):
-                raise ContractError('invalid callback after stopping')
+            if event["phase"] not in policy["phases"] or (stopping and event["phase"] != "stop"):
+                raise ContractError("invalid callback after stopping")
             last_request = 0
         elif kind == "stop":
             stopping = True
         elif kind == "request":
             if active is None or event["callback_id"] != active["callback_id"]:
                 raise ContractError("stale callback")
-            if type(event['seq']) is not int or type(event['write']) is not bool or event["seq"] != last_request + 1:
+            if (
+                type(event["seq"]) is not int
+                or type(event["write"]) is not bool
+                or event["seq"] != last_request + 1
+            ):
                 raise ContractError("request sequence gap or duplicate")
             if event["write"] and (stopping or not policy["phases"][active["phase"]]["trade"]):
                 raise ContractError("write denied")
             last_request = event["seq"]
             pending.add(last_request)
         elif kind == "response":
-            if active is None or event.get('callback_id') != active['callback_id'] or event["seq"] not in pending:
+            if (
+                active is None
+                or event.get("callback_id") != active["callback_id"]
+                or event["seq"] not in pending
+            ):
                 raise ContractError("unknown response")
             pending.remove(event["seq"])
         elif kind == "complete":
-            if active is None or pending or event["callback_id"] != active["callback_id"] or event["last_seq"] != last_request:
+            if (
+                active is None
+                or pending
+                or event["callback_id"] != active["callback_id"]
+                or event["last_seq"] != last_request
+            ):
                 raise ContractError("callback barrier not settled")
             active = None
         elif kind == "advance":
@@ -314,7 +413,10 @@ def validate_trace(events, policy):
 
 
 def transaction(payload):
-    return canonical({"payload": payload, "sha256": hashlib.sha256(canonical(payload)).hexdigest()}) + b"\n"
+    return (
+        canonical({"payload": payload, "sha256": hashlib.sha256(canonical(payload)).hexdigest()})
+        + b"\n"
+    )
 
 
 def recover(data):
@@ -333,7 +435,11 @@ def recover(data):
                 raise ContractError("noncanonical transaction")
             if digest != wrapper["sha256"] or payload["previous_sha256"] != previous:
                 raise ContractError("broken transaction digest chain")
-            if type(payload["batch_seq"]) is not int or type(payload["first_event_seq"]) is not int or type(payload["last_event_seq"]) is not int:
+            if (
+                type(payload["batch_seq"]) is not int
+                or type(payload["first_event_seq"]) is not int
+                or type(payload["last_event_seq"]) is not int
+            ):
                 raise ContractError("transaction sequences must be integers")
             if not isinstance(payload["batch_id"], str) or not payload["batch_id"]:
                 raise ContractError("invalid batch ID")
@@ -341,9 +447,15 @@ def recover(data):
                 raise ContractError("duplicate batch ID")
             if not isinstance(payload["events"], list):
                 raise ContractError("events must be an array")
-            if payload["batch_seq"] != len(committed) + 1 or payload["first_event_seq"] != next_event:
+            if (
+                payload["batch_seq"] != len(committed) + 1
+                or payload["first_event_seq"] != next_event
+            ):
                 raise ContractError("non-contiguous transaction")
-            if not payload["events"] or payload["last_event_seq"] != next_event + len(payload["events"]) - 1:
+            if (
+                not payload["events"]
+                or payload["last_event_seq"] != next_event + len(payload["events"]) - 1
+            ):
                 raise ContractError("invalid transaction event range")
             committed.append(payload)
             previous = digest
