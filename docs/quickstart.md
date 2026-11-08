@@ -14,9 +14,7 @@ try:
     with FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"]) as client:
         markets = client.market_data.markets()
         symbols = client.market_data.symbols(market="stock", page_size=10)
-        bars = client.market_data.history(
-            market="stock", ticker="AAPL", interval="1d", limit=100
-        )
+        bars = client.market_data.history(market="stock", ticker="AAPL", interval="1d", limit=100)
         profile = client.accounts.detail()
         wallet = client.accounts.balance()
         holdings = client.positions.list()

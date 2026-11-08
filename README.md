@@ -33,9 +33,7 @@ from finger_trader import FingerTraderClient
 with FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"]) as client:
     markets = client.market_data.markets()
     products = client.market_data.symbols(market="stock", page_size=10)
-    bars = client.market_data.history(
-        market="stock", ticker="AAPL", interval="1d", limit=100
-    )
+    bars = client.market_data.history(market="stock", ticker="AAPL", interval="1d", limit=100)
     wallet = client.accounts.balance()
     print(markets.data, products.data, bars.data, wallet.data)
 ```

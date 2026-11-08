@@ -19,7 +19,9 @@ Account, balance, position, order, market, instrument, execution, and trading-ru
 ```python
 from finger_trader import MarketBar
 
-bar = MarketBar.from_dict({"time": 1_700_000_000_000, "o": "10.1", "h": "11", "l": "9.8", "c": "10.5", "v": "1200"})
+bar = MarketBar.from_dict(
+    {"time": 1_700_000_000_000, "o": "10.1", "h": "11", "l": "9.8", "c": "10.5", "v": "1200"}
+)
 assert str(bar.close) == "10.5"
 ```
 
