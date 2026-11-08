@@ -1,0 +1,13 @@
+{
+  "bundle_version": "1.0.0-candidate.2",
+  "stage": "P0-unreleased",
+  "files": {
+    "goldens.json": "d6c179dc7c12779e247010ecef408ebc5832ee9c58b675b533890a900adee158",
+    "information-boundary.json": "eb5a281c0d4c2cfa0820bfa27fed355209640ca461d48d1a1559253874b24107",
+    "messages.json": "eeda2cb35f0e46a44b0af78e1613601feb5740a60001aa69eb83d989759ccb40",
+    "methods.json": "60225e6c710d917dea8630ac7c3856a4f864f7798dd6396bcd723f17304f3e6d",
+    "policy.json": "2be65d734539bb7c49e784aa852a64fcb0f8672a37603e0c516f294f8dcdf87e",
+    "schema.json": "dd27d085f575485fb4e15d23a1e309dca4fdf22e8c5dcb76d11705b05daacd6a",
+    "traces.json": "de07b15d41c90e0c1660bd5354adb093ab055997487588db7dd9b20b5f630688"
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema_version": 1,
+  "scope": "P0 reviewed candidate source inventory; not a signature",
+  "files": {
+    ".github/workflows/quant-contracts.yml": "ebc996204c1267761154c43713a7ad0a7fd761576e22b11ad76d38ae5868e827",
+    "ci/quant-role.json": "b9e7948babf7372d4b4184747155b40e6af85320000bc0365fad869f2c714d35",
+    "contracts/quant/v1/bundle.lock.json": "e1018537cabb69dd0703391ea5ed38afd3a87ce31d03fbe29d5f8374b17e1da6",
+    "contracts/quant/v1/goldens.json": "d6c179dc7c12779e247010ecef408ebc5832ee9c58b675b533890a900adee158",
+    "contracts/quant/v1/information-boundary.json": "eb5a281c0d4c2cfa0820bfa27fed355209640ca461d48d1a1559253874b24107",
+    "contracts/quant/v1/messages.json": "eeda2cb35f0e46a44b0af78e1613601feb5740a60001aa69eb83d989759ccb40",
+    "contracts/quant/v1/methods.json": "60225e6c710d917dea8630ac7c3856a4f864f7798dd6396bcd723f17304f3e6d",
+    "contracts/quant/v1/policy.json": "2be65d734539bb7c49e784aa852a64fcb0f8672a37603e0c516f294f8dcdf87e",
+    "contracts/quant/v1/schema.json": "dd27d085f575485fb4e15d23a1e309dca4fdf22e8c5dcb76d11705b05daacd6a",
+    "contracts/quant/v1/traces.json": "de07b15d41c90e0c1660bd5354adb093ab055997487588db7dd9b20b5f630688",
+    "lib/app/quant/contracts/schema_validator.dart": "2feb197e30302bbabf9b1550fecef8fffb53720ad2bedf061f6588a1b357999f",
+    "lib/app/quant/contracts/strict_json.dart": "c3c55d1e728010253f7f1db3caa4506c8fb55bc06f5df643357d155dc43bc6d1",
+    "tests/quant_contracts/test_contracts.py": "a8a3544eb92237f1e00b9c8898d1455f1437957d1564d2922f0d3e5bad4a1d55",
+    "tests/quant_contracts/test_quality.py": "5a4d556f81b8952453c528bbb1ac89fcf10e3c9936fc471bbeb0bc990b8f734e",
+    "tools/quant/check_contracts.dart": "6561937fdabe27530fb9f81e0e39f91964b3899cc3e1870c6ad4cd624220871f",
+    "tools/quant/contract_check.py": "65bfb3af2f1279acc78b7296e715a247de6898f9370725fa162b804caea28aa5",
+    "tools/quant/peer_lock.py": "51c1bba8fd701baae17cd04d013eecc9bed693c30a9fbd5c7dd4d7e481968357",
+    "tools/quant/quality.py": "60e917675b36ecbb73310dfcd6f09ac3de6c77e75be61f73df5926cf8e23252a",
+    "tools/quant/report_summary.py": "b5ddd1b2b243d7a6e6058672cd53af2183293a6c2d73e6d6f944e81bd5731103",
+    "tools/quant/run_tests.py": "f0716eca045d07a2bca16b18d83cd235c3c3fbace59c2ad17646699ee257d0d0",
+    "tools/quant/sync_sdk_candidate.py": "3a2bb344bdfaa910c1005028ac03085192d2fb1fffa9011cb88f4ad5f23e3fbd",
+    "tools/quant/workflow_spec.py": "ed10e18d560010bb7e918795547404e85b3310b6acfefe861aaa654580aa28b1"
+  }
+}

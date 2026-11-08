@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "model": "cash-long-ohlcv/1",
+  "cases": [
+    {
+      "name": "two_buys_compete",
+      "kind": "reservation",
+      "cash": "1000",
+      "existing_reserved": "0",
+      "price": "100",
+      "quantity": "8",
+      "fee_rate": "0",
+      "minimum_fee": "0",
+      "money_step": "0.01",
+      "expected_reservation": "800",
+      "second_quantity": "8",
+      "expected_second_accepted": false
+    },
+    {
+      "name": "favorable_fill_releases",
+      "kind": "fill",
+      "cash": "1000",
+      "own_reserved": "800",
+      "other_reserved": "100",
+      "price": "90",
+      "quantity": "8",
+      "fee_rate": "0",
+      "minimum_fee": "0",
+      "money_step": "0.01",
+      "expected_accepted": true,
+      "expected_cash": "280",
+      "expected_reserved_cash": "100",
+      "expected_available_cash": "180",
+      "expected_position_cost": "720"
+    },
+    {
+      "name": "market_gap_rejected",
+      "kind": "fill",
+      "cash": "1000",
+      "own_reserved": "800",
+      "other_reserved": "100",
+      "price": "130",
+      "quantity": "8",
+      "fee_rate": "0",
+      "minimum_fee": "0",
+      "money_step": "0.01",
+      "expected_accepted": false,
+      "expected_cash": "1000",
+      "expected_reserved_cash": "100",
+      "expected_available_cash": "900",
+      "expected_position_cost": "0"
+    },
+    {
+      "name": "cannot_spend_other_reservation",
+      "kind": "fill",
+      "cash": "1000",
+      "own_reserved": "400",
+      "other_reserved": "500",
+      "price": "60",
+      "quantity": "10",
+      "fee_rate": "0",
+      "minimum_fee": "0",
+      "money_step": "0.01",
+      "expected_accepted": false,
+      "expected_cash": "1000",
+      "expected_reserved_cash": "500",
+      "expected_available_cash": "500",
+      "expected_position_cost": "0"
+    },
+    {
+      "name": "cancel_then_submit",
+      "kind": "release",
+      "cash": "1000",
+      "reserved": "800",
+      "release": "800",
+      "new_reservation": "800",
+      "expected_available_cash": "1000",
+      "expected_accepted": true
+    },
+    {
+      "name": "gap_take_profit",
+      "kind": "oco",
+      "open": "115",
+      "high": "120",
+      "low": "85",
+      "stop": "90",
+      "take": "110",
+      "expected_winner": "take",
+      "expected_price": "115"
+    },
+    {
+      "name": "equal_take_profit",
+      "kind": "oco",
+      "open": "110",
+      "high": "120",
+      "low": "85",
+      "stop": "90",
+      "take": "110",
+      "expected_winner": "take",
+      "expected_price": "110"
+    },
+    {
+      "name": "intrabar_ambiguous_stop",
+      "kind": "oco",
+      "open": "100",
+      "high": "120",
+      "low": "85",
+      "stop": "90",
+      "take": "110",
+      "expected_winner": "stop",
+      "expected_price": "90"
+    },
+    {
+      "name": "equal_open_stop",
+      "kind": "oco",
+      "open": "90",
+      "high": "120",
+      "low": "85",
+      "stop": "90",
+      "take": "110",
+      "expected_winner": "stop",
+      "expected_price": "90"
+    },
+    {
+      "name": "protection_uses_fill",
+      "kind": "protection",
+      "fill_price": "110",
+      "stop_percent": "5",
+      "take_percent": "10",
+      "price_step": "0.01",
+      "expected_stop": "104.50",
+      "expected_take": "121.00",
+      "expected_valid": true
+    },
+    {
+      "name": "protection_step_rounding",
+      "kind": "protection",
+      "fill_price": "100.05",
+      "stop_percent": "5",
+      "take_percent": "5",
+      "price_step": "0.1",
+      "expected_stop": "95.0",
+      "expected_take": "105.1",
+      "expected_valid": true
+    },
+    {
+      "name": "invalid_protection_rejects_entry",
+      "kind": "protection",
+      "fill_price": "0.01",
+      "stop_percent": "99",
+      "take_percent": "0",
+      "price_step": "0.01",
+      "expected_stop": "0.00",
+      "expected_take": null,
+      "expected_valid": false
+    },
+    {
+      "name": "disabled_protection",
+      "kind": "protection",
+      "fill_price": "110",
+      "stop_percent": "0",
+      "take_percent": "0",
+      "price_step": "0.01",
+      "expected_stop": null,
+      "expected_take": null,
+      "expected_valid": true
+    },
+    {
+      "name": "buy_slippage_step",
+      "kind": "slippage",
+      "side": "buy",
+      "price": "100.01",
+      "bps": "1",
+      "price_step": "0.05",
+      "expected_price": "100.05"
+    },
+    {
+      "name": "sell_slippage_step",
+      "kind": "slippage",
+      "side": "sell",
+      "price": "100.01",
+      "bps": "1",
+      "price_step": "0.05",
+      "expected_price": "99.95"
+    },
+    {
+      "name": "minimum_fee_fractional",
+      "kind": "fill",
+      "cash": "100",
+      "own_reserved": "10",
+      "other_reserved": "0",
+      "price": "12.345",
+      "quantity": "0.5",
+      "fee_rate": "0.001",
+      "minimum_fee": "0.10",
+      "money_step": "0.01",
+      "expected_accepted": true,
+      "expected_cash": "93.73",
+      "expected_reserved_cash": "0",
+      "expected_available_cash": "93.73",
+      "expected_position_cost": "6.27"
+    },
+    {
+      "name": "weighted_cost_partial_exit",
+      "kind": "cost",
+      "buys": [
+        {
+          "quantity": "2",
+          "gross": "20",
+          "fee": "0.10"
+        },
+        {
+          "quantity": "3",
+          "gross": "36",
+          "fee": "0.10"
+        }
+      ],
+      "sell_quantity": "2",
+      "sell_gross": "26",
+      "sell_fee": "0.10",
+      "expected_initial_cost": "56.20",
+      "expected_allocated_cost": "22.48",
+      "expected_remaining_cost": "33.72",
+      "expected_realized_pnl": "3.42"
+    },
+    {
+      "name": "protected_partial_exit",
+      "kind": "protected_exit",
+      "quantity": "100",
+      "exit_quantity": "40",
+      "expected_protected": "60",
+      "expected_exit_reserved": "40",
+      "expected_total_reserved": "100"
+    },
+    {
+      "name": "protected_full_exit",
+      "kind": "protected_exit",
+      "quantity": "100",
+      "exit_quantity": "100",
+      "expected_protected": "0",
+      "expected_exit_reserved": "100",
+      "expected_total_reserved": "100"
+    },
+    {
+      "name": "second_order_own_fee",
+      "kind": "reservation",
+      "cash": "110",
+      "existing_reserved": "0",
+      "price": "10",
+      "quantity": "1",
+      "second_quantity": "9",
+      "fee_rate": "0.1",
+      "minimum_fee": "0",
+      "money_step": "0.01",
+      "expected_reservation": "11",
+      "expected_second_accepted": true
+    },
+    {
+      "name": "second_order_fee_cannot_reuse",
+      "kind": "reservation",
+      "cash": "105",
+      "existing_reserved": "0",
+      "price": "10",
+      "quantity": "1",
+      "second_quantity": "9",
+      "fee_rate": "0.1",
+      "minimum_fee": "0",
+      "money_step": "0.01",
+      "expected_reservation": "11",
+      "expected_second_accepted": false
+    },
+    {
+      "name": "full_exit_no_residual",
+      "kind": "cost",
+      "buys": [
+        {
+          "quantity": "3",
+          "gross": "1",
+          "fee": "0"
+        }
+      ],
+      "sell_quantity": "3",
+      "sell_gross": "2",
+      "sell_fee": "0",
+      "expected_initial_cost": "1",
+      "expected_allocated_cost": "1",
+      "expected_remaining_cost": "0",
+      "expected_realized_pnl": "1"
+    }
+  ]
+}
