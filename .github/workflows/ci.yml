@@ -28,6 +28,11 @@ jobs:
       - run: ruff format --check .
       - run: mypy
       - run: python -m build
+      - name: Temporary formatting diagnostics
+        if: failure()
+        run: |
+          ruff check --diff tools/quant/remote_acceptance.py tests/quant_contracts/test_remote_acceptance.py
+          ruff format --diff tools/quant/remote_acceptance.py tests/quant_contracts/test_remote_acceptance.py
 
   dependency-audit:
     runs-on: ubuntu-latest

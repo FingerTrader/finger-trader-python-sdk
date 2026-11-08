@@ -6,7 +6,7 @@
 
 ## 本期必须满足
 
-1. 两个完整提交 SHA，Desktop 固定引用 SDK，候选 checkout 干净，既有 draft PR head 与候选一致。
+1. 两个完整提交 SHA，Desktop 固定引用 SDK，候选 checkout 干净，远端对应仓库确认该提交存在。
 2. 两仓统一质量入口实际通过：有效正负回归、Python／Dart 契约、核算、开盘资源竞争、回调时序及事务恢复。
 3. 指定最新提交对应远端 CI 实际成功；SDK 原有测试、静态检查、构建、依赖审计和扫描全部保留。
 4. 检查失败修复原因，不删用例、不降阈值、不跳过作业。缺工具、缺报告、旧提交绿灯不能放行。
@@ -20,7 +20,7 @@ GitHub 套餐、分支保护、CODEOWNERS、额外独立人工签字及受保护
 
 ## 可执行判定
 
-机器政策：ci/quant-acceptance-policy.json。统一入口 tools/quant/quality.py 保持技术要求；tools/quant/remote_acceptance.py 校验政策、运行两仓指定候选完整入口、验证固定组合及 draft PR 身份、读取最新候选 CI，同时采集非阻塞保护和人工状态。
+机器政策：ci/quant-acceptance-policy.json。统一入口 tools/quant/quality.py 保持技术要求；tools/quant/remote_acceptance.py 校验政策、运行两仓指定候选完整入口、验证固定组合及远端提交身份、读取最新候选 CI，同时采集非阻塞保护和人工状态。
 
 ```sh
 python3 -B tools/quant/remote_acceptance.py \

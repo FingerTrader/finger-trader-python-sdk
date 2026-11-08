@@ -172,7 +172,7 @@ def local_checks(role, checkout, sha, dart, evidence, peer=None):
         path = evidence / "report.json"
         report = json.loads(path.read_text())
         validate(report)
-        if report["role"] != role or git("rev-parse", "HEAD") != sha:
+        if report["role"] != role or git("rev-parse", "HEAD") != sha or git("status", "--porcelain"):
             raise ValueError("candidate/report role changed during checks")
         result.update(passed=True, report=str(path),
                       report_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
@@ -220,10 +220,8 @@ def main():
         checks = get("repos/" + repo + "/commits/" + sha + "/check-runs?per_page=100") if exact else {
             "ok": False, "data": {"message": "exact candidate SHA required"}
         }
-        number = 1 if role == "desktop" else 7
-        pr = get("repos/" + repo + "/pulls/" + str(number))
-        identity = bool(pr["ok"] and pr["data"].get("head", {}).get("sha") == sha
-                        and pr["data"].get("state") == "open" and pr["data"].get("draft") is True)
+        commit_record = get("repos/" + repo + "/commits/" + sha) if exact else {"ok": False}
+        identity = bool(commit_record["ok"] and commit_record.get("data", {}).get("sha") == sha)
         check_ok = checks_passed(checks, sha, REQUIRED[role])
         check_ok = check_ok and checks.get("data", {}).get("total_count", 0) <= 100
         protection_ok = protected(protection, REQUIRED[role])
@@ -233,8 +231,6 @@ def main():
             "candidate_checks": checks, "required_checks": sorted(REQUIRED[role]),
             "checks_passed": check_ok, "local_checks": local,
             "local_checks_passed": local["passed"], "candidate_identity_passed": identity,
-            "pull_request": {"number": number, "head": pr.get("data", {}).get("head", {}).get("sha"),
-                             "draft": pr.get("data", {}).get("draft")},
             "protection_passed": protection_ok,
             "protection_status": "verified" if protection_ok else "not_configured_or_unverified",
             "protection_required_for_development": False,

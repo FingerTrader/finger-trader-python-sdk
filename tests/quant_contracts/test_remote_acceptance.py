@@ -1,12 +1,12 @@
 """Remote gate verdicts have the same fail-closed regressions in both repos."""
 
 import copy
-import sys
 import json
+import sys
 import tempfile
-from unittest.mock import patch
 import unittest
 from pathlib import Path
+from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools/quant"))
@@ -14,10 +14,10 @@ from remote_acceptance import (  # noqa: E402
     REQUIRED,
     accepted_manual,
     checks_passed,
-    protected,
     development_verdict,
     load_policy,
     local_checks,
+    protected,
 )
 
 
