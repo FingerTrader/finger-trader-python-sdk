@@ -111,8 +111,12 @@ class RemoteAcceptanceTests(unittest.TestCase):
 
     def test_development_release_ignores_protection_without_faking_it(self):
         records = {
-            repo: {"checks_passed": True, "local_checks_passed": True,
-                   "candidate_identity_passed": True, "protection_passed": False}
+            repo: {
+                "checks_passed": True,
+                "local_checks_passed": True,
+                "candidate_identity_passed": True,
+                "protection_passed": False,
+            }
             for repo in ("finger-cloud/finger_desk", "FingerTrader/finger-trader-python-sdk")
         }
         self.assertTrue(development_verdict(records, True))
@@ -130,7 +134,9 @@ class RemoteAcceptanceTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             for git_outputs in (["b" * 40], ["a" * 40, " M source.py"]):
                 with patch("subprocess.check_output", side_effect=git_outputs):
-                    result = local_checks("sdk", Path(tmp), "a" * 40, "dart", Path(tmp) / "evidence")
+                    result = local_checks(
+                        "sdk", Path(tmp), "a" * 40, "dart", Path(tmp) / "evidence"
+                    )
                 self.assertFalse(result["passed"])
 
     def test_failed_unified_entry_cannot_pass_development_gate(self):
@@ -138,8 +144,12 @@ class RemoteAcceptanceTests(unittest.TestCase):
 
         with tempfile.TemporaryDirectory() as tmp:
             with patch("subprocess.check_output", side_effect=["a" * 40, "", "tree"]):
-                with patch("subprocess.run", return_value=subprocess.CompletedProcess([], 1, "FAILED", "")):
-                    result = local_checks("sdk", Path(tmp), "a" * 40, "dart", Path(tmp) / "evidence")
+                with patch(
+                    "subprocess.run", return_value=subprocess.CompletedProcess([], 1, "FAILED", "")
+                ):
+                    result = local_checks(
+                        "sdk", Path(tmp), "a" * 40, "dart", Path(tmp) / "evidence"
+                    )
             self.assertFalse(result["passed"])
             self.assertEqual(result["exit_code"], 1)
 

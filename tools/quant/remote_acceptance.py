@@ -109,11 +109,18 @@ def accepted_manual(record, commits):
 
 POLICY_ID = "owner-development-p0-2026-11-08"
 TECHNICAL_REQUIREMENTS = {
-    "exact_candidate_pair", "local_unified_checks", "positive_negative_regressions",
-    "python_dart_contracts_and_accounting", "latest_candidate_remote_ci", "reports_versions_evidence",
+    "exact_candidate_pair",
+    "local_unified_checks",
+    "positive_negative_regressions",
+    "python_dart_contracts_and_accounting",
+    "latest_candidate_remote_ci",
+    "reports_versions_evidence",
 }
 OBSERVATIONS = {
-    "github_plan", "branch_protection", "codeowners", "independent_manual_signatures",
+    "github_plan",
+    "branch_protection",
+    "codeowners",
+    "independent_manual_signatures",
     "protected_negative_pr",
 }
 
@@ -138,9 +145,10 @@ def development_verdict(repositories, fixed_pair):
         fixed_pair
         and set(repositories) == set(REPOSITORIES.values())
         and all(
-            all(record.get(key) is True for key in (
-                "checks_passed", "local_checks_passed", "candidate_identity_passed"
-            ))
+            all(
+                record.get(key) is True
+                for key in ("checks_passed", "local_checks_passed", "candidate_identity_passed")
+            )
             for record in repositories.values()
         )
     )
@@ -152,6 +160,7 @@ def local_checks(role, checkout, sha, dart, evidence, peer=None):
     evidence.mkdir(parents=True, exist_ok=True)
     result = {"passed": False, "candidate": sha}
     try:
+
         def git(*args):
             return subprocess.check_output(
                 ["git", *args], cwd=checkout, text=True, timeout=20
@@ -160,8 +169,15 @@ def local_checks(role, checkout, sha, dart, evidence, peer=None):
         if git("rev-parse", "HEAD") != sha or git("status", "--porcelain"):
             raise ValueError("local candidate must be exact and clean")
         result["tree"] = git("rev-parse", "HEAD^{tree}")
-        command = [sys.executable, "-B", "tools/quant/quality.py", "--dart", dart,
-                   "--report-dir", str(evidence)]
+        command = [
+            sys.executable,
+            "-B",
+            "tools/quant/quality.py",
+            "--dart",
+            dart,
+            "--report-dir",
+            str(evidence),
+        ]
         if peer is not None:
             command += ["--peer", str(peer)]
         run = subprocess.run(command, cwd=checkout, text=True, capture_output=True, timeout=180)
@@ -172,10 +188,17 @@ def local_checks(role, checkout, sha, dart, evidence, peer=None):
         path = evidence / "report.json"
         report = json.loads(path.read_text())
         validate(report)
-        if report["role"] != role or git("rev-parse", "HEAD") != sha or git("status", "--porcelain"):
+        if (
+            report["role"] != role
+            or git("rev-parse", "HEAD") != sha
+            or git("status", "--porcelain")
+        ):
             raise ValueError("candidate/report role changed during checks")
-        result.update(passed=True, report=str(path),
-                      report_sha256=hashlib.sha256(path.read_bytes()).hexdigest())
+        result.update(
+            passed=True,
+            report=str(path),
+            report_sha256=hashlib.sha256(path.read_bytes()).hexdigest(),
+        )
     except (ValueError, OSError, subprocess.SubprocessError) as exc:
         result["error"] = str(exc)
     return result
@@ -189,15 +212,20 @@ def main():
     parser.add_argument("--desktop-checkout", required=True, type=Path)
     parser.add_argument("--sdk-checkout", required=True, type=Path)
     parser.add_argument("--dart", required=True)
-    parser.add_argument("--manual", type=Path, help="optional historical observation, never approval")
+    parser.add_argument(
+        "--manual", type=Path, help="optional historical observation, never approval"
+    )
     args = parser.parse_args()
     root = Path(__file__).resolve().parents[2]
     policy = load_policy(root)
     commits = {"desktop": args.desktop_commit, "sdk": args.sdk_commit}
     result = {
         "observed_at": datetime.now(timezone.utc).isoformat(),
-        "read_only_remote": True, "policy": policy, "candidates": commits,
-        "repositories": {}, "release_scope": "development-P0-only",
+        "read_only_remote": True,
+        "policy": policy,
+        "candidates": commits,
+        "repositories": {},
+        "release_scope": "development-P0-only",
     }
     directories = {"desktop": args.desktop_checkout.resolve(), "sdk": args.sdk_checkout.resolve()}
     try:
@@ -209,17 +237,26 @@ def main():
     for role, repo in REPOSITORIES.items():
         sha = commits[role]
         exact = isinstance(sha, str) and re.fullmatch("[0-9a-f]{40}", sha)
-        local = local_checks(
-            role, directories[role], sha, args.dart,
-            args.output.resolve().parent / (args.output.stem + "-" + role),
-            directories["sdk"] if role == "desktop" else None,
-        ) if exact else {"passed": False, "error": "full candidate SHA required"}
+        local = (
+            local_checks(
+                role,
+                directories[role],
+                sha,
+                args.dart,
+                args.output.resolve().parent / (args.output.stem + "-" + role),
+                directories["sdk"] if role == "desktop" else None,
+            )
+            if exact
+            else {"passed": False, "error": "full candidate SHA required"}
+        )
         info = get("repos/" + repo)
         protection = get("repos/" + repo + "/branches/main/protection")
         rules = get("repos/" + repo + "/rulesets")
-        checks = get("repos/" + repo + "/commits/" + sha + "/check-runs?per_page=100") if exact else {
-            "ok": False, "data": {"message": "exact candidate SHA required"}
-        }
+        checks = (
+            get("repos/" + repo + "/commits/" + sha + "/check-runs?per_page=100")
+            if exact
+            else {"ok": False, "data": {"message": "exact candidate SHA required"}}
+        )
         commit_record = get("repos/" + repo + "/commits/" + sha) if exact else {"ok": False}
         identity = bool(commit_record["ok"] and commit_record.get("data", {}).get("sha") == sha)
         check_ok = checks_passed(checks, sha, REQUIRED[role])
@@ -227,16 +264,24 @@ def main():
         protection_ok = protected(protection, REQUIRED[role])
         result["repositories"][repo] = {
             "permissions": info.get("data", {}).get("permissions", {}),
-            "branch_protection": protection, "rulesets": rules,
-            "candidate_checks": checks, "required_checks": sorted(REQUIRED[role]),
-            "checks_passed": check_ok, "local_checks": local,
-            "local_checks_passed": local["passed"], "candidate_identity_passed": identity,
+            "branch_protection": protection,
+            "rulesets": rules,
+            "candidate_checks": checks,
+            "required_checks": sorted(REQUIRED[role]),
+            "checks_passed": check_ok,
+            "local_checks": local,
+            "local_checks_passed": local["passed"],
+            "candidate_identity_passed": identity,
             "protection_passed": protection_ok,
             "protection_status": "verified" if protection_ok else "not_configured_or_unverified",
             "protection_required_for_development": False,
         }
-        print(repo, "local=" + str(local["passed"]), "candidate_checks=" + str(check_ok),
-              "protected=" + str(protection_ok) + " (observation only)")
+        print(
+            repo,
+            "local=" + str(local["passed"]),
+            "candidate_checks=" + str(check_ok),
+            "protected=" + str(protection_ok) + " (observation only)",
+        )
     manual = json.loads(args.manual.read_text()) if args.manual else {}
     result["manual_accepted"] = accepted_manual(manual, commits)
     result["manual_required_for_development"] = False
