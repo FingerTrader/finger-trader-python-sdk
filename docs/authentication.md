@@ -8,15 +8,22 @@ The OAuth service also requires the deployment's Basic OAuth client credential. 
 
 ```python
 import os
-from finger_trader import FingerTraderClient
+from finger_trader import APIError, FingerTraderClient, NetworkError
 
-client = FingerTraderClient(oauth_basic_token=os.environ["FINGER_TRADER_OAUTH_BASIC_TOKEN"])
-token_response = client.auth.login(
-    os.environ["FINGER_TRADER_USERNAME"],
-    os.environ["FINGER_TRADER_PASSWORD"],
-    account_type=int(os.environ["FINGER_TRADER_LOGIN_TYPE"]),
-)
-print(token_response.data.token_type, token_response.data.expires_in)
+try:
+    with FingerTraderClient(
+        oauth_basic_token=os.environ["FINGER_TRADER_OAUTH_BASIC_TOKEN"]
+    ) as client:
+        token_response = client.auth.login(
+            os.environ["FINGER_TRADER_USERNAME"],
+            os.environ["FINGER_TRADER_PASSWORD"],
+            account_type=int(os.environ["FINGER_TRADER_LOGIN_TYPE"]),
+        )
+        print(token_response.data.token_type, token_response.data.expires_in)
+except NetworkError as exc:
+    print(f"Authentication network request failed: {exc}")
+except APIError as exc:
+    print(f"Authentication was rejected: {exc}")
 ```
 
 Do not print the complete token response. Secret fields are excluded from its representation, but remain accessible to the application that needs them.

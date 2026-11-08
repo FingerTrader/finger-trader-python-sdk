@@ -1,6 +1,6 @@
 # Market data
 
-`client.market_data.markets()` calls Finger_desk's current `POST /app-api/v1/public/get-maker-info`. `symbols(market, page, page_size)` calls `POST /app-api/v1/market/ticker-list` with the current paginated query DTO; stock, forex, crypto, spot and indices map to Desk `MarketTypeEnum` values 3, 0, 2, 1 and 6. `history()` calls `POST /app-api/v1/market/kline-list`; its current DTO uses the same market enum and an epoch-millisecond `startTime` string. To fetch older bars, pass an earlier `start_time`; the old `page` parameter is accepted only for page 1 because this endpoint pages by time.
+`client.market_data.markets()` retrieves the available market menu. `symbols(market, page, page_size)` retrieves a paginated product list. Supported labels include stock, forex, crypto, spot, indices, ETF, and fund. `history()` retrieves historical OHLCV for crypto, stock, forex, and spot. It accepts an epoch-millisecond `startTime` string internally. To request older bars, pass an earlier timezone-aware `start_time`; the compatibility `page` parameter must be 1 because this endpoint pages by time. Consult [API mapping](api-mapping.md) for current enum mapping and backend routes.
 
 ```python
 markets = client.market_data.markets()
@@ -14,4 +14,4 @@ bars = client.market_data.get_history(
 )
 ```
 
-Response payloads remain available as received in `.data`. `MarketBar.from_dict()` is an opt-in decimal mapper for common OHLCV field names. HTTP quote snapshots and market-specific interval enumerations have no confirmed contract. Real-time quote streaming is documented in [WebSocket](websocket.md).
+Response payloads remain available as received in `.data`; the API does not automatically convert them to model instances. `MarketBar.from_dict()` is an opt-in decimal mapper for common OHLCV field names. The SDK does not impose product-specific interval values; use those confirmed for the chosen market and deployment. There is no confirmed HTTP quote snapshot endpoint. Real-time quote streaming is documented in [WebSocket](websocket.md).

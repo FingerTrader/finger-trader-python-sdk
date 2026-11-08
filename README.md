@@ -1,8 +1,20 @@
 # Finger Trader Python SDK
 
-Official Python SDK for connecting to the Finger Trader APIs used by Finger_desk. Python 3.10+. HTTP support uses only Python's standard library. The existing local strategy, indicator, and chronological runner APIs remain available.
+The Finger Trader Python SDK is a synchronous Python client for the confirmed Finger Trader HTTP APIs and ticket-authenticated market-data WebSocket. It is an **alpha, source-install SDK** (`0.1.0`, not currently published on PyPI). The public API preserves backend response envelopes so applications can use fields as returned by the service.
 
-## Install
+## Current capabilities
+
+- OAuth2 password login and use of an existing access token.
+- Market menu, product lists, and historical OHLCV requests.
+- Authenticated profile, wallet/balance, holdings, and order history queries.
+- Ticket-based JSON market-data WebSocket subscription (optional dependency).
+- Local strategy primitives are also present, but this package does not provide a backtester or execution runtime.
+
+Current app API order creation, modification, cancellation, and executions are **not available through a supported SDK method**. Do not use legacy mutation methods still present for compatibility; see [Orders](docs/orders.md). There is no HTTP quote snapshot endpoint, refresh-token request, arbitrary account selector, or confirmed execution-history endpoint.
+
+## Requirements and install
+
+Python 3.10 or newer. PyPI installation is not available yet. See [Installation](docs/installation.md) for virtual environment and platform instructions.
 
 ```sh
 git clone https://github.com/FingerTrader/finger-trader-python-sdk.git
@@ -10,7 +22,7 @@ cd finger-trader-python-sdk
 python -m pip install .
 ```
 
-The package is not currently published on PyPI. Install from GitHub as shown until an official package release is announced.
+Add WebSocket support with `python -m pip install '.[websocket]'` from the cloned repository.
 
 ## Quick start
 
@@ -18,62 +30,36 @@ The package is not currently published on PyPI. Install from GitHub as shown unt
 import os
 from finger_trader import FingerTraderClient
 
-client = FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"])
-markets = client.market_data.markets()
-symbols = client.market_data.symbols(market="stock")
-bars = client.market_data.history(market="stock", ticker="AAPL", interval="1d")
-balance = client.accounts.balance()
-positions = client.positions.list()
-orders = client.orders.history()
+with FingerTraderClient(token=os.environ["FINGER_TRADER_ACCESS_TOKEN"]) as client:
+    markets = client.market_data.markets()
+    products = client.market_data.symbols(market="stock", page_size=10)
+    bars = client.market_data.history(
+        market="stock", ticker="AAPL", interval="1d", limit=100
+    )
+    wallet = client.accounts.balance()
+    print(markets.data, products.data, bars.data, wallet.data)
 ```
 
-OAuth password login follows the Finger_desk request shape and requires a Basic OAuth client credential from the service operator:
+OAuth login, environment configuration, and safe secret handling are covered in [Authentication](docs/authentication.md) and [Configuration](docs/configuration.md).
 
-```python
-client = FingerTraderClient(oauth_basic_token=os.environ["FINGER_TRADER_OAUTH_BASIC_TOKEN"])
-client.auth.login("user@example.com", "password", account_type=0)
-```
+## Documentation
 
-`account_type` follows Finger_desk's `AccountTypeEnum`: `0` for email and `1` for mobile phone. The login screen passes this enum value as the OAuth form field `type`. Pass CAPTCHA fields when required by the service. Never embed credentials in source. The SDK does not bundle the static client value copied by the desktop app. The SDK does not invent refresh-token behavior; log in again after expiration.
+- [Documentation index](docs/index.md)
+- [Installation](docs/installation.md) · [Quick start](docs/quickstart.md) · [Configuration](docs/configuration.md)
+- [Authentication](docs/authentication.md) · [Security](docs/security.md)
+- [Market data](docs/market-data.md) · [Accounts](docs/accounts.md) · [Positions](docs/positions.md) · [Orders](docs/orders.md)
+- [WebSocket](docs/websocket.md) · [Models](docs/models.md) · [Errors](docs/errors.md)
+- [Public API reference](docs/api-reference.md) · [Finger_desk API mapping](docs/api-mapping.md) · [Troubleshooting](docs/troubleshooting.md)
+- [Opt-in integration tests](docs/integration-testing.md)
 
-## Supported API surface
+Runnable read-only examples are in [`examples/`](examples/). Examples require developer-provided credentials only for authenticated calls and never include credentials in source.
 
-- Auth: OAuth2 password token and CAPTCHA request.
-- Market data: market menu, supported market-specific symbol lists, and historical OHLCV.
-- Accounts: authenticated trade profile and wallet overview/balance.
-- Positions: session-scoped holdings.
-- Orders: current API order history and current holdings. Order mutation methods still target retired legacy paths and are not supported against the current app API.
-- WebSocket: ticket-based quote subscription, using JSON text protocol.
+## Support and contribution
 
-See [API mapping](docs/api-mapping.md), [Authentication](docs/authentication.md), [Market Data](docs/market-data.md), [Accounts](docs/accounts.md), [Orders](docs/orders.md), [Positions](docs/positions.md), [WebSocket](docs/websocket.md), [Security](docs/security.md), [Errors](docs/errors.md), and [Quick Start](docs/quickstart.md). A read-only runnable example is in `examples/api_read_only.py`.
+Report bugs and request supported API coverage through [GitHub Issues](https://github.com/FingerTrader/finger-trader-python-sdk/issues). Contributions are welcome; include tests for code changes and update documentation when public behavior changes.
 
-The separate [live API integration suite](docs/integration-testing.md) is opt-in and supports Sandbox, Dev, and explicitly confirmed Production Read-only mode. It blocks state-changing trading API calls and never submits orders.
+## Security and license
 
-The SDK returns `ApiResponse` envelopes and retains raw payload fields for forward compatibility. `MarketBar.from_dict` parses numeric OHLCV values as `Decimal`. Existing strategy `Bar` remains unchanged.
+Never commit passwords, OAuth client values, access tokens, or customer data. Production TLS verification is enabled; requests do not follow redirects. Trading permissions and risk controls remain server-side. See [Security](docs/security.md).
 
-## Trading writes
-
-The current Finger_desk order mutation contract has been confirmed in `dataSdk`, but the SDK has not yet migrated its write methods to that DTO. Do not use `orders.submit`, `update_limit`, `cancel_limit`, or `set_take_profit_loss` against the current API. The SDK does not simulate fills or add trading rules.
-
-## WebSocket optional package
-
-From the cloned repository, install the optional WebSocket extra:
-
-```sh
-python -m pip install '.[websocket]'
-```
-
-The SDK's default HTTP usage has no third-party runtime dependency. WebSocket supports ticket acquisition, JSON quote subscription, the confirmed app heartbeat, bounded reconnect/resubscribe, dedupe, and replacement-list unsubscribe. Binary protobuf deployments and order/account event subscriptions are not implemented.
-
-## Development
-
-```sh
-python -m pip install -e '.[dev,websocket]'
-python -m pytest
-```
-
-## Scope
-
-This repository currently provides API access plus the existing local strategy primitives. It does not include a backtesting engine, optimizer, Flutter UI, local runner process, paper trading, or cloud strategy hosting. Features without a confirmed Finger_desk backend contract are listed as gaps rather than represented as implemented. See [API mapping](docs/api-mapping.md).
-
-Licensed under Apache-2.0. Access to Finger Trader services and market data remains subject to account permissions and applicable third-party terms.
+Licensed under [Apache-2.0](LICENSE). API and market-data access remains subject to account authorization and applicable service terms.

@@ -84,11 +84,14 @@ withdrawal, or other account mutation is issued. The OAuth token request and
 WebSocket ticket request are the only expected POST operations, and they do
 not create or modify trading state.
 
-The WebSocket check verifies Ticket acquisition, WSS connection, one JSON quote,
-the confirmed client/server keepalive frames, bounded recovery, fresh Ticket,
-and quote resubscription. It closes the socket to simulate a disconnect; it
-does not alter account state. Use a low-privilege account and a single test
-process. Do not parallelize this suite against production.
+The WebSocket integration test is designed to assert Ticket acquisition, WSS
+connection, a quote JSON frame, keepalive acknowledgement, bounded recovery,
+fresh Ticket, and quote resubscription; it closes a socket to simulate a
+disconnect. These are expected assertions, not a claim that every live
+environment emits a quote or that the suite passes against every deployment.
+Previous live validation established subscription and heartbeat request
+behavior, but received no quote frame in that session. Use a low-privilege
+account and a single test process; do not parallelize against production.
 
 Order lifecycle testing remains excluded. Write request construction and field
 mapping are covered by Mock tests in `tests/test_api_client.py`.

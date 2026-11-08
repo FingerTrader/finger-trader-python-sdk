@@ -1,17 +1,36 @@
-"""Read-only API walkthrough; needs credentials only for protected endpoints."""
+"""Run a small authenticated read-only API walkthrough."""
 
 import os
 
-from finger_trader import FingerTraderClient
+from finger_trader import APIError, FingerTraderClient, NetworkError
 
-client = FingerTraderClient(token=os.getenv("FINGER_TRADER_ACCESS_TOKEN"))
-if not client.auth.is_authenticated:
-    raise SystemExit(
-        "Set FINGER_TRADER_ACCESS_TOKEN to a valid access token before querying the API"
-    )
-for response in (client.market_data.markets(), client.market_data.symbols("stock")):
-    print(response.data)
-print(client.market_data.history(market="stock", ticker="AAPL", interval="1d").data)
-print(client.accounts.balance().data)
-print(client.positions.list().data)
-print(client.orders.history().data)
+
+def main() -> None:
+    token = os.environ.get("FINGER_TRADER_ACCESS_TOKEN")
+    if not token:
+        raise SystemExit("Set FINGER_TRADER_ACCESS_TOKEN before running this example.")
+    try:
+        with FingerTraderClient(token=token) as client:
+            for label, response in (
+                ("Markets", client.market_data.markets()),
+                ("Stock products", client.market_data.symbols(market="stock", page_size=10)),
+                (
+                    "Daily bars",
+                    client.market_data.history(
+                        market="stock", ticker="AAPL", interval="1d", limit=10
+                    ),
+                ),
+                ("Profile", client.accounts.detail()),
+                ("Wallet", client.accounts.balance()),
+                ("Holdings", client.positions.list(page_size=10)),
+                ("Order history", client.orders.history(limit=10)),
+            ):
+                print(f"{label}: {response.data}")
+    except NetworkError as exc:
+        raise SystemExit(f"Network request failed: {exc}") from None
+    except APIError as exc:
+        raise SystemExit(f"API request failed: {exc}") from None
+
+
+if __name__ == "__main__":
+    main()
