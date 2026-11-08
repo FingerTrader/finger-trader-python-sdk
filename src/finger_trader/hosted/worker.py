@@ -21,7 +21,7 @@ from typing import Any
 
 from finger_trader import __version__
 
-from . import ProtocolMismatchError, Strategy
+from . import HostedIOError, ProtocolMismatchError, Strategy
 from ._context import SCHEMA, BoundContext, model
 from ._schema import parse_json
 
@@ -54,11 +54,13 @@ class Wire:
         waiter: queue.Queue[Any] = queue.Queue(1)
         with self.lock:
             if self.closed:
-                raise ProtocolMismatchError("Host transport closed")
+                raise HostedIOError("Host transport closed")
             self.pending[value["id"]] = waiter
         try:
             self.send(value)
-            result = waiter.get(timeout=10)
+            # Host owns the frozen callback deadline. Responses, cancellation or
+            # EOF wake this waiter; a second Python timer must not shorten it.
+            result = waiter.get()
             if isinstance(result, Exception):
                 raise result
             return result
@@ -111,7 +113,11 @@ class Wire:
                 self.closed = True
                 for waiter in self.pending.values():
                     try:
-                        waiter.put_nowait(ProtocolMismatchError(str(error)))
+                        waiter.put_nowait(
+                            HostedIOError(str(error))
+                            if isinstance(error, (EOFError, OSError))
+                            else ProtocolMismatchError(str(error))
+                        )
                     except queue.Full:
                         pass
             # A callback may be stuck in user code. Parent still owns termination.
@@ -161,6 +167,9 @@ def main() -> int:
     os.setsid()  # Before any strategy import. The adapter owns this process group.
     wire = Wire()
     config = parse_json(Path(sys.argv[1]).read_bytes())
+    budget = config.get("callback_timeout_ms")
+    if type(budget) is not int or budget <= 0:
+        raise ProtocolMismatchError("Frozen Host callback budget is required")
     context = BoundContext(config, wire.request)
     first = wire.next()
     SCHEMA.check("Handshake", first)
