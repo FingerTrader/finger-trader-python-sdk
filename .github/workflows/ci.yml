@@ -25,6 +25,16 @@ jobs:
       - run: python -m pytest
       - run: python -m pytest integration_tests -q -rs
       - run: ruff check .
+      - name: Temporary P0 formatting diagnostic (preserves lint failure)
+        if: failure()
+        run: |
+          ruff check tools/quant tests/quant_contracts --fix || true
+          ruff format tools/quant tests/quant_contracts
+          python - <<'PYDIAG'
+          import base64, subprocess
+          data=subprocess.check_output(['git','diff','--','tools/quant','tests/quant_contracts'])
+          print('P0_FORMAT_PATCH='+base64.b64encode(data).decode())
+          PYDIAG
       - run: ruff format --check .
       - run: mypy
       - run: python -m build
