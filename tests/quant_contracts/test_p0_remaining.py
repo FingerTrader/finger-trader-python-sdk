@@ -55,6 +55,25 @@ class CoreAllowlist(unittest.TestCase):
             with self.assertRaisesRegex(ValueError, "unreviewed external package"):
                 boundaries(root)
 
+    def test_script_prefixes_cannot_hide_external_dependencies(self):
+        for prefix in ("\ufeff", "#!/usr/bin/env dart\n", "\ufeff#!/usr/bin/env dart\n"):
+            with self.subTest(prefix=repr(prefix)), tempfile.TemporaryDirectory() as tmp:
+                root = self.workspace(tmp)
+                core = root / "lib/app/quant/core.dart"
+                core.write_text(prefix + "import 'package:get/get.dart';")
+                with self.assertRaisesRegex(ValueError, "unreviewed external package"):
+                    boundaries(root)
+                core.write_text("export 'bridge.dart';")
+                (root / "lib/app/quant/bridge.dart").write_text(
+                    prefix + "import 'package:unknown_pure/pure.dart';"
+                )
+                with self.assertRaisesRegex(ValueError, "unreviewed external package"):
+                    boundaries(root)
+                (root / "lib/app/quant/bridge.dart").write_text(
+                    prefix + "import 'dart:collection';"
+                )
+                self.assertEqual(boundaries(root)["core_files"], 2)
+
     def test_pure_dart_passes_and_adapter_cannot_flow_into_core(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = self.workspace(tmp)
