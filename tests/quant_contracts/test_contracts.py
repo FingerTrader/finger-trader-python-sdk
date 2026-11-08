@@ -9,7 +9,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "quant"))
-from contract_check import (  # noqa: E402 - repository-local gate bootstrap
+from contract_check import (  # noqa: E402
     ContractError,
     Schema,
     align,
@@ -138,7 +138,7 @@ class AccountingGoldens(unittest.TestCase):
                 Decimal("0.4"),
             )
 
-    def test_human_reviewed_expected_values(self):
+    def test_fixed_accounting_expected_values(self):
         cases = load_json(BUNDLE / "goldens.json")["cases"]
         required = {
             "two_buys_compete",

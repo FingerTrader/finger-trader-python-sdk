@@ -28,7 +28,7 @@ def expected_workflow(role):
             {
                 "name": "Local preflight (not pair acceptance)",
                 "run": (
-                    'python -B tools/quant/quality.py --local-only'
+                    "python -B tools/quant/quality.py --local-only"
                     ' --dart "$(command -v dart)" --report-dir "$RUNNER_TEMP/quant-local"'
                 ),
             },

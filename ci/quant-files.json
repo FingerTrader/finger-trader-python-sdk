@@ -14,15 +14,18 @@
     "contracts/quant/v1/traces.json": "de07b15d41c90e0c1660bd5354adb093ab055997487588db7dd9b20b5f630688",
     "lib/app/quant/contracts/schema_validator.dart": "2feb197e30302bbabf9b1550fecef8fffb53720ad2bedf061f6588a1b357999f",
     "lib/app/quant/contracts/strict_json.dart": "c3c55d1e728010253f7f1db3caa4506c8fb55bc06f5df643357d155dc43bc6d1",
-    "tests/quant_contracts/test_contracts.py": "dfebdcec7539c8a2e9420a22770fd116673731e18d186328bfa793cd7d5a0ce7",
-    "tests/quant_contracts/test_quality.py": "d4ec082f6b728e02b948f174ed7310aab90f36bac31d57f47300acd39e4ba7fb",
+    "tests/quant_contracts/test_contracts.py": "6f1276582640b765042a9bdc08d9ac103d87347aa7bb7ec059e11de3d572e5a1",
+    "tests/quant_contracts/test_quality.py": "413bf6fe9d3ade7678ab1fdb6e2e68379113535b765884cbff7229ac21da1f20",
+    "tests/quant_contracts/test_remote_acceptance.py": "0905a983203e184b6b0d89dcc0d3bc9ff6d8b0b77dd6a6bc552671016b399aaf",
     "tools/quant/check_contracts.dart": "6561937fdabe27530fb9f81e0e39f91964b3899cc3e1870c6ad4cd624220871f",
-    "tools/quant/contract_check.py": "c47bbcb2e390a26f2e3ab4730647381cf813174c27603101fd6b56c3fe71e2ac",
+    "tools/quant/contract_check.py": "546a2bf86013ade86282bf3c5ec2187cd0e249133cb5545338f6157c7be468f8",
     "tools/quant/peer_lock.py": "db2245b4910ffa988ef76f96c256d9b501f0359d3952ec9345b214b2c1db0f36",
-    "tools/quant/quality.py": "9c560de5f287e6f4ae28ee57df3c721dfe92afec9810aeaec04c4dcf8eb13318",
+    "tools/quant/quality.py": "0dc4650026dc3630cfbd3b5eaa962f0a7c93e233692dcb8b51322ffe6b80726e",
+    "tools/quant/remote_acceptance.py": "c3f26422cc6789f11eccd0580f04807d38733a9b4f1dacb39bf94bae16b2cdbb",
     "tools/quant/report_summary.py": "130bbc7079b9365888bcb77254f62707af3605a6830bcbe791594ab2c5d48a71",
-    "tools/quant/run_tests.py": "15b9811ad86b777e823c60d68bb9dae68526cd959a9d368f196db06ed4a434eb",
+    "tools/quant/run_tests.py": "e9e1e635959dd4b1d46c75d684406024182b6fcd8c6bc93081cefd63674f7c55",
+    "tools/quant/sdk-quant-contracts.yml": "ebc996204c1267761154c43713a7ad0a7fd761576e22b11ad76d38ae5868e827",
     "tools/quant/sync_sdk_candidate.py": "d3a7a54de3b1c3fd013f20e9239b3f2bdf3e95e0ed72bd026de7429945db7df6",
-    "tools/quant/workflow_spec.py": "d1618bb01f7df2d6e308488750ac7ed2af051622c47108175523d15ac45dfb9a"
+    "tools/quant/workflow_spec.py": "1d72719ab582667ab5eaffa27cfdff8578208a5985d29468402bcfb20dc3a6d9"
   }
 }

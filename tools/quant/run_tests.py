@@ -6,7 +6,7 @@ from pathlib import Path
 
 
 def require_complete(result):
-    if result.testsRun < 21 or result.skipped or not result.wasSuccessful():
+    if result.testsRun < 27 or result.skipped or not result.wasSuccessful():
         raise ValueError("incomplete, skipped, or failed P0 regression suite")
 
 

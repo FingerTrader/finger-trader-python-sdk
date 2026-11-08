@@ -9,13 +9,36 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "tools" / "quant"))
 
-from quality import boundaries, bundle, sensitive_content, workflow  # noqa: E402 - repository-local gate bootstrap
-from report_summary import validate as validate_report  # noqa: E402 - repository-local gate bootstrap
-from run_tests import require_complete  # noqa: E402 - repository-local gate bootstrap
-from workflow_spec import expected_workflow  # noqa: E402 - repository-local gate bootstrap
+from quality import (  # noqa: E402
+    boundaries,
+    bundle,
+    shared_candidate,
+    sensitive_content,
+    workflow,
+)
+from report_summary import validate as validate_report  # noqa: E402
+from run_tests import require_complete  # noqa: E402
+from workflow_spec import expected_workflow  # noqa: E402
 
 
 class NegativeQualityTests(unittest.TestCase):
+    def test_peer_comparison_covers_new_shared_files(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            roots = [Path(tmp) / role for role in ("desktop", "sdk")]
+            for root in roots:
+                (root / "ci").mkdir(parents=True)
+                (root / "ci/quant-files.json").write_text(
+                    json.dumps({"files": {"new-check.py": "hash"}})
+                )
+                (root / "new-check.py").write_text("same")
+            self.assertEqual(shared_candidate(*roots), 1)
+            (roots[1] / "new-check.py").write_text("different")
+            with self.assertRaisesRegex(ValueError, "shared file mismatch"):
+                shared_candidate(*roots)
+            (roots[1] / "ci/quant-files.json").write_text(json.dumps({"files": {}}))
+            with self.assertRaisesRegex(ValueError, "shared inventory mismatch"):
+                shared_candidate(*roots)
+
     def test_empty_or_skipped_suite_cannot_pass(self):
         from types import SimpleNamespace
 
@@ -24,7 +47,9 @@ class NegativeQualityTests(unittest.TestCase):
             (21, [("test", "missing environment")], True),
             (21, [], False),
         ]:
-            result = SimpleNamespace(testsRun=count, skipped=skipped, wasSuccessful=lambda success=success: success)
+            result = SimpleNamespace(
+                testsRun=count, skipped=skipped, wasSuccessful=lambda success=success: success
+            )
             with self.subTest(count=count, skipped=skipped), self.assertRaises(ValueError):
                 require_complete(result)
 

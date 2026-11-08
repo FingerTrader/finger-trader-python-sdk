@@ -252,6 +252,7 @@ def golden_result(case):
         ctx.Emax = 6144
         ctx.Emin = -6143
         ctx.rounding = ROUND_HALF_EVEN
+
         def d(key):
             return Decimal(case[key])
 

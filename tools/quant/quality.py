@@ -18,20 +18,7 @@ import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
-SHARED_FILES = [
-    "contracts/quant/v1/bundle.lock.json",
-    "lib/app/quant/contracts/schema_validator.dart",
-    "lib/app/quant/contracts/strict_json.dart",
-    "tools/quant/check_contracts.dart",
-    "tools/quant/contract_check.py",
-    "tools/quant/quality.py",
-    "tools/quant/workflow_spec.py",
-    "tools/quant/report_summary.py",
-    "tools/quant/run_tests.py",
-    "tools/quant/peer_lock.py",
-    "tests/quant_contracts/test_contracts.py",
-    "tests/quant_contracts/test_quality.py",
-]
+ROLE_FILES = {"ci/quant-role.json", "ci/quant-peer.json", ".github/workflows/quant-contracts.yml"}
 
 
 def boundaries(root):
@@ -139,6 +126,20 @@ def sensitive_content(root):
     return {"scope": "candidate text only; not complete confidentiality assurance"}
 
 
+def shared_candidate(root, peer):
+    """Compare the whole reviewed inventory, including future tests and tools."""
+    inventories = [
+        set(json.loads((path / "ci/quant-files.json").read_text())["files"]) - ROLE_FILES
+        for path in (root, peer)
+    ]
+    if not inventories[0] or inventories[0] != inventories[1]:
+        raise ValueError("candidate shared inventory mismatch")
+    for relative in inventories[0]:
+        if (root / relative).read_bytes() != (peer / relative).read_bytes():
+            raise ValueError("candidate shared file mismatch: " + relative)
+    return len(inventories[0])
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--dart", help="explicit pinned Dart executable; missing executable fails")
@@ -234,13 +235,12 @@ def main():
                 raise ValueError("SDK candidate commit mismatch")
             bundle(args.peer)
             candidate_files(args.peer)
-            for relative in SHARED_FILES:
-                if (ROOT / relative).read_bytes() != (args.peer / relative).read_bytes():
-                    raise ValueError("candidate shared file mismatch: " + relative)
+            shared_count = shared_candidate(ROOT, args.peer)
             return {
                 "candidate_bundle": "identical",
                 "peer_commit": commit,
                 "repository": lock["repository"],
+                "shared_files": shared_count,
             }
 
         run("peer-candidate-contracts", peer)
