@@ -36,6 +36,7 @@
     "tools/quant/run_tests.py": "e9e1e635959dd4b1d46c75d684406024182b6fcd8c6bc93081cefd63674f7c55",
     "tools/quant/sdk-quant-contracts.yml": "ebc996204c1267761154c43713a7ad0a7fd761576e22b11ad76d38ae5868e827",
     "tools/quant/sync_sdk_candidate.py": "d3a7a54de3b1c3fd013f20e9239b3f2bdf3e95e0ed72bd026de7429945db7df6",
-    "tools/quant/workflow_spec.py": "1d72719ab582667ab5eaffa27cfdff8578208a5985d29468402bcfb20dc3a6d9"
+    "tools/quant/workflow_spec.py": "1d72719ab582667ab5eaffa27cfdff8578208a5985d29468402bcfb20dc3a6d9",
+    "lib/app/quant/contracts/p0_boundary_probe.dart": "100acc07e7f0071583d8419e8a3f7e08f404eda9e0b8fc8dea36861f855d0566"
   }
 }
