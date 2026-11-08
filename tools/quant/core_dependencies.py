@@ -14,6 +14,13 @@ POLICY = Path("contracts/quant/v1/core-dependencies.json")
 
 def tokens(source):
     """Lex literals/comments separately so commented imports cannot hide edges."""
+    # Dart accepts a leading UTF-8 BOM and a script tag before directives.
+    # Consume them explicitly; otherwise the header walker would stop early.
+    if source.startswith("\ufeff"):
+        source = source[1:]
+    if source.startswith("#!"):
+        end = source.find("\n")
+        source = "" if end < 0 else source[end + 1 :]
     i = 0
     while i < len(source):
         if source[i].isspace():
