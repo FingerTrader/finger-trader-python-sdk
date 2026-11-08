@@ -29,6 +29,7 @@ class QuantSchemaValidator {
       'pattern',
       'minLength',
       'minimum',
+      'maximum',
       'const',
       'enum'
     };
@@ -92,8 +93,13 @@ class QuantSchemaValidator {
           _semantic('Decimal', value);
         }
       }
-    } else if (type == 'integer' && schema.containsKey('minimum')) {
-      if ((value as int) < (schema['minimum'] as int)) _fail('Below minimum');
+    } else if (type == 'integer') {
+      if ((value as int) < (schema['minimum'] ?? -9007199254740991)) {
+        _fail('Below minimum');
+      }
+      if (value > (schema['maximum'] ?? 9007199254740991)) {
+        _fail('Above maximum');
+      }
     }
   }
 
@@ -148,6 +154,10 @@ class QuantSchemaValidator {
       }
       void noFloat(dynamic item) {
         if (item is double) _fail('Floating strategy parameters are forbidden');
+        if (item is int &&
+            (item < -9007199254740991 || item > 9007199254740991)) {
+          _fail('Integer exceeds interoperable range');
+        }
         if (item is Map) item.values.forEach(noFloat);
         if (item is List) item.forEach(noFloat);
       }

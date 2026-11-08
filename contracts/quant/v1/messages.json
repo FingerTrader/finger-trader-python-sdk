@@ -5930,6 +5930,42 @@
         "reserved_cash": "200",
         "reserved_quantity": "0"
       }
+    },
+    {
+      "name": "integer_safe_max",
+      "definition": "AccountQuery",
+      "valid": true,
+      "raw": "{\"jsonrpc\": \"2.0\", \"id\": \"id-1\", \"method\": \"context.account\", \"params\": {\"run_id\": \"id-1\", \"callback_id\": \"id-1\", \"request_seq\": 9007199254740991, \"payload\": {}}}"
+    },
+    {
+      "name": "integer_above_max",
+      "definition": "AccountQuery",
+      "valid": false,
+      "raw": "{\"jsonrpc\": \"2.0\", \"id\": \"id-1\", \"method\": \"context.account\", \"params\": {\"run_id\": \"id-1\", \"callback_id\": \"id-1\", \"request_seq\": 9007199254740992, \"payload\": {}}}"
+    },
+    {
+      "name": "integer_above_int64",
+      "definition": "AccountQuery",
+      "valid": false,
+      "raw": "{\"jsonrpc\": \"2.0\", \"id\": \"id-1\", \"method\": \"context.account\", \"params\": {\"run_id\": \"id-1\", \"callback_id\": \"id-1\", \"request_seq\": 9223372036854775808, \"payload\": {}}}"
+    },
+    {
+      "name": "integer_safe_min",
+      "definition": "Strategy",
+      "valid": true,
+      "raw": "{\"schema_version\": 1, \"strategy_id\": \"s-1\", \"name\": \"example\", \"language\": \"python\", \"api_major\": \"1\", \"source_kind\": \"handwritten\", \"entrypoint\": {\"file\": \"strategy.py\", \"class_name\": \"Example\"}, \"parameters\": {\"quantity\": \"0.5\", \"boundary\": -9007199254740991}, \"requested_capabilities\": [\"history.read\", \"account.read\", \"orders.write\"]}"
+    },
+    {
+      "name": "integer_below_min",
+      "definition": "Strategy",
+      "valid": false,
+      "raw": "{\"schema_version\": 1, \"strategy_id\": \"s-1\", \"name\": \"example\", \"language\": \"python\", \"api_major\": \"1\", \"source_kind\": \"handwritten\", \"entrypoint\": {\"file\": \"strategy.py\", \"class_name\": \"Example\"}, \"parameters\": {\"quantity\": \"0.5\", \"boundary\": -9007199254740992}, \"requested_capabilities\": [\"history.read\", \"account.read\", \"orders.write\"]}"
+    },
+    {
+      "name": "integer_nonfinite",
+      "definition": "Strategy",
+      "valid": false,
+      "raw": "{\"schema_version\": 1, \"strategy_id\": \"s-1\", \"name\": \"example\", \"language\": \"python\", \"api_major\": \"1\", \"source_kind\": \"handwritten\", \"entrypoint\": {\"file\": \"strategy.py\", \"class_name\": \"Example\"}, \"parameters\": {\"quantity\": \"0.5\", \"boundary\": 1e400}, \"requested_capabilities\": [\"history.read\", \"account.read\", \"orders.write\"]}"
     }
   ]
 }

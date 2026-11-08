@@ -76,7 +76,14 @@ dynamic decodeQuantJson(String source) {
       offset++;
     }
     if (start == offset) fail();
-    return jsonDecode(source.substring(start, offset));
+    final token = source.substring(start, offset);
+    if (RegExp(r'^-?(0|[1-9][0-9]*)$').hasMatch(token)) {
+      final integer = BigInt.parse(token);
+      if (integer.abs() > BigInt.from(9007199254740991)) fail();
+    }
+    final decoded = jsonDecode(token);
+    if (decoded is double && !decoded.isFinite) fail();
+    return decoded;
   };
   final result = value();
   whitespace();

@@ -10,6 +10,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from datetime import datetime
 from decimal import (
@@ -28,6 +29,9 @@ class ContractError(ValueError):
     pass
 
 
+MAX_INTEGER = 9007199254740991
+
+
 def parse_json(text):
     def unique(pairs):
         result = {}
@@ -40,8 +44,25 @@ def parse_json(text):
     def invalid(value):
         raise ContractError(f"non-finite JSON token: {value}")
 
+    def integer(text):
+        if len(text.lstrip("-")) > 16:
+            raise ContractError("JSON integer exceeds interoperable range")
+        value = int(text)
+        if abs(value) > MAX_INTEGER:
+            raise ContractError("JSON integer exceeds interoperable range")
+        return value
+
+    def floating(text):
+        value = float(text)
+        if not math.isfinite(value):
+            invalid(text)
+        return value
+
     try:
-        return json.loads(text, object_pairs_hook=unique, parse_constant=invalid)
+        return json.loads(
+            text, object_pairs_hook=unique, parse_constant=invalid,
+            parse_int=integer, parse_float=floating,
+        )
     except (json.JSONDecodeError, UnicodeDecodeError) as exc:
         raise ContractError(str(exc)) from exc
 
@@ -61,6 +82,7 @@ class Schema:
         "pattern",
         "minLength",
         "minimum",
+        "maximum",
         "const",
         "enum",
     }
@@ -123,8 +145,11 @@ class Schema:
                 r"^(0|[1-9][0-9]*)(\.[0-9]+)?$",
             }:
                 self._semantic("Decimal", value)
-        elif kind == "integer" and value < schema.get("minimum", value):
-            raise ContractError(f"{path}: below minimum")
+        elif kind == "integer":
+            if value < schema.get("minimum", -MAX_INTEGER):
+                raise ContractError(f"{path}: below minimum")
+            if value > schema.get("maximum", MAX_INTEGER):
+                raise ContractError(f"{path}: above maximum")
 
     def _semantic(self, name, value):
         if name in {"Decimal", "NonNegativeDecimal"}:
@@ -344,6 +369,8 @@ def canonical(payload):
     def no_float(value):
         if isinstance(value, float):
             raise ContractError("float not allowed in persistent transaction")
+        if type(value) is int and abs(value) > MAX_INTEGER:
+            raise ContractError("integer exceeds interoperable range")
         if isinstance(value, dict):
             for item in value.values():
                 no_float(item)

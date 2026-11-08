@@ -12,8 +12,8 @@ sys.path.insert(0, str(ROOT / "tools" / "quant"))
 from quality import (  # noqa: E402
     boundaries,
     bundle,
-    shared_candidate,
     sensitive_content,
+    shared_candidate,
     workflow,
 )
 from report_summary import validate as validate_report  # noqa: E402

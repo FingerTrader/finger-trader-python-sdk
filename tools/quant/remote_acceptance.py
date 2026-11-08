@@ -21,15 +21,16 @@ REQUIRED = {
     "sdk": {"quant-quality", "dependency-audit", "secrets"} | SDK_TESTS,
 }
 MANUAL_ITEMS = {
-    "accounting", "confidentiality", "compatibility",
-    "negative_merge_desktop", "negative_merge_sdk",
+    "accounting",
+    "confidentiality",
+    "compatibility",
+    "negative_merge_desktop",
+    "negative_merge_sdk",
 }
 
 
 def get(endpoint):
-    completed = subprocess.run(
-        ["gh", "api", endpoint], capture_output=True, text=True, timeout=60
-    )
+    completed = subprocess.run(["gh", "api", endpoint], capture_output=True, text=True, timeout=60)
     try:
         data = json.loads(completed.stdout)
     except json.JSONDecodeError:
@@ -47,7 +48,8 @@ def protected(payload, required):
     }
     reviews = record.get("required_pull_request_reviews") or {}
     return bool(
-        required <= names and statuses.get("strict")
+        required <= names
+        and statuses.get("strict")
         and record.get("enforce_admins", {}).get("enabled")
         and reviews.get("required_approving_review_count", 0) >= 1
         and reviews.get("require_code_owner_reviews")
@@ -112,7 +114,9 @@ def main():
     commits = {"desktop": args.desktop_commit, "sdk": args.sdk_commit}
     result = {
         "observed_at": datetime.now(timezone.utc).isoformat(),
-        "read_only": True, "candidates": commits, "repositories": {},
+        "read_only": True,
+        "candidates": commits,
+        "repositories": {},
     }
     remote_ok = True
     for role, repo in REPOSITORIES.items():
@@ -132,9 +136,12 @@ def main():
         remote_ok = remote_ok and check_ok and protection_ok
         result["repositories"][repo] = {
             "permissions": info.get("data", {}).get("permissions", {}),
-            "branch_protection": protection, "rulesets": rules,
-            "candidate_checks": checks, "required_checks": sorted(REQUIRED[role]),
-            "checks_passed": check_ok, "protection_passed": protection_ok,
+            "branch_protection": protection,
+            "rulesets": rules,
+            "candidate_checks": checks,
+            "required_checks": sorted(REQUIRED[role]),
+            "checks_passed": check_ok,
+            "protection_passed": protection_ok,
         }
         print(repo, "candidate_checks=" + str(check_ok), "protected=" + str(protection_ok))
     manual = json.loads(args.manual.read_text())

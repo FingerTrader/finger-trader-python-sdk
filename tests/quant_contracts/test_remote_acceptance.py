@@ -44,8 +44,14 @@ class RemoteAcceptanceTests(unittest.TestCase):
     def test_exact_candidate_latest_check_cannot_hide_failure(self):
         sha = "a" * 40
         rows = [
-            {"id": i, "name": name, "head_sha": sha, "app": {"slug": "github-actions"},
-             "status": "completed", "conclusion": "success"}
+            {
+                "id": i,
+                "name": name,
+                "head_sha": sha,
+                "app": {"slug": "github-actions"},
+                "status": "completed",
+                "conclusion": "success",
+            }
             for i, name in enumerate(sorted(REQUIRED["sdk"]))
         ]
         payload = {"ok": True, "data": {"check_runs": rows}}
@@ -67,10 +73,15 @@ class RemoteAcceptanceTests(unittest.TestCase):
         from remote_acceptance import MANUAL_ITEMS
 
         record = {
-            "status": "approved", "candidates": commits,
+            "status": "approved",
+            "candidates": commits,
             "reviews": {
-                name: {"decision": "approved", "reviewer": "fixture-reviewer",
-                       "reviewed_at": "2026-01-01T00:00:00Z", "evidence": "fixture-only"}
+                name: {
+                    "decision": "approved",
+                    "reviewer": "fixture-reviewer",
+                    "reviewed_at": "2026-01-01T00:00:00Z",
+                    "evidence": "fixture-only",
+                }
                 for name in MANUAL_ITEMS
             },
         }
