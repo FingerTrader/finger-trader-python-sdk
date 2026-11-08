@@ -3,7 +3,7 @@
   "scope": "P0 reviewed candidate source inventory; not a signature",
   "files": {
     ".github/workflows/quant-contracts.yml": "ebc996204c1267761154c43713a7ad0a7fd761576e22b11ad76d38ae5868e827",
-    ".gitleaksignore": "1b10b446c230ab8cc762f65b2f1a42ed0aaa9e67d8a3defc2e20a9925fbbceb0",
+    ".gitleaksignore": "f2ad05f5b2528a281da6dd61ad9088b3be99142a2a5368ce7953c88c2632ed73",
     "ci/quant-role.json": "b9e7948babf7372d4b4184747155b40e6af85320000bc0365fad869f2c714d35",
     "contracts/quant/python/finger_trader/hosted/__init__.pyi": "d4449e9207dce2f06c0c99dd6dc85791d1c7c5ce7e345be653519e175cdd7b5f",
     "contracts/quant/v1/bundle.lock.json": "83d78efb017611b1569dc7bc3450c2ee7358115b3264bc2c67af3d0a1e7ce2d7",
