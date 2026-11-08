@@ -28,6 +28,16 @@ jobs:
       - run: ruff format --check .
       - run: mypy
       - run: python -m build
+      - name: Temporary P0 formatter diagnostic after failure
+        if: failure()
+        run: |
+          ruff check tools/quant tests/quant_contracts contracts/quant/python --fix || true
+          ruff format tools/quant tests/quant_contracts contracts/quant/python
+          python - <<'PYDIAG'
+          import base64, subprocess
+          diff = subprocess.check_output(['git', 'diff', '--', 'tools/quant', 'tests/quant_contracts', 'contracts/quant/python'])
+          print('P0_FORMAT_PATCH=' + base64.b64encode(diff).decode())
+          PYDIAG
 
   dependency-audit:
     runs-on: ubuntu-latest

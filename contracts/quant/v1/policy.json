@@ -9,23 +9,33 @@
   "phases": {
     "start": {
       "read": true,
-      "trade": false
+      "trade": false,
+      "log": true,
+      "visualize": true
     },
     "warmup": {
       "read": true,
-      "trade": false
+      "trade": false,
+      "log": true,
+      "visualize": true
     },
     "bar": {
       "read": true,
-      "trade": true
+      "trade": true,
+      "log": true,
+      "visualize": true
     },
     "stop": {
       "read": true,
-      "trade": false
+      "trade": false,
+      "log": true,
+      "visualize": false
     },
     "cleanup": {
       "read": true,
-      "trade": false
+      "trade": false,
+      "log": true,
+      "visualize": false
     }
   },
   "opening_priority": [

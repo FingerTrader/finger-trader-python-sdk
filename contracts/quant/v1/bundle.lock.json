@@ -1,12 +1,15 @@
 {
-  "bundle_version": "1.0.0-candidate.2",
+  "bundle_version": "1.0.0-candidate.3",
   "stage": "P0-unreleased",
   "files": {
+    "core-dependencies.json": "680a388521468f0302fafea8c1b0f836996321dbb54b3ffa6e33cf65877c6e98",
     "goldens.json": "d6c179dc7c12779e247010ecef408ebc5832ee9c58b675b533890a900adee158",
     "information-boundary.json": "eb5a281c0d4c2cfa0820bfa27fed355209640ca461d48d1a1559253874b24107",
     "messages.json": "a6e8a5eeaff8e8f860c4ee45bbb6b305c3993dbb9cf6c5f3eacaf02386660c83",
     "methods.json": "60225e6c710d917dea8630ac7c3856a4f864f7798dd6396bcd723f17304f3e6d",
-    "policy.json": "2be65d734539bb7c49e784aa852a64fcb0f8672a37603e0c516f294f8dcdf87e",
+    "opening-competition.json": "63fdeaee58a420eb4f9c29cc85140a2d8fdd81c4a3d71a599fde15dee0145715",
+    "policy.json": "4d5042ab8227a798daa6507eba38e6105907a80c5a752a91277eee120669adcb",
+    "python-api.json": "8331d6301bf8c7317eb188bf6ea9800fec02256d0e9e68eeeba26b28291aa1c3",
     "schema.json": "bc9548fd67eeb8c8c691266155fe829abc91fa1ca6b8a75e92d52b1a39eeab06",
     "traces.json": "de07b15d41c90e0c1660bd5354adb093ab055997487588db7dd9b20b5f630688"
   }

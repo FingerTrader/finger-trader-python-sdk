@@ -1,0 +1,171 @@
+{
+  "schema_version": 1,
+  "api_major": "1",
+  "status": "P0-specification-only-not-implemented",
+  "public_module": "finger_trader.hosted",
+  "declaration": "contracts/quant/python/finger_trader/hosted/__init__.pyi",
+  "models": {
+    "Bar": "Bar",
+    "Instrument": "Instrument",
+    "Account": "Account",
+    "Position": "Position",
+    "Protection": "Protection",
+    "ProtectionGroup": "ProtectionGroup",
+    "ExitResult": "ExitResult",
+    "OrderSnapshot": "OrderState",
+    "Acknowledgement": "Accepted",
+    "OrderSubmission": "context_submit_order_response.result"
+  },
+  "methods": {
+    "history": {
+      "ipc": "context.history",
+      "capability": "history.read",
+      "permission": "read",
+      "payload": {
+        "instrument_id": "instrument_id ?? context.instrument.instrument_id",
+        "timeframe": "timeframe ?? run.timeframe",
+        "end_time": "end_time ?? context.now",
+        "limit": "limit"
+      }
+    },
+    "account": {
+      "ipc": "context.account",
+      "capability": "account.read",
+      "permission": "read",
+      "payload": {}
+    },
+    "position": {
+      "ipc": "context.position",
+      "capability": "account.read",
+      "permission": "read",
+      "payload": {
+        "instrument_id": "context.instrument.instrument_id"
+      }
+    },
+    "submit_order": {
+      "ipc": "context.submit_order",
+      "capability": "orders.write",
+      "permission": "trade",
+      "payload": {
+        "client_order_id": "client_order_id",
+        "side": "side",
+        "quantity": "quantity",
+        "kind": "kind",
+        "limit_price": "limit_price",
+        "protection": "protection"
+      }
+    },
+    "cancel_order": {
+      "ipc": "context.cancel_order",
+      "capability": "orders.write",
+      "permission": "trade",
+      "payload": {
+        "order_id": "order_id"
+      }
+    },
+    "get_order": {
+      "ipc": "context.get_order",
+      "capability": "account.read",
+      "permission": "read",
+      "payload": {
+        "order_id": "order_id"
+      }
+    },
+    "exit_protected": {
+      "ipc": "context.exit_protected",
+      "capability": "orders.write",
+      "permission": "trade",
+      "payload": {
+        "group_id": "group_id",
+        "quantity": "quantity"
+      }
+    },
+    "log": {
+      "ipc": "context.log",
+      "capability": "basic.log",
+      "permission": "log",
+      "payload": {
+        "message": "message",
+        "level": "level"
+      }
+    },
+    "plot": {
+      "ipc": "context.plot",
+      "capability": "plots.write",
+      "permission": "visualize",
+      "payload": {
+        "series_id": "series_id",
+        "value": "value",
+        "timestamp": "timestamp ?? context.now"
+      }
+    },
+    "marker": {
+      "ipc": "context.marker",
+      "capability": "plots.write",
+      "permission": "visualize",
+      "payload": {
+        "marker_id": "marker_id",
+        "label": "label",
+        "price": "price",
+        "timestamp": "timestamp ?? context.now"
+      }
+    }
+  },
+  "lifecycle": {
+    "on_start": "runtime.on_start",
+    "on_bar": "runtime.on_bar",
+    "on_stop": "runtime.on_stop"
+  },
+  "errors": {
+    "INVALID_ARGUMENT": "InvalidArgumentError",
+    "INSUFFICIENT_CASH": "InsufficientCashError",
+    "INSUFFICIENT_POSITION": "InsufficientPositionError",
+    "PERMISSION_DENIED": "PermissionDeniedError",
+    "STALE_CALLBACK": "StaleCallbackError",
+    "PROTOCOL_MISMATCH": "ProtocolMismatchError",
+    "PROTECTION_INVALID": "ProtectionInvalidError",
+    "STOPPING": "StoppingError",
+    "IO_FAILURE": "HostedIOError",
+    "UNSUPPORTED_CAPABILITY": "UnsupportedCapabilityError"
+  },
+  "jsonrpc_errors": {
+    "-32700": "ProtocolMismatchError",
+    "-32600": "ProtocolMismatchError",
+    "-32601": "ProtocolMismatchError",
+    "-32602": "InvalidArgumentError"
+  },
+  "context_properties": [
+    "run_id",
+    "mode",
+    "now",
+    "phase",
+    "is_warmup",
+    "instrument",
+    "parameters"
+  ],
+  "signatures": {
+    "Context.run_id": "self -> str",
+    "Context.mode": "self -> Literal['backtest']",
+    "Context.now": "self -> datetime",
+    "Context.phase": "self -> Phase",
+    "Context.is_warmup": "self -> bool",
+    "Context.instrument": "self -> Instrument",
+    "Context.parameters": "self -> Mapping[str, ParameterValue]",
+    "Context.history": "self, *, instrument_id: str | None=None, timeframe: str | None=None, end_time: datetime | None=None, limit: int=100 -> tuple[Bar, ...]",
+    "Context.account": "self -> Account",
+    "Context.position": "self -> Position",
+    "Context.submit_order": "self, *, client_order_id: str, side: Side, quantity: Decimal, kind: OrderKind='market', limit_price: Decimal | None=None, protection: Protection | None=None -> OrderSubmission",
+    "Context.cancel_order": "self, order_id: str -> OrderSnapshot",
+    "Context.get_order": "self, order_id: str -> OrderSnapshot",
+    "Context.exit_protected": "self, group_id: str, quantity: Decimal -> ExitResult",
+    "Context.log": "self, message: str, *, level: LogLevel='INFO' -> Acknowledgement",
+    "Context.plot": "self, series_id: str, value: Decimal, *, timestamp: datetime | None=None -> Acknowledgement",
+    "Context.marker": "self, marker_id: str, *, label: str, price: Decimal, timestamp: datetime | None=None -> Acknowledgement",
+    "Strategy.__init__": "self, **parameters: ParameterValue -> None",
+    "Strategy.parameters": "self -> Mapping[str, ParameterValue]",
+    "Strategy.context": "self -> Context",
+    "Strategy.on_start": "self, context: Context -> None",
+    "Strategy.on_bar": "self, bar: Bar -> None",
+    "Strategy.on_stop": "self -> None"
+  }
+}

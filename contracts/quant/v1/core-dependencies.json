@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "core_root": "lib/app/quant",
+  "adapter_roots": [
+    "lib/app/quant/presentation",
+    "lib/app/quant/adapters",
+    "lib/app/modules",
+    "lib/app/widgets"
+  ],
+  "allowed_dart_libraries": [
+    "dart:async",
+    "dart:collection",
+    "dart:convert",
+    "dart:core",
+    "dart:isolate",
+    "dart:math",
+    "dart:typed_data"
+  ],
+  "external_packages": [],
+  "review": "P0 permits only portable Dart SDK libraries. io, ffi, ui, mirroring and unknown package imports require platform adapters. No third-party package has been approved; an exception requires a reviewed gate extension and pinned package evidence, never just a package-name whitelist edit."
+}

@@ -21,6 +21,13 @@ from run_tests import require_complete  # noqa: E402
 from workflow_spec import expected_workflow  # noqa: E402
 
 
+def check_boundaries(root):
+    policy = root / 'contracts/quant/v1/core-dependencies.json'
+    policy.parent.mkdir(parents=True, exist_ok=True)
+    policy.write_bytes((ROOT / 'contracts/quant/v1/core-dependencies.json').read_bytes())
+    return boundaries(root)
+
+
 class NegativeQualityTests(unittest.TestCase):
     def test_peer_comparison_covers_new_shared_files(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -62,7 +69,7 @@ class NegativeQualityTests(unittest.TestCase):
             core.mkdir(parents=True)
             (core / "host.dart").write_text("import 'package:flutter/widgets.dart';\n")
             with self.assertRaisesRegex(ValueError, "prohibited dependency"):
-                boundaries(root)
+                check_boundaries(root)
 
     def test_transitive_ui_dependency_is_a_failure(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -72,7 +79,7 @@ class NegativeQualityTests(unittest.TestCase):
             (core / "host.dart").write_text("export '../adapter.dart';\n")
             (root / "lib/app/adapter.dart").write_text("import 'dart:ui';\n")
             with self.assertRaisesRegex(ValueError, "prohibited dependency"):
-                boundaries(root)
+                check_boundaries(root)
 
     def test_mutated_fixture_is_a_failure(self):
         import shutil
@@ -136,7 +143,7 @@ class NegativeQualityTests(unittest.TestCase):
             core.mkdir(parents=True)
             (core / "host.dart").write_text("import 'package:finger_desk/missing.dart';")
             with self.assertRaisesRegex(ValueError, "missing package dependency"):
-                boundaries(root)
+                check_boundaries(root)
 
     def test_conditional_import_ui_fails(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -148,7 +155,7 @@ class NegativeQualityTests(unittest.TestCase):
             )
             (core / "safe.dart").write_text("")
             with self.assertRaisesRegex(ValueError, "prohibited dependency"):
-                boundaries(root)
+                check_boundaries(root)
 
     def test_report_cannot_hide_missing_or_failed_checks(self):
         names = [

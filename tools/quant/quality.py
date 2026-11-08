@@ -22,56 +22,9 @@ ROLE_FILES = {"ci/quant-role.json", "ci/quant-peer.json", ".github/workflows/qua
 
 
 def boundaries(root):
-    root = root.resolve()
-    failures = []
-    core = root / "lib" / "app" / "quant"
-    visited = set()
+    from core_dependencies import boundaries as check
 
-    def visit(path):
-        path = path.resolve()
-        if path in visited:
-            return
-        visited.add(path)
-        source = path.read_text(encoding="utf-8")
-        directives = re.findall(r"\b(?:import|export|part)\s+['\"][^;]+;", source, re.DOTALL)
-        uris = [
-            uri for directive in directives for uri in re.findall(r"['\"]([^'\"]+)['\"]", directive)
-        ]
-        for uri in uris:
-            if uri.startswith(
-                (
-                    "package:flutter/",
-                    "dart:ui",
-                    "package:finger_desk/app/modules/",
-                    "package:finger_desk/app/widgets/",
-                )
-            ):
-                failures.append(f"{path.relative_to(root)}: prohibited dependency {uri}")
-            elif uri.startswith("package:finger_desk/"):
-                destination = root / "lib" / uri.removeprefix("package:finger_desk/")
-                if destination.is_file():
-                    visit(destination)
-                else:
-                    failures.append(f"missing package dependency {uri}")
-            elif not uri.startswith(("package:", "dart:")):
-                destination = path.parent / uri
-                if not destination.is_file():
-                    failures.append(f"{path.relative_to(root)}: missing internal dependency {uri}")
-                else:
-                    try:
-                        destination.resolve().relative_to(root.resolve())
-                    except ValueError:
-                        failures.append(f"{path}: dependency escapes repository")
-                    else:
-                        visit(destination)
-
-    for path in core.rglob("*.dart"):
-        visit(path)
-    if (root / ".fvmrc").is_file() and not visited:
-        failures.append("Desktop quant core is missing; cannot pass an empty architecture check")
-    if failures:
-        raise ValueError("\n".join(failures))
-    return {"core_files": len(list(core.rglob("*.dart"))), "transitive_files": len(visited)}
+    return check(root)
 
 
 def bundle(root):
