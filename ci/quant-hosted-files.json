@@ -101,7 +101,7 @@
       "sha256": "4688df5825a772818cc92e53a3b64d93f50fe03819fc7b006f495f63506218df"
     },
     "tests/test_hosted_disconnect.py": {
-      "sha256": "141cfd381aa237f6212e1a32a526b66ab145fd1f20ffd3ce83a036dc2ee9d829"
+      "sha256": "4729bc7e7d79579bf07708d21535fdc616e3a4ca6da246615cb0afda5592d55d"
     },
     "tests/test_disconnect_gate.py": {
       "sha256": "a8d1543f9c0eb2945a93d4236bd296379729e5406a9dafd3580813daefff4782"

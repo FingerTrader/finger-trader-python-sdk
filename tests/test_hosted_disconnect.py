@@ -362,7 +362,10 @@ class HostedDisconnect(unittest.TestCase):
 
     def test_diagnostic_failure_does_not_mask_deadline_failure(self):
         with tempfile.TemporaryDirectory(prefix="disconnect-evidence-error-") as name:
-            with patch("subprocess.run", side_effect=OSError("controlled ps failure")):
+            with (
+                patch.dict(os.environ, QUANT_DISCONNECT_EVIDENCE=str(Path(name) / "evidence")),
+                patch("subprocess.run", side_effect=OSError("controlled ps failure")),
+            ):
                 evidence = json.loads(
                     failure_evidence(
                         Path(name), {"phase": "idle", "worker": 12345, "child": 12346}, 5
@@ -416,8 +419,9 @@ class HostedDisconnect(unittest.TestCase):
             source = file.read_text()
             self.assertEqual(source.count("watchdog.daemon = False"), 1)
             file.write_text(source.replace("watchdog.daemon = False", "watchdog.daemon = True"))
-            with self.assertRaisesRegex(AssertionError, "survived real Host exit"):
-                self.run_case("idle", source_root=mutant, timeout=2)
+            with patch.dict(os.environ, QUANT_DISCONNECT_EVIDENCE=str(mutant / "evidence")):
+                with self.assertRaisesRegex(AssertionError, "survived real Host exit"):
+                    self.run_case("idle", source_root=mutant, timeout=2)
 
 
 if __name__ == "__main__":
