@@ -72,6 +72,9 @@ def check_desktop(root):
     pin = load(root)
     if json.loads((root / ".fvmrc").read_text())["flutter"] != pin["flutter"]:
         raise ValueError("FVM differs from reviewed toolchain pin")
+    editor = json.loads((root / ".vscode/settings.json").read_text())
+    if editor.get("dart.flutterSdkPath") != ".fvm/flutter_sdk":
+        raise ValueError("Editor must use the project FVM SDK link")
     source = json.loads((root / ".github/workflows/quant-host.yml").read_text())
     if source["on"] != {
         "push": None,

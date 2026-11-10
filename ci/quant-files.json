@@ -21,7 +21,7 @@
     "contracts/quant/v1/traces.json": "de07b15d41c90e0c1660bd5354adb093ab055997487588db7dd9b20b5f630688",
     "docs/quant/acceptance/p0-owner-development-policy.md": "e455c7ed98c729e8cfa74f2f404f8fae52f55fef1cba00c5c79d3c0a48cf5c83",
     "docs/quant/python-managed-api-v1.md": "dfc4e1b7f4dc3a844b99e4472bbac7b47b24b564f4a0f944e52e4c688e5478d5",
-    "docs/quant/quality-toolchain.md": "9e63e3f7f589f0740b87527da6c90e21be2746332137f106dca219753a9c3bd3",
+    "docs/quant/quality-toolchain.md": "0df88133bc9d65de3c3bef88581d56552b01e5acf2a935afe293f19d64e7d346",
     "lib/app/quant/contracts/schema_validator.dart": "59d9215033ac5d5750001137a24f02a0821afa35c1db81c3529d5f37d8b05133",
     "lib/app/quant/contracts/strict_json.dart": "0251f4d6ee19a48e417119764d8b37551bcfcdf7e57819ef676e684a63f7e269",
     "tests/quant_contracts/test_contracts.py": "6f1276582640b765042a9bdc08d9ac103d87347aa7bb7ec059e11de3d572e5a1",
@@ -41,7 +41,7 @@
     "tools/quant/run_tests.py": "e9e1e635959dd4b1d46c75d684406024182b6fcd8c6bc93081cefd63674f7c55",
     "tools/quant/sdk-quant-contracts.yml": "d4d9016a6411ec411c8a9f2476739b20f839b05d182be6fae4110b9726440f37",
     "tools/quant/sync_sdk_candidate.py": "d3a7a54de3b1c3fd013f20e9239b3f2bdf3e95e0ed72bd026de7429945db7df6",
-    "tools/quant/toolchain.py": "c16b80f80ec74df3367fb0d320ecc016ba75199a5602633cb89f62db6b823a3c",
+    "tools/quant/toolchain.py": "b26a2a06b64e527e56b1df84ae36ce47beabcd149058bb257ce69c61af76dab1",
     "tools/quant/workflow_spec.py": "06bf56afa64f620c4845e5c9f14015b6bb2ac5b35a148e693c5739fb97fc3a6d"
   }
 }

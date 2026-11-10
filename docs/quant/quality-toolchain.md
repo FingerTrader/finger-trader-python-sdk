@@ -16,7 +16,7 @@ python -B tools/quant/check_ui.py --flutter "$FLUTTER" --sdk "$SDK_CHECKOUT" --p
 
 SDK 仓库运行第一条时不传 `--peer`。SDK 全量测试须使用当前候选源码（例如 `PYTHONPATH=src python -m pytest`），不能由另一 checkout 的 editable 安装代替。报告分别记录驱动 Python 与真实 worker Python。
 
-`.fvmrc`、双仓 P0 workflow、Host/定期性能 Dart 以及 UI 的完整 Git SHA/tag 自举必须一致。`toolchain.py` 拒绝版本、engine 或 framework 漂移；共享正负回归和 Desktop 正负回归校验缺省、浮动版本、错误 pin、禁用作业、替换检查调用及移除锁文件约束。现有 Host/UI CI 执行相同入口。SDK 原有五版本、依赖审计、密钥及发布构建作业保留。
+`.fvmrc`、双仓 P0 workflow、Host/定期性能 Dart 以及 UI 的完整 Git SHA/tag 自举必须一致。`toolchain.py` 拒绝版本、engine 或 framework 漂移；共享正负回归和 Desktop 正负回归（含编辑器绕开 FVM 的反例）校验缺省、浮动版本、错误 pin、禁用作业、替换检查调用及移除锁文件约束。现有 Host/UI CI 执行相同入口。SDK 原有五版本、依赖审计、密钥及发布构建作业保留。
 
 ## 最小依赖变化
 
