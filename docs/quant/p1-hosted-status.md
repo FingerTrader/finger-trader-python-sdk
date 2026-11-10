@@ -20,3 +20,12 @@ schema／methods／policy／API 映射随包携带，测试与 P0 原件及全�
 worker 现对不可恢复的 reader 错误，在唤醒等待者之前启动 non-daemon watchdog。它在主线程退出时仍有机会执行，也能终止卡在回调中的策略；队列已满时走同一个立即终止入口。终止入口只向 setsid 建立的自身进程组发送信号，异常或不属于自身组时以失败退出；不承诺清理恶意脱离进程组的代码。正常 on_stop 仍按原协议完成，由 Host 确认进程与组消失，不改变用户 API、Decimal、生命周期或 IPC 字段。
 
 tests/test_hosted_disconnect.py 的七组必需测试包括空闲三次、忙回调、同步查询等待、回调异常、正常停止／单次 on_stop、组归属／权限失败及 daemon 变异负测。真实 Host 在明确就绪阶段被独立控制器 SIGKILL；只接受 worker、普通子进程及组均 ESRCH，测试清理不会算作自动成功。tools/quant/check_disconnect.py 强制七项、无跳过且完整成功，SDK CI 与 Desktop Host CI 同入口调用。旧实现失败、修复后的原生矩阵及固定双仓证据由 Desktop 归档；便携 CI 不代表正式 Sandbox／分发验收。
+
+
+## 2026-11-10：退出测试清理竞态与失败证据
+
+本次只修复测试兜底清理的已确认 TOCTOU：worker 可在存活探测后、getpgid 或 killpg 前消失。对 ESRCH 继续核对该次新建普通子进程，不信号不属本测试的组；权限失败不吞掉。新增确定性负测验证两种消失时点、非归属与权限错误，以及清理成功后原五秒期限失败仍保留。
+
+保留原七项真实父进程崩溃／忙循环／查询／异常／正常停止／watchdog 变异场景，增加四项。统一 check_disconnect 要求十一项明确名字、无跳过及完整报告；仅数量相同的替代测试也拒绝。超时先保存目标 PID/PPID/PGID/state/etime、受控 fixture 日志与阶段身份，再做兜底清理；诊断自身失败不掩盖期限失败。SDK CI 与 Desktop Host CI 复用此入口，失败消息包含快照供 CI 日志留证。
+
+此前 idle 超五秒首次失败原因尚未确认：旧候选连续三十次复测约 1.3 秒清理，仅说明未复现，不作为修复证明。本次未改 worker、API、Host 预算、依赖或原超时标准；P1/P4.0 不整体放行。P0 development-P0-only 政策不变。

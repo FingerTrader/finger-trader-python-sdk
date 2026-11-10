@@ -44,6 +44,63 @@ def wait_absent(worker, child, timeout):
     return False
 
 
+def cleanup_owned_group(worker, child):
+    """Only signal this fixture's fresh isolated group; tolerate an exit race."""
+    for pid in (worker, child):
+        if not pid:
+            continue
+        try:
+            group = os.getpgid(pid)
+        except ProcessLookupError:
+            continue
+        if group != worker:
+            raise AssertionError("Test cleanup refused an unowned process group")
+        try:
+            os.killpg(worker, signal.SIGKILL)
+        except ProcessLookupError:
+            pass  # The verified group can disappear before the signal too.
+        return
+
+
+def failure_evidence(directory, info, timeout):
+    """Capture before cleanup; diagnostics must never replace the deadline failure."""
+    data = {"info": info, "cleanup_deadline_seconds": timeout}
+    try:
+        result = subprocess.run(
+            [
+                "ps",
+                "-o",
+                "pid,ppid,pgid,state,etime",
+                "-p",
+                str(info["worker"]) + "," + str(info["child"]),
+            ],
+            capture_output=True,
+            text=True,
+            timeout=2,
+        )
+        data["process_snapshot"] = {
+            "code": result.returncode,
+            "stdout": result.stdout,
+            "stderr": result.stderr,
+        }
+    except Exception as error:
+        data["snapshot_error"] = repr(error)
+    target = os.environ.get("QUANT_DISCONNECT_EVIDENCE")
+    if target:
+        try:
+            root = Path(target)
+            root.mkdir(parents=True, exist_ok=True)
+            saved = Path(tempfile.mkdtemp(prefix=info["phase"] + "-", dir=root))
+            for name in ("host.log", "worker.log", "ready.json", "owned.json"):
+                if (directory / name).is_file():
+                    shutil.copyfile(directory / name, saved / name)
+            (saved / "failure.json").write_text(json.dumps(data, indent=2) + "\n")
+            data["evidence_path"] = str(saved)
+        except Exception as error:
+            data["evidence_error"] = repr(error)
+    return json.dumps(data)
+
+
 def host(source_root, directory, phase):
     """Separate real parent process. The test SIGKILLs this after a sealed stage."""
     strategy = directory / "strategy.py"
@@ -225,10 +282,11 @@ class HostedDisconnect(unittest.TestCase):
                         self.assertEqual(parent.wait(timeout=5), 0)
                         self.assertEqual(info["outcome"], 0)
                         self.assertEqual(info["stops"], 1)
-                    self.assertTrue(
-                        wait_absent(info["worker"], info["child"], timeout),
-                        f"{phase}: worker/child/group survived real Host exit: {info}",
-                    )
+                    if not wait_absent(info["worker"], info["child"], timeout):
+                        evidence = failure_evidence(directory, info, timeout)
+                        self.fail(
+                            f"{phase}: worker/child/group survived real Host exit: {evidence}"
+                        )
                 finally:
                     if parent.poll() is None:
                         parent.kill()
@@ -238,14 +296,80 @@ class HostedDisconnect(unittest.TestCase):
                     if info:
                         # Fresh identities from this test's parent, never old run records.
                         worker, child = info["worker"], info["child"]
-                        if not gone(worker):
-                            self.assertEqual(os.getpgid(worker), worker)
-                            os.killpg(worker, signal.SIGKILL)
-                        elif child and not gone(child):
-                            self.assertEqual(os.getpgid(child), worker)
-                            os.killpg(worker, signal.SIGKILL)
+                        cleanup_owned_group(worker, child)
                         if child:
                             self.assertTrue(wait_absent(worker, child, 5), "Test cleanup failed")
+
+    def test_cleanup_tolerates_worker_and_group_exit_races(self):
+        for groups in (
+            [ProcessLookupError(), 12345],
+            [12345],
+            [ProcessLookupError(), ProcessLookupError()],
+        ):
+            with self.subTest(groups=groups):
+                with patch("os.getpgid", side_effect=groups), patch("os.killpg") as kill:
+                    cleanup_owned_group(12345, 12346)
+                    self.assertEqual(
+                        kill.call_count,
+                        0 if len(groups) == 2 and isinstance(groups[-1], ProcessLookupError) else 1,
+                    )
+        with (
+            patch("os.getpgid", return_value=12345),
+            patch("os.killpg", side_effect=ProcessLookupError()),
+        ):
+            cleanup_owned_group(12345, 12346)
+
+    def test_cleanup_rejects_unowned_group_and_permission_failure(self):
+        with patch("os.getpgid", return_value=54321), patch("os.killpg") as kill:
+            with self.assertRaisesRegex(AssertionError, "unowned"):
+                cleanup_owned_group(12345, 12346)
+            kill.assert_not_called()
+        with patch("os.getpgid", side_effect=PermissionError("denied")), patch("os.killpg") as kill:
+            with self.assertRaises(PermissionError):
+                cleanup_owned_group(12345, 12346)
+            kill.assert_not_called()
+        with (
+            patch("os.getpgid", return_value=12345),
+            patch("os.killpg", side_effect=PermissionError("denied")),
+        ):
+            with self.assertRaises(PermissionError):
+                cleanup_owned_group(12345, 12346)
+
+    def test_deadline_failure_is_preserved_before_cleanup(self):
+        original = wait_absent
+        calls = 0
+
+        def deadline_failure(worker, child, timeout):
+            nonlocal calls
+            calls += 1
+            return False if calls == 1 else original(worker, child, timeout)
+
+        with tempfile.TemporaryDirectory(prefix="disconnect-failure-evidence-") as name:
+            with (
+                patch.dict(os.environ, QUANT_DISCONNECT_EVIDENCE=name),
+                patch(__name__ + ".wait_absent", side_effect=deadline_failure),
+            ):
+                with self.assertRaisesRegex(AssertionError, "survived real Host exit"):
+                    self.run_case("idle")
+            saved = list(Path(name).glob("*/failure.json"))
+            self.assertEqual(len(saved), 1)
+            evidence = json.loads(saved[0].read_text())
+            self.assertEqual(evidence["cleanup_deadline_seconds"], 5)
+            self.assertEqual(evidence["info"]["phase"], "idle")
+            self.assertTrue((saved[0].parent / "ready.json").is_file())
+            self.assertTrue((saved[0].parent / "worker.log").is_file())
+            self.assertTrue("process_snapshot" in evidence or "snapshot_error" in evidence)
+
+    def test_diagnostic_failure_does_not_mask_deadline_failure(self):
+        with tempfile.TemporaryDirectory(prefix="disconnect-evidence-error-") as name:
+            with patch("subprocess.run", side_effect=OSError("controlled ps failure")):
+                evidence = json.loads(
+                    failure_evidence(
+                        Path(name), {"phase": "idle", "worker": 12345, "child": 12346}, 5
+                    )
+                )
+            self.assertIn("controlled ps failure", evidence["snapshot_error"])
+            self.assertEqual(evidence["cleanup_deadline_seconds"], 5)
 
     def test_idle_parent_crash(self):
         for _ in range(3):

@@ -2,7 +2,7 @@
   "stage": "P1-hosted-worker-development",
   "files": {
     "docs/quant/p1-hosted-status.md": {
-      "sha256": "c6bad659664d709b67885204899e854dec0efb81f2a43fd4d4dce963dd761791"
+      "sha256": "cd742254703b4d671710143ca88f93d6799a52555c86b861e2aba9ea4b75236e"
     },
     "pyproject.toml": {
       "sha256": "9215006c5538dd2aebd86d064b4c25c9d1b0cff0e1ca6f1fb743fd04d739c56e"
@@ -101,13 +101,13 @@
       "sha256": "4688df5825a772818cc92e53a3b64d93f50fe03819fc7b006f495f63506218df"
     },
     "tests/test_hosted_disconnect.py": {
-      "sha256": "3aa559c6cf419d0e27ea08dee2124a703876f6d7d0f089ae51357a448f72ee6b"
+      "sha256": "141cfd381aa237f6212e1a32a526b66ab145fd1f20ffd3ce83a036dc2ee9d829"
     },
     "tests/test_disconnect_gate.py": {
-      "sha256": "372c95708146c2c7e1e53e5e7f55a3ecce0888b1638962771a6043d1a416870d"
+      "sha256": "a8d1543f9c0eb2945a93d4236bd296379729e5406a9dafd3580813daefff4782"
     },
     "tools/quant/check_disconnect.py": {
-      "sha256": "188180d21b591ddf3b949572432be4cb58463e4b3126d3dad0e2a679162ae2bd"
+      "sha256": "802a9bb68046798690b5ab3903f0f0251aff7da31290d7ebc47b3463d45c4dcf"
     }
   }
 }
