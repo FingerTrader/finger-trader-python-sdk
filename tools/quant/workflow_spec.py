@@ -6,22 +6,29 @@ job/step conditions, path filters, or continue-on-error are accepted.
 
 import json
 
+from toolchain import load
+
 CHECKOUT = "actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803"
 PYTHON = "actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1"
 DART = "dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d"
 
 
-def expected_workflow(role):
+def expected_workflow(role, pin=None):
+    pin = pin or load()
     if role not in ("desktop", "sdk"):
         raise ValueError("unknown gate role")
     steps = [
-        {"name": "Checkout candidate", "uses": CHECKOUT, "with": {"persist-credentials": False}},
+        {
+            "name": "Checkout candidate",
+            "uses": CHECKOUT,
+            "with": {"persist-credentials": False},
+        },
         {
             "name": "Fixed Python",
             "uses": PYTHON,
-            "with": {"python-version": "3.12.14", "check-latest": False},
+            "with": {"python-version": pin["python"], "check-latest": False},
         },
-        {"name": "Fixed Dart", "uses": DART, "with": {"sdk": "3.5.1"}},
+        {"name": "Fixed Dart", "uses": DART, "with": {"sdk": pin["dart"]}},
     ]
     if role == "desktop":
         steps += [
@@ -67,7 +74,12 @@ def expected_workflow(role):
     ]
     return {
         "name": "Quant contracts",
-        "on": {"pull_request": None, "push": None, "merge_group": None, "workflow_dispatch": None},
+        "on": {
+            "pull_request": None,
+            "push": None,
+            "merge_group": None,
+            "workflow_dispatch": None,
+        },
         "permissions": {"contents": "read"},
         "concurrency": {
             "group": "quant-${{ github.workflow }}-${{ github.ref }}",
@@ -87,6 +99,12 @@ def expected_workflow(role):
 def check_workflow(root):
     role = json.loads((root / "ci/quant-role.json").read_text())["role"]
     actual = json.loads((root / ".github/workflows/quant-contracts.yml").read_text())
-    if actual != expected_workflow(role):
+    pin = load(root)
+    if actual != expected_workflow(role, pin):
         raise ValueError("workflow differs from reviewed executable specification")
-    return {"role": role, "required_status": "quant-quality", "dart": "3.5.1", "python": "3.12.14"}
+    return {
+        "role": role,
+        "required_status": "quant-quality",
+        "dart": pin["dart"],
+        "python": pin["python"],
+    }

@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "model": "cash-long-ohlcv/1",
+  "decimal": {
+    "precision": 34,
+    "rounding": "ROUND_HALF_EVEN",
+    "money_rounding": "ROUND_HALF_UP"
+  },
+  "phases": {
+    "start": {
+      "read": true,
+      "trade": false,
+      "log": true,
+      "visualize": true
+    },
+    "warmup": {
+      "read": true,
+      "trade": false,
+      "log": true,
+      "visualize": true
+    },
+    "bar": {
+      "read": true,
+      "trade": true,
+      "log": true,
+      "visualize": true
+    },
+    "stop": {
+      "read": true,
+      "trade": false,
+      "log": true,
+      "visualize": false
+    },
+    "cleanup": {
+      "read": true,
+      "trade": false,
+      "log": true,
+      "visualize": false
+    }
+  },
+  "opening_priority": [
+    "market",
+    "protective_stop",
+    "limit"
+  ],
+  "states": {
+    "CREATED": [
+      "VALIDATING",
+      "STOPPING"
+    ],
+    "VALIDATING": [
+      "STARTING",
+      "FAILED",
+      "STOPPING"
+    ],
+    "STARTING": [
+      "RUNNING",
+      "FAILED",
+      "STOPPING"
+    ],
+    "RUNNING": [
+      "COMPLETED",
+      "FAILED",
+      "STOPPING"
+    ],
+    "STOPPING": [
+      "STOPPED",
+      "FAILED"
+    ],
+    "STOPPED": [],
+    "COMPLETED": [],
+    "FAILED": []
+  },
+  "limits": {
+    "startup_seconds": 30,
+    "callback_seconds": 10,
+    "stop_seconds": 5,
+    "message_bytes": 1048576,
+    "queue_items": 1000,
+    "queue_bytes": 16777216,
+    "concurrent_runs": 2
+  },
+  "storage": {
+    "schema": 1,
+    "encoding": "UTF-8",
+    "framing": "one committed transaction per LF-terminated JSON record",
+    "digest": "SHA-256",
+    "canonical_json": "ASCII keys sorted; no whitespace; UTF-8; string decimals; no floats",
+    "commit_boundary": "flush+fsync before response or publish",
+    "bad_tail": "discard whole incomplete record",
+    "corrupt_middle": "fail closed"
+  },
+  "compatibility": {
+    "exploration_migration": false,
+    "first_release_baseline": "pending-P4",
+    "non_business_fields": [
+      "run_id",
+      "wall_time",
+      "elapsed_ms",
+      "ui_layout"
+    ]
+  }
+}

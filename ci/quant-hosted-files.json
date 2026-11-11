@@ -1,0 +1,113 @@
+{
+  "stage": "P1-hosted-worker-development",
+  "files": {
+    "docs/quant/p1-hosted-status.md": {
+      "sha256": "cd742254703b4d671710143ca88f93d6799a52555c86b861e2aba9ea4b75236e"
+    },
+    "pyproject.toml": {
+      "sha256": "9215006c5538dd2aebd86d064b4c25c9d1b0cff0e1ca6f1fb743fd04d739c56e"
+    },
+    "src/finger_trader/__init__.py": {
+      "sha256": "9bcbbca884062b176197e4dd967efe1b3df0031f978746c62ab8ef356d798d85"
+    },
+    "src/finger_trader/client.py": {
+      "sha256": "b1ec6988f3b157a88073d5aec8544cc371c54c9078079acb151da47c666426ac"
+    },
+    "src/finger_trader/exceptions.py": {
+      "sha256": "16885ef3d958da3e1e19169c38205854e1bc7a313573e2a8f894378e48c959de"
+    },
+    "src/finger_trader/hosted/__init__.py": {
+      "sha256": "689b9bd1c470887848ea0566e28c39fb1158bf20b9f919d8e93b4fcf78e629ef"
+    },
+    "src/finger_trader/hosted/_context.py": {
+      "sha256": "ac3391d09ee242423d05a3770be386adb15f1cbc9225bdc275651048a9c06781"
+    },
+    "src/finger_trader/hosted/_schema.py": {
+      "sha256": "0fd23102a0ee226b8fe5e2b27de5b08a8ea29b9e9d65535bd11d7df22778a31b"
+    },
+    "src/finger_trader/hosted/methods.json": {
+      "sha256": "60225e6c710d917dea8630ac7c3856a4f864f7798dd6396bcd723f17304f3e6d"
+    },
+    "src/finger_trader/hosted/policy.json": {
+      "sha256": "4d5042ab8227a798daa6507eba38e6105907a80c5a752a91277eee120669adcb"
+    },
+    "src/finger_trader/hosted/python-api.json": {
+      "sha256": "207916f40f44732932de4442a456f1df2d359f296ee706d4e7804302f556cb4b"
+    },
+    "src/finger_trader/hosted/schema.json": {
+      "sha256": "bc9548fd67eeb8c8c691266155fe829abc91fa1ca6b8a75e92d52b1a39eeab06"
+    },
+    "src/finger_trader/hosted/worker.py": {
+      "sha256": "e25b95770a967ecd876067cf8d065928a9b716995ce736a75915ec3230866ff6"
+    },
+    "src/finger_trader/indicators/__init__.py": {
+      "sha256": "4a461f4344887dbe7e9acf2aec382613126c7e5e3ce98c923ee44ae5fa690645"
+    },
+    "src/finger_trader/indicators/crossover.py": {
+      "sha256": "db60d117cb2a2b85b137d291379e3bcbb40004f18dee5f026c41fef76a5327e4"
+    },
+    "src/finger_trader/indicators/moving_average.py": {
+      "sha256": "54ce0143a81c3266f8152d658f0f0322fa8cae4273886c8cdcad2a47903930c9"
+    },
+    "src/finger_trader/market_data/__init__.py": {
+      "sha256": "0d79da68a9262ec3665cd01a1b9c70796934f1410f5ef435ac21499a17349255"
+    },
+    "src/finger_trader/market_data/models.py": {
+      "sha256": "50d04ecf3b65dc299e64664cf6d556136f1a540f31387134bdc8b7488ba78c76"
+    },
+    "src/finger_trader/models.py": {
+      "sha256": "bcee9c4453040d72e2ace5d876291f4dc63e45365f272db66ba8c611fe5c42ed"
+    },
+    "src/finger_trader/runtime/__init__.py": {
+      "sha256": "8ab384d24f448280168681aaecdb367aaa63661d103ad0546a5387c38700b90f"
+    },
+    "src/finger_trader/runtime/runner.py": {
+      "sha256": "b64c9f69757908da6e9d3a4ed12454f89fa870cb9e6e6309153968b074c788f3"
+    },
+    "src/finger_trader/services/__init__.py": {
+      "sha256": "5cbf5ff667be2712cf24e684f764477a4941c14ef7ab554fc82e76775d4cac8e"
+    },
+    "src/finger_trader/services/accounts.py": {
+      "sha256": "d09b4128f2fbf0ed1a44898088ca72ba1b8cc4cfc24b09a54acbfd1be55ef27a"
+    },
+    "src/finger_trader/services/auth.py": {
+      "sha256": "31e5ad12d0f772c71b324cbd8fc9808463dd623310836ff45003b3ba58756159"
+    },
+    "src/finger_trader/services/market_data.py": {
+      "sha256": "e69063ac8e47e5064b948cdcafc5a5b247c7fe26c64361e9205755cdcb3f9eaa"
+    },
+    "src/finger_trader/services/orders.py": {
+      "sha256": "705f05b2416ffc1014f35e12ec470c2490fbfff32ed3711c5682b816f1623877"
+    },
+    "src/finger_trader/signals.py": {
+      "sha256": "b5d473f918fe570bac87bac737e8b157dfc9d8b80c29f974b5d43516c13991a7"
+    },
+    "src/finger_trader/strategy/__init__.py": {
+      "sha256": "79d9f3e9560aa6de7dc8fd4d3ef9e1240175872b72dd676a18dbede4cb925fc9"
+    },
+    "src/finger_trader/strategy/base.py": {
+      "sha256": "62a297912cff77fd71793b37ba9512ce415ac8bb89c6aa1999ed7ec7e5b387f8"
+    },
+    "src/finger_trader/transport.py": {
+      "sha256": "8654e84ca14c08971a869ecc1e01e4ddd0577957cbba41339c4bdd664307aaa5"
+    },
+    "src/finger_trader/websocket.py": {
+      "sha256": "f6af88cb38a2c263c0eb7d76ea0497f13470c43da0bb418d8915484d34e01429"
+    },
+    "tests/test_hosted.py": {
+      "sha256": "85c2fb6bdff0f06630d50065998f577b8168c02bdedf09314c709e91fcf9e26a"
+    },
+    ".github/workflows/ci.yml": {
+      "sha256": "4688df5825a772818cc92e53a3b64d93f50fe03819fc7b006f495f63506218df"
+    },
+    "tests/test_hosted_disconnect.py": {
+      "sha256": "4729bc7e7d79579bf07708d21535fdc616e3a4ca6da246615cb0afda5592d55d"
+    },
+    "tests/test_disconnect_gate.py": {
+      "sha256": "a8d1543f9c0eb2945a93d4236bd296379729e5406a9dafd3580813daefff4782"
+    },
+    "tools/quant/check_disconnect.py": {
+      "sha256": "802a9bb68046798690b5ab3903f0f0251aff7da31290d7ebc47b3463d45c4dcf"
+    }
+  }
+}

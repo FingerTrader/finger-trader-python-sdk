@@ -110,6 +110,9 @@ class NegativeQualityTests(unittest.TestCase):
                 target.parent.mkdir(parents=True)
                 (root / "ci").mkdir()
                 (root / "ci/quant-role.json").write_text('{"role":"sdk"}')
+                (root / "ci/quant-toolchain.json").write_bytes(
+                    (ROOT / "ci/quant-toolchain.json").read_bytes()
+                )
                 source = expected_workflow("sdk")
                 job = source["jobs"]["quant-quality"]
                 if mutation == "floating-action":
