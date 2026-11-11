@@ -31,3 +31,7 @@ Only execute trusted local strategy code. The worker imports and instantiates th
 A usable Context exists only inside an active run callback, on the callback's owning thread. The worker and Host both enforce run identity, stage, and capabilities. Decimal/UTC validation, message/queue limits, and stdout separation protect protocol correctness; they do not isolate malicious code. Do not embed access tokens or client credentials in strategy source, frozen parameters, logs, or plots.
 
 The current P1 integration does not provide a broker or live order service. Desktop SDK pinning and Runtime/signature verification remain separate responsibilities; an SDK source installation is not proof of platform or release acceptance. See [Hosted strategies](hosted-strategies.md).
+
+## Reviewed documentation digest finding (2026-11-11)
+
+The main integration's secret scan reported the SHA-256 content digest for `docs/quant/python-managed-api-v1.md` at `ci/quant-files.json:23` in commit `b1a4a2a0af560881acf277ffa7a2d96bc88f4821`. The value was recomputed from that Markdown file and matches its source-inventory digest; it is not a credential. `.gitleaksignore` records only that exact commit/file/rule/line fingerprint. No secret-detection rule, path, job, or threshold is disabled. Future findings still require review.

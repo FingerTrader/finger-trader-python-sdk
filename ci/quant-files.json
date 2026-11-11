@@ -3,7 +3,7 @@
   "scope": "P0 reviewed candidate source inventory; not a signature",
   "files": {
     ".github/workflows/quant-contracts.yml": "d4d9016a6411ec411c8a9f2476739b20f839b05d182be6fae4110b9726440f37",
-    ".gitleaksignore": "f2ad05f5b2528a281da6dd61ad9088b3be99142a2a5368ce7953c88c2632ed73",
+    ".gitleaksignore": "0ac91b7c2d9c7429a8a7e24750005718a6a3ac1d10197973aaebf0988273b3a3",
     "ci/quant-acceptance-policy.json": "4cbaccff53fd140820486914034f77c71fe1814e20945dd8b83338506c866199",
     "ci/quant-role.json": "b9e7948babf7372d4b4184747155b40e6af85320000bc0365fad869f2c714d35",
     "ci/quant-toolchain.json": "403c59c0418216e881a5647df9c656f0c8efc0c88938fe4721dd43adaed0eed4",
