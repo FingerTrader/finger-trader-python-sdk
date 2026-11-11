@@ -116,10 +116,9 @@ def main():
         "scope": "P0 contract checks only; not P1/P3 or release acceptance",
         "python": sys.version,
         "checks": [],
+        "non_blocking_observations": ["branch_protection", "independent_manual_review"],
         "pending_gates": [
             "remote_required_checks",
-            "remote_branch_protection",
-            "remote_negative_merge_test",
             "P1_process",
             "P3_engine",
             "P4_native_install",
@@ -168,8 +167,9 @@ def main():
         version = subprocess.check_output(
             [executable, "--version"], text=True, stderr=subprocess.STDOUT
         )
-        if "Dart SDK version: 3.5.1 " not in version:
-            raise ValueError("Dart 3.5.1 required, got: " + version)
+        from toolchain import load, require_dart
+
+        require_dart(version, load(ROOT))
         return command([executable, "tools/quant/check_contracts.dart"], "dart")
 
     run("dart-shared-messages", dart_check)

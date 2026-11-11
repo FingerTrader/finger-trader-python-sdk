@@ -1,0 +1,11 @@
+{
+  "id": "owner-development-p0-2026-11-08",
+  "scope": "development-P0-only",
+  "approved_by": "George (repository owner)",
+  "approval_source": "2026-11-08 user instruction in this session",
+  "decision": "Owner approved removing GitHub plan, branch protection, CODEOWNERS, additional independent signatures and protected failing-PR merge blocking from this development P0 release gate. Technical checks and evidence remain mandatory.",
+  "required": ["exact_candidate_pair", "local_unified_checks", "positive_negative_regressions", "python_dart_contracts_and_accounting", "latest_candidate_remote_ci", "reports_versions_evidence"],
+  "non_blocking_observations": ["github_plan", "branch_protection", "codeowners", "independent_manual_signatures", "protected_negative_pr"],
+  "production_release_authorized": false,
+  "merge_authorized": false
+}
