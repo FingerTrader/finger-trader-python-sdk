@@ -4,9 +4,21 @@
 
 这是一项受控的研发工具链调整，3.27.0 并非最新版本，也不据此声明正式发布安全性或平台支持。P0 development-P0-only 政策继续有效。公开 SDK、业务 IPC、核算模型、停止预算及资源确认规则均未改变。P1/P4.0 尚未整体放行，不进入 P2/P3。
 
-## 可重复入口
+## 可重复入口（2026-11-11 更新）
+
+本仓库已将 P1 SDK／worker 集成到 main；源码合并不等于 Desktop 平台验收或正式发布。下面区分 SDK 与 Desktop 的命令，避免在 SDK 仓库调用不存在的 Host／UI 脚本。
 
 从完整隔离候选目录执行，`DART` 指向该 Flutter 的 `bin/cache/dart-sdk/bin/dart`，`FLUTTER` 指向 `bin/flutter`。使用现有已审查缓存；正常解析必须加 `--enforce-lockfile`，离线可加 `--offline`。禁止全量 upgrade、重新求解后静默改锁或回退旧 SDK smoke。
+
+SDK 仓库执行（`DART` 为固定 Dart 3.6.0；`REPORT` 为报告输出目录）：
+
+```sh
+PYTHONPATH=src python -m pytest
+PYTHONPATH=src python -B tools/quant/check_disconnect.py --report-dir "$REPORT/disconnect"
+python -B tools/quant/quality.py --dart "$DART" --report-dir "$REPORT/p0"
+```
+
+以下三个命令只在匹配的 **Desktop** checkout 中运行，`SDK_CHECKOUT` 必须对应 Desktop 固定的 SDK 完整提交：
 
 ```sh
 python -B tools/quant/quality.py --dart "$DART" --peer "$SDK_CHECKOUT" --report-dir "$REPORT/p0"
@@ -16,9 +28,9 @@ python -B tools/quant/check_ui.py --flutter "$FLUTTER" --sdk "$SDK_CHECKOUT" --p
 
 SDK 仓库运行第一条时不传 `--peer`。SDK 全量测试须使用当前候选源码（例如 `PYTHONPATH=src python -m pytest`），不能由另一 checkout 的 editable 安装代替。报告分别记录驱动 Python 与真实 worker Python。
 
-`.fvmrc`、双仓 P0 workflow、Host/定期性能 Dart 以及 UI 的完整 Git SHA/tag 自举必须一致。`toolchain.py` 拒绝版本、engine 或 framework 漂移；共享正负回归和 Desktop 正负回归（含编辑器绕开 FVM 的反例）校验缺省、浮动版本、错误 pin、禁用作业、替换检查调用及移除锁文件约束。现有 Host/UI CI 执行相同入口。SDK 原有五版本、依赖审计、密钥及发布构建作业保留。
+`.fvmrc`、双仓 P0 workflow、Host/定期性能 Dart 以及 UI 的完整 Git SHA/tag 自举必须一致。`toolchain.py` 拒绝版本、engine 或 framework 漂移；共享正负回归和 Desktop 正负回归（含编辑器绕开 FVM 的反例）校验缺省、浮动版本、错误 pin、禁用作业、替换检查调用及移除锁文件约束。现有 Host/UI CI 执行相同入口。SDK 原有五版本、依赖审计、密钥及 wheel／源码构建检查保留。
 
-## 最小依赖变化
+## Desktop 工具链迁移记录（不是 SDK 依赖变化）
 
 - `extended_image` 8.2.0 → **8.2.3**，修复新 Flutter 手势基类编译约束。
 - `flutter_sticky_header` 保留原 fork `eb805c89ccdbf1b644eaf216259953419e6ff7a5` 的自定义 reverse/pin 接口，改为随仓本地源码；只替换 `hashValues`、Dart 范围和 `value_layout_builder` 的精确版本 **0.4.0**。
@@ -29,6 +41,8 @@ SDK 仓库运行第一条时不传 `--peer`。SDK 全量测试须使用当前候
 供应链复核包含官方 pub 元数据、发布者、发布日期、仓库、许可证及官方归档 SHA256，与锁文件和缓存逐文件核对。analyzer 上游归档中的脚本和示例二进制只检查，不执行。没有上传私有清单、源码或依赖图；公开公告检索不等于完整漏洞审计。旧工具链及未变插件的残余风险仍需发布前复核。
 
 ## IDE 与原生证据
+
+以下为 2026-11-10 Desktop 候选的原生交接记录；后续平台结果由 Desktop 验收文档维护，本 SDK 文档不将该批旧结果视为 main 的新验证。
 
 原工作区含并行 UI/原生改动，不将部分新脚本或版本号覆盖进去形成混合树。当前工具链结论针对完整固定候选 checkout；IDE 必须使用该源码及其 `.fvmrc`，不得继续拿旧根目录或诊断 App 充当新候选。
 

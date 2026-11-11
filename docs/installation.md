@@ -43,3 +43,15 @@ When developing from a checkout, use `python -m pip install -e '.[dev,websocket]
 ## Upgrade or uninstall
 
 To update a clone, use Git to select the desired reviewed tag or branch, then reinstall with `python -m pip install .`. Remove the package with `python -m pip uninstall finger-trader-sdk`.
+
+## Hosted strategy installation and compatibility
+
+The current source includes `finger_trader.hosted` and its worker. The same source installation above includes the contract JSON assets; the WebSocket extra is not needed for hosted IPC.
+
+```sh
+python -c "from finger_trader.hosted import Strategy, Context, Bar; print('Hosted API import OK')"
+```
+
+Import success checks the package only. A usable Context is supplied by a compatible Desktop Host during a callback. Running a strategy file directly or launching the private worker without its Host protocol is not a standalone run command.
+
+Desktop development builds verify an exact SDK commit and source inventory. Use the SDK revision pinned by that Desktop build; a newer `main` checkout is not automatically compatible with an older Desktop bundle. Release packaging, signed Runtime installation, and clean-machine acceptance are separate from a source install. See [Hosted strategies](hosted-strategies.md) and [implementation status](quant/p1-hosted-status.md).

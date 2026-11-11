@@ -30,3 +30,9 @@ Consequently, this repository intentionally has no runnable order submission or 
 ## Outcome and risk guidance
 
 No state-changing order call is included in the public supported API. The transport does not retry POST requests. `UnknownOutcomeError` is used by legacy write wrappers when a request may have reached the server; if encountered, reconcile with authorized server-side order history before any manual retry. Client validation never replaces server-side permissions or risk checks. See [API mapping](api-mapping.md) for the current endpoint coverage and gaps.
+
+## Hosted order contract
+
+The statements above describe the HTTP client. `finger_trader.hosted.Context` separately declares `submit_order`, `cancel_order`, `get_order`, and `exit_protected`. These send typed requests to an active Host; they do not call the legacy HTTP routes.
+
+The current P1 Desktop integration has no trading engine and returns `UNSUPPORTED_CAPABILITY` for trading requests. An order method in the Protocol does not enable live trading or simulated fills. Future capable Hosts must enforce the frozen [hosted API contract](quant/python-managed-api-v1.md). See [Hosted strategies](hosted-strategies.md) before using these signatures.

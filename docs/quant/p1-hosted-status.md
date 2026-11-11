@@ -1,5 +1,17 @@
 # P1 托管 SDK 与真实 worker
 
+## 当前状态（2026-11-11）
+
+P1 托管 SDK／worker 候选 `ec94ca4a170974808af416e6b00487917497eeda` 已集成到 main。当前源码包含 `finger_trader.hosted` 公开 API、Decimal／UTC 模型、不可变参数、Context 绑定、双向 JSON-RPC、同步生命周期、Host 截止时间及断连进程组清理。开发入口见[托管策略指南](../hosted-strategies.md)，精确接口见[API 契约](python-managed-api-v1.md)。
+
+本次 main 集成是源码与文档整合，不是 P1/P4.0 整体验收或客户发布。包版本仍为 0.1.0，没有新增标签、PyPI 上传或正式 Runtime 激活。Desktop 继续按自身固定的完整 SDK SHA／源资产摘要验证，合并 main 不会自动更新已打包的 Desktop。整体 P1/P4.0 平台验收、正式分发／干净环境、完整安装更新恢复和已记录的原生／偶发停止问题仍需单独关闭；P3 交易服务／撮合／账本未实现。
+
+当前 P1 Host 只使用显式提供的只读／输出服务，对交易请求返回 `UNSUPPORTED_CAPABILITY`。没有默认账户、HTTP 回退、假成交或自动实盘权限。Context 仅在活跃回调及其拥有线程可用。POSIX 进程组面向认可的本地代码，不是安全沙箱；恶意脱离进程组不在清理承诺内。
+
+工具链见[统一工具链](quality-toolchain.md)和 [ci/quant-toolchain.json](../../ci/quant-toolchain.json)。SDK 的跨语言契约检查固定 Dart 3.6.0，CI Python 固定 3.12.14；Python 包声明 >=3.10，原 SDK CI 保留 Python 3.10–3.14。过去特定候选的检查成功，不代表本次合并提交已自动获得新的 CI 结果。
+
+以下为各实施批次的历史记录，日期及当时待办保留以解释演进；当前能力和范围以本节为准。
+
 2026-11-08：实现 `finger_trader.hosted` 的 P0 公开声明，保留独立信号工具行为。Context 是公开 Protocol，只有 worker 内部 BoundContext 具有有效运行绑定；没有 HTTP 回退，也没有默认可用的交易服务。
 
 已实现：冻结 Decimal／UTC 数据模型、不可变参数、稳定业务异常、同步上下文方法、回调拥有线程限制、阶段／能力预检；串行生命周期、独立 fd 读取线程、双向 JSON-RPC、请求序号和 callback_complete；用户 print／原始 stdout 转到 stderr。初始化、动态导入、实例化都在子进程。每个 worker 在用户代码执行前建立 POSIX 进程组，由桌面适配器清理并确认组不存在。只面向认可的本地代码，不是安全沙箱；策略主动脱离进程组或修改底层运行机制不在受控资源契约内。

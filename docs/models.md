@@ -34,3 +34,9 @@ The source timestamp value is retained as provided by the service; verify whethe
 ## Serialization
 
 The models are Python dataclasses, not a separate wire serialization layer. Use `dataclasses.asdict()` for wrapper dataclasses; convert `Decimal` values explicitly to strings for JSON or financial storage to preserve precision.
+
+## Hosted models
+
+`finger_trader.hosted` has separate frozen, keyword-only dataclasses: `Bar`, `Instrument`, `Account`, `Position`, `Protection`, `ProtectionGroup`, `OrderSnapshot`, `OrderSubmission`, `ExitResult`, and `Acknowledgement`. These are the types used in worker callbacks and context responses. They are not the root-level HTTP payload wrappers or the float-based local `Bar`.
+
+Financial values use `Decimal`; timestamps are UTC-aware `datetime`; decoded collections and parameters are immutable snapshots. Construct decimals from strings, such as `Decimal("10.25")`. Worker encoding omits absent optional fields, preserves Decimal strings, and validates the contract schema. Acknowledgements with `accepted=False` and order submissions with `status="rejected"` must be inspected explicitly. The current P1 Host does not implement order execution. See [Hosted strategies](hosted-strategies.md).

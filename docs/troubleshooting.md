@@ -35,3 +35,15 @@ Reconnect is bounded (default three attempts) and resends active ticker subscrip
 ## Optional WebSocket dependency is missing
 
 Install from the cloned project with `python -m pip install '.[websocket]'`. HTTP functionality does not require this extra.
+
+## Hosted import is missing or uses the wrong models
+
+Verify which checkout the selected Python imports. Use a source revision containing `src/finger_trader/hosted/`, and match the exact SDK revision required by Desktop. An old editable install can silently import another checkout. `finger_trader.hosted.Bar` and `.Strategy` are separate from the root-level signal utilities.
+
+## Hosted Context is stale, denied, or unsupported
+
+Do not instantiate `Context` or use it outside the active callback. Service calls must run on the callback's owning thread. Check the stage and granted capabilities. `UNSUPPORTED_CAPABILITY` is expected for current P1 trading requests; retrying or switching to legacy HTTP writes does not add a trading engine.
+
+## A strategy file does not run by itself
+
+The Desktop Host owns initialization, run identity, callback dispatch, services, and resource cleanup. The private worker expects a Host handshake and bidirectional JSON-RPC. Use the compatible Desktop workflow described in [Hosted strategies](hosted-strategies.md); `StrategyRunner` runs the separate local signal API.

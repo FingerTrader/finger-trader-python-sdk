@@ -29,3 +29,16 @@ Use as a context manager or call `.close()`. `.set_token(access_token, token_typ
 ## Exceptions
 
 `APIError` and `NetworkError` describe failed API/transport operations. `UnknownOutcomeError` indicates an ambiguous state-changing request and requires reconciliation before any retry. `ValueError` indicates invalid local arguments; unsupported operations raise `NotImplementedError`. See [Error handling](errors.md).
+
+## Hosted strategy API
+
+The hosted API is imported explicitly from `finger_trader.hosted`; root-level `Strategy`, `Bar`, and account/order wrappers retain their independent meanings.
+
+- `Strategy(**parameters)` exposes immutable `parameters` and a Host-bound `context`.
+- Lifecycle: `on_start(context)`, `on_bar(bar)`, `on_stop()`; all are synchronous and return `None`.
+- Context queries: `history(...)`, `account()`, `position()`, `get_order(order_id)`.
+- Context trading requests: `submit_order(...)`, `cancel_order(order_id)`, `exit_protected(group_id, quantity)`; require stage permission and Host capabilities. The current P1 Desktop integration does not implement trading.
+- Context output: `log(...)`, `plot(...)`, `marker(...)`; acknowledgement exposes whether output was accepted.
+- Models use `Decimal`, UTC-aware `datetime`, immutable containers, and keyword-only construction. Exceptions derive from `HostedError` and expose stable business `code` values.
+
+For signatures, defaults, models, and errors, see [Hosted strategies](hosted-strategies.md), [the full contract](quant/python-managed-api-v1.md), and the [type declarations](../contracts/quant/python/finger_trader/hosted/__init__.pyi). HTTP `ApiResponse` and `APIError` do not describe hosted IPC results.

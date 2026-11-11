@@ -21,3 +21,7 @@ Run one from the checkout root, for example:
 ```sh
 python examples/market_data_example.py
 ```
+
+## Hosted strategies
+
+`dual_ma_strategy.py` uses the independent local signal API. For the Desktop-managed API, see [Hosted strategies](../docs/hosted-strategies.md). Its minimal observation strategy uses `finger_trader.hosted.Strategy`, Decimal bars, and a Host-bound Context; it is loaded by Desktop rather than run as an HTTP example. The current P1 Host does not provide order execution.

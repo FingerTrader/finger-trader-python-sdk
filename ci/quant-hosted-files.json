@@ -2,7 +2,7 @@
   "stage": "P1-hosted-worker-development",
   "files": {
     "docs/quant/p1-hosted-status.md": {
-      "sha256": "cd742254703b4d671710143ca88f93d6799a52555c86b861e2aba9ea4b75236e"
+      "sha256": "feea810b25d1ae4c9af3ccd099db250e510c71f89f8b782aa3ac554825cb7f3c"
     },
     "pyproject.toml": {
       "sha256": "9215006c5538dd2aebd86d064b4c25c9d1b0cff0e1ca6f1fb743fd04d739c56e"

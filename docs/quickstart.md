@@ -36,3 +36,9 @@ Install the optional WebSocket extra and follow [WebSocket](websocket.md). There
 ## Trading actions
 
 The current SDK does not provide supported order create, modify, cancel, or close operations for the active app API. Legacy mutation wrappers are not safe to call against the current endpoint contract. No order is submitted by any quick start or included API example.
+
+## Desktop-hosted Python strategies
+
+To write a strategy for the Desktop Host, use `finger_trader.hosted.Strategy`. Follow the [hosted strategy guide](hosted-strategies.md) for a minimal strategy, parameters, lifecycle rules, and Host requirements. The hosted models use Decimal financial values and UTC times; they are distinct from the local signal utilities exported at the package root.
+
+The Host dispatches callbacks and supplies context services. Installing the SDK or calling `StrategyRunner` does not launch a hosted run. The current P1 Desktop integration supports explicitly supplied read/output services and rejects trading operations with `UNSUPPORTED_CAPABILITY`.

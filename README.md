@@ -1,6 +1,8 @@
 # Finger Trader Python SDK
 
-The Finger Trader Python SDK is a synchronous Python client for the confirmed Finger Trader HTTP APIs and ticket-authenticated market-data WebSocket. It is an **alpha, source-install SDK** (`0.1.0`, not currently published on PyPI). The public API preserves backend response envelopes so applications can use fields as returned by the service.
+The Finger Trader Python SDK provides synchronous HTTP API access, ticket-authenticated market-data WebSocket subscriptions, and a Desktop-hosted Python strategy API. It is an **alpha, source-install SDK** (`0.1.0`). HTTP responses preserve backend envelopes; hosted strategies use immutable Decimal/UTC models and communicate with a Desktop Host through a separate worker process.
+
+The P1 hosted implementation is now included alongside the P0 contracts. This is a development integration: the SDK does not include a standalone backtesting engine, broker, or live execution service. See [Hosted strategies](docs/hosted-strategies.md) for the implemented API and current limits.
 
 ## Current capabilities
 
@@ -8,9 +10,20 @@ The Finger Trader Python SDK is a synchronous Python client for the confirmed Fi
 - Market menu, product lists, and historical OHLCV requests.
 - Authenticated profile, wallet/balance, holdings, and order history queries.
 - Ticket-based JSON market-data WebSocket subscription (optional dependency).
-- Local strategy primitives are also present, but this package does not provide a backtester or execution runtime.
+- Desktop-hosted strategies under `finger_trader.hosted`: synchronous lifecycle callbacks, immutable parameters, typed context services, and a JSON-RPC worker with disconnect cleanup.
+- Independent local signal tools (`StrategyRunner`, indicators, and signals) for caller-supplied bars. They remain separate from the hosted API.
 
 Current app API order creation, modification, cancellation, and executions are **not available through a supported SDK method**. Do not use legacy mutation methods still present for compatibility; see [Orders](docs/orders.md). There is no HTTP quote snapshot endpoint, refresh-token request, arbitrary account selector, or confirmed execution-history endpoint.
+
+## Choose an entry point
+
+| Goal | Entry point | Guide |
+|---|---|---|
+| Query HTTP APIs or stream quotes | `FingerTraderClient` | [Quick start](docs/quickstart.md) |
+| Write a strategy managed by Desktop | `finger_trader.hosted.Strategy` | [Hosted strategies](docs/hosted-strategies.md) |
+| Experiment locally with bars and intent signals | `StrategyRunner` | [Local dual moving average example](examples/dual_ma_strategy.py) |
+
+Hosted context methods depend on the capabilities supplied by the Host. Declaring an order method does not provide a trading engine: the current P1 Desktop integration rejects trading requests with `UNSUPPORTED_CAPABILITY`.
 
 ## Requirements and install
 
@@ -42,7 +55,8 @@ OAuth login, environment configuration, and safe secret handling are covered in 
 
 ## Documentation
 
-- [Documentation index](docs/index.md)
+- [Documentation index](docs/index.md) · [Hosted strategies](docs/hosted-strategies.md)
+- [Hosted API contract](docs/quant/python-managed-api-v1.md) · [Implementation status](docs/quant/p1-hosted-status.md) · [Architecture](docs/architecture.md)
 - [Installation](docs/installation.md) · [Quick start](docs/quickstart.md) · [Configuration](docs/configuration.md)
 - [Authentication](docs/authentication.md) · [Security](docs/security.md)
 - [Market data](docs/market-data.md) · [Accounts](docs/accounts.md) · [Positions](docs/positions.md) · [Orders](docs/orders.md)
@@ -58,6 +72,6 @@ Report bugs and request supported API coverage through [GitHub Issues](https://g
 
 ## Security and license
 
-Never commit passwords, OAuth client values, access tokens, or customer data. Production TLS verification is enabled; requests do not follow redirects. Trading permissions and risk controls remain server-side. See [Security](docs/security.md).
+Never commit passwords, OAuth client values, access tokens, or customer data. Production TLS verification is enabled; requests do not follow redirects. HTTP trading permissions and risk controls remain server-side. Hosted code must be trusted local code; a worker process is not a security sandbox. See [Security](docs/security.md).
 
 Licensed under [Apache-2.0](LICENSE). API and market-data access remains subject to account authorization and applicable service terms.

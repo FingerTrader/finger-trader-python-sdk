@@ -1,14 +1,14 @@
-# Python 托管策略公开 API 1（P0 规格）
+# Python 托管策略公开 API 1
 
-状态：未发布的候选规格，**尚未实现，不可导入运行**。本轮不增加 SDK `src/` 下的托管模块，不实现 transport 或假成功。P1 必须按本规格实现并执行相同契约检查。
+状态（2026-11-11）：本文件保留 P0 冻结的接口与行为契约；P1 已在 `finger_trader.hosted` 实现公开模型、Context 绑定及双向 worker，并集成到 main。使用方式见[托管策略指南](../hosted-strategies.md)，实现与未完验收见[P1 状态](p1-hosted-status.md)。当前 P1 Desktop 未实现交易引擎，对交易请求返回 `UNSUPPORTED_CAPABILITY`；接口存在不表示可实盘、独立回测或完成平台发布验收。
 
-精确类型、完整签名和默认值的权威声明为 [`__init__.pyi`](../../contracts/quant/python/finger_trader/hosted/__init__.pyi)；字段、方法与错误的 IPC 映射为 [`python-api.json`](../../contracts/quant/v1/python-api.json)。`python_api_check.py` 对照语言无关 schema 检查模型全部字段／可选性／类型、方法参数与结果、生命周期和错误覆盖。P0 的检查不是 Python SDK 已可运行的证据。
+精确类型、完整签名和默认值的权威声明为 [`__init__.pyi`](../../contracts/quant/python/finger_trader/hosted/__init__.pyi)；字段、方法与错误的 IPC 映射为 [`python-api.json`](../../contracts/quant/v1/python-api.json)。`python_api_check.py` 对照语言无关 schema 检查模型全部字段／可选性／类型、方法参数与结果、生命周期和错误覆盖。P0 的声明检查只证明契约一致；实际公开模块和 worker 另由 P1 模型、签名及真实进程检查验证。
 
 ## 公开导入和构造
 
 正式实现的唯一托管公开命名空间为 `finger_trader.hosted`。用户从该路径导入 `Strategy`、`Context`、`Bar`、`Instrument`、`Account`、`Position`、`Protection`、`ProtectionGroup`、`OrderSnapshot`、`OrderSubmission`、`ExitResult`、`Acknowledgement`、声明中的类型别名及异常类。声明导入的标准库辅助符号不属于 SDK 的公开导出承诺。没有 Qt、Flutter、Dart 或页面对象。
 
-`Strategy(**parameters: ParameterValue)` 接受本次冻结参数；`strategy.parameters` 与 `context.parameters` 为相同不可变映射。ParameterValue 递归包含 str、限定范围 int、bool、None、tuple 和只读字符串键 Mapping；禁止 float。金额、数量及百分比参数保存为十进制字符串，用户显式 `Decimal(...)` 后交给订单 API。P1 校验并冻结这些值，不执行动态参数猜测。`Strategy.context` 由托管运行器附加，用户不能自行创建可用 Context 或伪造权限；无有效运行绑定时抛 `StaleCallbackError`。
+`Strategy(**parameters: ParameterValue)` 接受本次冻结参数；`strategy.parameters` 与 `context.parameters` 为相同不可变映射。ParameterValue 递归包含 str、限定范围 int、bool、None、tuple 和只读字符串键 Mapping；禁止 float。金额、数量及百分比参数保存为十进制字符串，用户显式 `Decimal(...)` 后交给订单 API。实现校验并冻结这些值，不执行动态参数猜测。`Strategy.context` 由托管运行器附加，用户不能自行创建可用 Context 或伪造权限；无有效运行绑定时抛 `StaleCallbackError`。
 
 数据类全部冻结、只读且以关键字构造；字段见类型声明。订单可选价格、保护组引用等缺失字段解码为 None，编码时省略，不发送 JSON null。`Protection` 的两个百分比默认 `Decimal('0')`，编码时补齐两个字段；零禁用，止损必须 <100。OrderSubmission 的 status 为 accepted／rejected，只有 accepted 表示已提交接受，仍不代表成交；rejected 必须携带业务 code。没有结果时不能构造 accepted。
 
@@ -84,6 +84,6 @@ JSON-RPC -32000 的 error.data.code 按表抛出；-32700／-32600／-32601 映�
 
 ## 独立信号与探索 API 边界
 
-现有 `finger_trader.strategy.Strategy`、`StrategyContext`、`market_data.Bar(float)`、`runtime.StrategyRunner` 和 HTTP Client 是探索期／独立信号工具；它们不等于托管 API，也不拥有自动交易权限。本轮不改其执行行为，不以 legacy smoke 证明托管可用。托管命名空间使用 Decimal Bar、显式订单及上述上下文，没有隐式 HTTP fallback。
+现有 `finger_trader.strategy.Strategy`、`StrategyContext`、`market_data.Bar(float)`、`runtime.StrategyRunner` 和 HTTP Client 是探索期／独立信号工具；它们不等于托管 API，也不拥有自动交易权限。这些独立工具保留原执行行为，不以 legacy smoke 证明托管可用。托管命名空间使用 Decimal Bar、显式订单及上述上下文，没有隐式 HTTP fallback。
 
-P1 必须实现公开托管路径，验证策略继承与类型，并明确清理／联动更新独立工具及生成器的探索字段；未发布代码不保留兼容承诺。正式首版后，本文件和声明中的公开导入、签名、默认值、类型、单位、错误及行为纳入主版本兼容基线。
+P1 已实现公开托管路径并验证策略继承、类型和同步回调；独立工具仍是单独入口，使用托管 API 时须显式从 `finger_trader.hosted` 导入。生成器若仍产出独立信号类型，不能直接作为托管策略使用；未发布代码不保留兼容承诺。正式首版后，本文件和声明中的公开导入、签名、默认值、类型、单位、错误及行为纳入主版本兼容基线。

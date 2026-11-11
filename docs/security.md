@@ -23,3 +23,11 @@ client registration, secret-required setting, allowed grants/scopes, and
 issuance logs. If it is confidential, revoke or rotate it and assess exposure
 history. Do not paste the historical value into an integration environment
 until the owner confirms that it is approved for the non-production client.
+
+## Hosted strategy trust and permissions
+
+Only execute trusted local strategy code. The worker imports and instantiates that code in a subprocess; it is not a Python security sandbox. A strategy can use the operating-system permissions of its worker. Process-group cleanup covers ordinary child processes; intentionally escaping that group is outside the resource contract.
+
+A usable Context exists only inside an active run callback, on the callback's owning thread. The worker and Host both enforce run identity, stage, and capabilities. Decimal/UTC validation, message/queue limits, and stdout separation protect protocol correctness; they do not isolate malicious code. Do not embed access tokens or client credentials in strategy source, frozen parameters, logs, or plots.
+
+The current P1 integration does not provide a broker or live order service. Desktop SDK pinning and Runtime/signature verification remain separate responsibilities; an SDK source installation is not proof of platform or release acceptance. See [Hosted strategies](hosted-strategies.md).
