@@ -29,6 +29,33 @@ def check_boundaries(root):
 
 
 class NegativeQualityTests(unittest.TestCase):
+    def test_peer_lock_uses_renamed_repository_and_exact_commit(self):
+        from peer_lock import load_peer
+
+        with tempfile.TemporaryDirectory() as tmp:
+            root = Path(tmp)
+            path = root / "ci/quant-peer.json"
+            path.parent.mkdir()
+            valid = {"repository": "FingerTrader/fingertrader-python-sdk", "commit": "a" * 40}
+            path.write_text(json.dumps(valid))
+            self.assertEqual(load_peer(root), valid)
+            for repository in (
+                "FingerTrader/finger-trader-python-sdk",
+                "FingerTrader/unrelated-sdk",
+                "FingerTrader/fingertrader-python-sdk/extra",
+                "https://github.com/FingerTrader/fingertrader-python-sdk.git",
+                "FingerTrader/fingertrader-python-sdk\ncommit=main",
+            ):
+                with self.subTest(repository=repository):
+                    path.write_text(json.dumps({**valid, "repository": repository}))
+                    with self.assertRaisesRegex(ValueError, "unexpected SDK repository"):
+                        load_peer(root)
+            for commit in ("main", "a" * 7, "a" * 39, "a" * 40 + "\n"):
+                with self.subTest(commit=commit):
+                    path.write_text(json.dumps({**valid, "commit": commit}))
+                    with self.assertRaisesRegex(ValueError, "floating SDK candidate"):
+                        load_peer(root)
+
     def test_peer_comparison_covers_new_shared_files(self):
         with tempfile.TemporaryDirectory() as tmp:
             roots = [Path(tmp) / role for role in ("desktop", "sdk")]

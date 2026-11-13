@@ -17,8 +17,8 @@ Current app API order creation, modification, cancellation, and executions are *
 Python 3.10 or newer. PyPI installation is not available yet. See [Installation](docs/installation.md) for virtual environment and platform instructions.
 
 ```sh
-git clone https://github.com/FingerTrader/finger-trader-python-sdk.git
-cd finger-trader-python-sdk
+git clone https://github.com/FingerTrader/fingertrader-python-sdk.git
+cd fingertrader-python-sdk
 python -m pip install .
 ```
 
@@ -54,7 +54,7 @@ Runnable read-only examples are in [`examples/`](examples/). Examples require de
 
 ## Support and contribution
 
-Report bugs and request supported API coverage through [GitHub Issues](https://github.com/FingerTrader/finger-trader-python-sdk/issues). Contributions are welcome; include tests for code changes and update documentation when public behavior changes.
+Report bugs and request supported API coverage through [GitHub Issues](https://github.com/FingerTrader/fingertrader-python-sdk/issues). Contributions are welcome; include tests for code changes and update documentation when public behavior changes.
 
 ## Security and license
 

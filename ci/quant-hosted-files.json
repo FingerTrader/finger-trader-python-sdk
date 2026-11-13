@@ -98,7 +98,7 @@
       "sha256": "85c2fb6bdff0f06630d50065998f577b8168c02bdedf09314c709e91fcf9e26a"
     },
     ".github/workflows/ci.yml": {
-      "sha256": "4688df5825a772818cc92e53a3b64d93f50fe03819fc7b006f495f63506218df"
+      "sha256": "17e5b981e727e9b5657be12892cd8162baeb26675135d9da69dfe874504dff9a"
     },
     "tests/test_hosted_disconnect.py": {
       "sha256": "4729bc7e7d79579bf07708d21535fdc616e3a4ca6da246615cb0afda5592d55d"

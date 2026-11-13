@@ -9,8 +9,8 @@
 The SDK is not yet published on PyPI. Install the repository source:
 
 ```sh
-git clone https://github.com/FingerTrader/finger-trader-python-sdk.git
-cd finger-trader-python-sdk
+git clone https://github.com/FingerTrader/fingertrader-python-sdk.git
+cd fingertrader-python-sdk
 python -m venv .venv
 ```
 
