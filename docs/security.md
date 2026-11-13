@@ -1,5 +1,8 @@
 # Security
 
+[English](security.md) | [日本語](security.md) | [繁體中文](security.md) | [한국어](security.md) | [العربية](security.md)
+
+
 - Production HTTP and WebSocket ticket endpoints require HTTPS/WSS. HTTP is accepted only for loopback development URLs. TLS verification uses the Python default trust store.
 - HTTP redirects are rejected; the transport does not forward credentials to a redirect target. WebSocket ticket redirects are also disabled. The backend protocol requires the short-lived ticket in the WebSocket query string; this is the only SDK credential sent in a URL.
 - HTTP request logging records method and endpoint path only, omitting query values, headers, and bodies. API errors redact configured tokens and omit raw details from `repr`.

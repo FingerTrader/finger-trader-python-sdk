@@ -1,5 +1,8 @@
 # Troubleshooting
 
+[English](troubleshooting.md) | [日本語](troubleshooting.md) | [繁體中文](troubleshooting.md) | [한국어](troubleshooting.md) | [العربية](troubleshooting.md)
+
+
 ## Authentication returns 401 or 403
 
 Check the configured auth/app URLs, token type, expiry, and the expected session permissions. Password login requires the service-issued OAuth Basic value and `account_type=0` for email or `1` for mobile. The SDK does not refresh tokens; authenticate again when expired. A 403 is an authorization result, not a signal to try another account identifier.

@@ -1,5 +1,7 @@
 # Finger Trader Python SDK
 
+[English](README.md) | [日本語](README.ja.md) | [繁體中文](README.zh-TW.md) | [한국어](README.ko.md) | [العربية](README.ar.md)
+
 The Finger Trader Python SDK provides synchronous HTTP API access, ticket-authenticated market-data WebSocket subscriptions, and a Desktop-hosted Python strategy API. It is an **alpha, source-install SDK** (`0.1.0`). HTTP responses preserve backend envelopes; hosted strategies use immutable Decimal/UTC models and communicate with a Desktop Host through a separate worker process.
 
 The P1 hosted implementation is now included alongside the P0 contracts. This is a development integration: the SDK does not include a standalone backtesting engine, broker, or live execution service. See [Hosted strategies](docs/hosted-strategies.md) for the implemented API and current limits.

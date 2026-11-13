@@ -1,5 +1,8 @@
 # Finger Trader Python SDK documentation
 
+[English](index.md) | [日本語](ja/index.md) | [繁體中文](zh-TW/index.md) | [한국어](index.md) | [العربية](index.md)
+
+
 This guide covers the HTTP/WebSocket client, independent signal tools, and the P1 Desktop-hosted strategy implementation now included in the source tree. The package remains alpha (`0.1.0`). HTTP endpoint details are mapped from confirmed Finger_desk calls; hosted context services use a separate Host/worker contract.
 
 ## Start here

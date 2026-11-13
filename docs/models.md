@@ -1,5 +1,8 @@
 # Models and response data
 
+[English](models.md) | [日本語](models.md) | [繁體中文](models.md) | [한국어](models.md) | [العربية](models.md)
+
+
 ## API responses
 
 HTTP service methods return `ApiResponse`. Its `.data` is the successful endpoint payload, `.code` and `.message` reflect the backend envelope when present, and `.raw` retains the full payload. The SDK intentionally preserves endpoint data instead of guessing a normalized account or trading schema.

@@ -1,5 +1,8 @@
 # 所有者批准的本期研发 P0 验收政策
 
+[English](p0-owner-development-policy.md) | [日本語](../../ja/quant/acceptance/p0-owner-development-policy.md) | [繁體中文](../../zh-TW/quant/acceptance/p0-owner-development-policy.md) | [한국어](../../ko/quant/acceptance/p0-owner-development-policy.md) | [العربية](../../ar/quant/acceptance/p0-owner-development-policy.md)
+
+
 批准日期：2026-11-08。批准人：George（两个仓库所有者）。依据：本会话明确指令“简化本期研发阶段的 P0 放行规则”。这是验收政策调整，不是修复测试失败的豁免。
 
 技术基线为 Desktop 8287c8f54612032df49ec4e7f379626a1561581c／SDK 82ffdd0ddbd62677e29d9f94ae489e4e57851e0b。只调整放行判定、对应回归和文档，不重复修改已关闭业务实现。

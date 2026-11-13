@@ -1,5 +1,8 @@
 # P1 统一工具链（2026-11-10）
 
+[English](quality-toolchain.md) | [日本語](../ja/quant/quality-toolchain.md) | [繁體中文](../zh-TW/quant/quality-toolchain.md) | [한국어](../ko/quant/quality-toolchain.md) | [العربية](../ar/quant/quality-toolchain.md)
+
+
 本期研发候选将已验证的 Flutter 3.27 隔离试验收敛为固定工具链：Flutter **3.27.0**、framework `8495dee1fd4aacbe9de707e7581203232f591b2f`、engine `83bacfc52569459a4a654727cad2546820cb0d6a`、Dart **3.6.0**。CI Python 仍为 **3.12.14**。唯一版本清单是 `ci/quant-toolchain.json`，两仓共享；SDK 只用 Dart 验证跨语言契约，不依赖 Flutter 运行策略。
 
 这是一项受控的研发工具链调整，3.27.0 并非最新版本，也不据此声明正式发布安全性或平台支持。P0 development-P0-only 政策继续有效。公开 SDK、业务 IPC、核算模型、停止预算及资源确认规则均未改变。P1/P4.0 尚未整体放行，不进入 P2/P3。

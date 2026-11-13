@@ -1,5 +1,8 @@
 # Configuration
 
+[English](configuration.md) | [日本語](ja/configuration.md) | [繁體中文](zh-TW/configuration.md) | [한국어](ko/configuration.md) | [العربية](configuration.md)
+
+
 `FingerTraderClient` accepts explicit endpoint and timeout configuration. Production URLs default to Finger Trader's public service endpoints; custom deployments should provide the matching app API, auth API, and socket-auth API URLs from the service operator.
 
 ```python

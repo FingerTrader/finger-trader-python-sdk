@@ -1,5 +1,8 @@
 # Live API integration tests
 
+[English](integration-testing.md) | [日本語](integration-testing.md) | [繁體中文](integration-testing.md) | [한국어](integration-testing.md) | [العربية](integration-testing.md)
+
+
 The opt-in suite in `integration_tests/` is separate from the Mock-only unit
 tests in `tests/`. It supports `sandbox`, `dev`, and `production-read-only`
 targets. Every configured endpoint must use HTTPS; the SDK upgrades the socket

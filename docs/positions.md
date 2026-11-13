@@ -1,5 +1,8 @@
 # Positions
 
+[English](positions.md) | [日本語](ja/positions.md) | [繁體中文](positions.md) | [한국어](positions.md) | [العربية](positions.md)
+
+
 `client.positions.list()` calls Finger_desk's current `POST /app-api/v1/order/get-holding-orders` with the standard `{page, pageSize, query}` body. `order_status` maps to current `orderType` (market order `0`, limit order `1`); currency maps to `coinType` (USD `0`, USDT `100`). The authenticated session selects the account; arbitrary `account_id` is not supported.
 
 ```python

@@ -1,5 +1,8 @@
 # Public API reference
 
+[English](api-reference.md) | [日本語](api-reference.md) | [繁體中文](api-reference.md) | [한국어](ko/api-reference.md) | [العربية](api-reference.md)
+
+
 This is a concise reference to the current exported client surface. All HTTP service calls return `ApiResponse` unless noted. Request methods and exact backend payload mappings are listed in [API mapping](api-mapping.md).
 
 ## Client lifecycle

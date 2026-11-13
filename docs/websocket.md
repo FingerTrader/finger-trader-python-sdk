@@ -1,5 +1,8 @@
 # WebSocket market data
 
+[English](websocket.md) | [日本語](websocket.md) | [繁體中文](websocket.md) | [한국어](websocket.md) | [العربية](websocket.md)
+
+
 From the cloned repository, install the optional extra:
 
 ```sh

@@ -1,5 +1,8 @@
 # Installation
 
+[English](installation.md) | [日本語](ja/installation.md) | [繁體中文](zh-TW/installation.md) | [한국어](installation.md) | [العربية](installation.md)
+
+
 ## Requirements
 
 - Python 3.10 or newer (the package metadata declares support through Python 3.14).

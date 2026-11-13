@@ -1,5 +1,8 @@
 # Desktop-hosted Python strategies
 
+[English](hosted-strategies.md) | [日本語](hosted-strategies.md) | [繁體中文](hosted-strategies.md) | [한국어](ko/hosted-strategies.md) | [العربية](hosted-strategies.md)
+
+
 The source now includes the P1 `finger_trader.hosted` API and worker, integrated from SDK commit `ec94ca4a170974808af416e6b00487917497eeda`. This guide describes that implementation. The package remains alpha (`0.1.0`); merging the implementation into `main` does not complete overall P1/P4 platform acceptance or enable live trading.
 
 ## Select the right API

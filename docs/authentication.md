@@ -1,5 +1,8 @@
 # Authentication
 
+[English](authentication.md) | [日本語](ja/authentication.md) | [繁體中文](zh-TW/authentication.md) | [한국어](ko/authentication.md) | [العربية](authentication.md)
+
+
 `FingerTraderClient` accepts an access token for integrations that already obtained one. `client.auth.login()` implements the OAuth2 password grant used by Finger_desk: form encoded `username`, `password`, `grant_type=password`, `type`, and optional CAPTCHA fields. Authentication uses the `finger-auth` root; authenticated API requests send both `Authorization: {token_type} {token}` and the legacy `token` header, matching the desktop client.
 
 Set `account_type=0` for an email login or `account_type=1` for a mobile phone login. These are the backend `AccountTypeEnum` values sent as form field `type`. They differ from the desktop UI `LoginType` values (Email `1`, Mobile `2`); Finger_desk maps UI selection through `LoginType.enums.value` before sending the request.

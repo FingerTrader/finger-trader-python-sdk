@@ -1,5 +1,8 @@
 # Python 托管策略公开 API 1
 
+[English](python-managed-api-v1.md) | [日本語](../ja/quant/python-managed-api-v1.md) | [繁體中文](../zh-TW/quant/python-managed-api-v1.md) | [한국어](../ko/quant/python-managed-api-v1.md) | [العربية](../ar/quant/python-managed-api-v1.md)
+
+
 状态（2026-11-11）：本文件保留 P0 冻结的接口与行为契约；P1 已在 `finger_trader.hosted` 实现公开模型、Context 绑定及双向 worker，并集成到 main。使用方式见[托管策略指南](../hosted-strategies.md)，实现与未完验收见[P1 状态](p1-hosted-status.md)。当前 P1 Desktop 未实现交易引擎，对交易请求返回 `UNSUPPORTED_CAPABILITY`；接口存在不表示可实盘、独立回测或完成平台发布验收。
 
 精确类型、完整签名和默认值的权威声明为 [`__init__.pyi`](../../contracts/quant/python/finger_trader/hosted/__init__.pyi)；字段、方法与错误的 IPC 映射为 [`python-api.json`](../../contracts/quant/v1/python-api.json)。`python_api_check.py` 对照语言无关 schema 检查模型全部字段／可选性／类型、方法参数与结果、生命周期和错误覆盖。P0 的声明检查只证明契约一致；实际公开模块和 worker 另由 P1 模型、签名及真实进程检查验证。

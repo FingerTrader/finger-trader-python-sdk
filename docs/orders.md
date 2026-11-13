@@ -1,5 +1,8 @@
 # Orders
 
+[English](orders.md) | [日本語](ja/orders.md) | [繁體中文](orders.md) | [한국어](orders.md) | [العربية](orders.md)
+
+
 ## Supported: query order history
 
 `client.orders.history(*, page=1, limit=20, filters=None) -> ApiResponse` reads the authenticated session's order history from the current app API. It sends `page`, `pageSize`, and a `query` object. `limit` maps to `pageSize`.

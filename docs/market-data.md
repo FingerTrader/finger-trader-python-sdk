@@ -1,5 +1,8 @@
 # Market data
 
+[English](market-data.md) | [日本語](market-data.md) | [繁體中文](market-data.md) | [한국어](market-data.md) | [العربية](market-data.md)
+
+
 `client.market_data.markets()` retrieves the available market menu. `symbols(market, page, page_size)` retrieves a paginated product list. Supported labels include stock, forex, crypto, spot, indices, ETF, and fund. `history()` retrieves historical OHLCV for crypto, stock, forex, and spot. It accepts an epoch-millisecond `startTime` string internally. To request older bars, pass an earlier timezone-aware `start_time`; the compatibility `page` parameter must be 1 because this endpoint pages by time. Consult [API mapping](api-mapping.md) for current enum mapping and backend routes.
 
 ```python

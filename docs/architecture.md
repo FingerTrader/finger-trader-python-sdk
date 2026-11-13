@@ -1,5 +1,8 @@
 # SDK architecture and scope
 
+[English](architecture.md) | [日本語](architecture.md) | [繁體中文](architecture.md) | [한국어](ko/architecture.md) | [العربية](architecture.md)
+
+
 The package has three distinct areas: synchronous Finger Trader API access, Desktop-hosted strategies, and independent local signal utilities. Each has its own execution and data model. The HTTP client does not run strategies or simulate trades.
 
 ## API client

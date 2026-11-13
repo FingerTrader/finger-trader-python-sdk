@@ -1,5 +1,8 @@
 # Finger_desk API mapping (evidence checked 2026-11-08)
 
+[English](api-mapping.md) | [日本語](api-mapping.md) | [繁體中文](api-mapping.md) | [한국어](ko/api-mapping.md) | [العربية](api-mapping.md)
+
+
 This mapping follows the active generated `dataSdk` provider and current desktop UI call sites in the neighboring `finger_desk` checkout. The older `api/mob` calls formerly mapped here return business error `100000` (`No static resource ...`) on the current app API and have been removed from these read services. Base URLs are defined in `lib/config.dart`: production app API `https://prod-api.fingertrader.com/finger-bff-app`, auth API `https://prod-api.fingertrader.com/finger-auth`, socket auth `https://prod-api.fingertrader.com/finger-bff-socket`, socket `wss://prod-api.fingertrader.com/finger-bff-socket/ws`.
 
 HTTP requests use JSON for ordinary calls, bounded timeouts, `Accept`, the Finger Desk desktop `User-Agent`, and when logged in both `Authorization: {token_type} {access_token}` and legacy `token: {access_token}`. OAuth uses the existing Basic client authentication requirement. The SDK requires operators to provide that value explicitly as `oauth_basic_token`; it is not a user API key and no value is built into the package. A previous SDK revision included the desktop app value, which is documented in the security review as a historical exposure.
