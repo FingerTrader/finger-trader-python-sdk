@@ -117,7 +117,7 @@ class RemoteAcceptanceTests(unittest.TestCase):
                 "candidate_identity_passed": True,
                 "protection_passed": False,
             }
-            for repo in ("finger-cloud/finger_desk", "FingerTrader/finger-trader-python-sdk")
+            for repo in ("finger-cloud/finger_desk", "FingerTrader/fingertrader-python-sdk")
         }
         self.assertTrue(development_verdict(records, True))
         self.assertTrue(all(r["protection_passed"] is False for r in records.values()))

@@ -16,7 +16,7 @@ from pathlib import Path
 
 REPOSITORIES = {
     "desktop": "finger-cloud/finger_desk",
-    "sdk": "FingerTrader/finger-trader-python-sdk",
+    "sdk": "FingerTrader/fingertrader-python-sdk",
 }
 SDK_TESTS = {f"test ({version})" for version in ("3.10", "3.11", "3.12", "3.13", "3.14")}
 REQUIRED = {

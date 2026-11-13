@@ -43,7 +43,7 @@ jobs:
       - run: python -m pip install ".[websocket]" "pip-audit>=2.10,<3"
       - name: Audit resolved SDK and scanner dependencies
         run: |
-          python -m pip freeze | grep -v -E '^(finger[-_.]trader[-_.]sdk([ @=]|$)|-e .*finger-trader-python-sdk)' > /tmp/requirements-audit.txt
+          python -m pip freeze | grep -v -E '^(finger[-_.]trader[-_.]sdk([ @=]|$)|-e .*fingertrader-python-sdk)' > /tmp/requirements-audit.txt
           pip-audit --strict -r /tmp/requirements-audit.txt
 
   secrets:
